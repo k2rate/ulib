@@ -6,7 +6,7 @@ namespace ulib
     class StaticAllocator
     {
     public:
-        using Params = AllocatorT::Params;
+        using Params = typename AllocatorT::Params;
 
         static AllocatorT &Instance(typename AllocatorT::Params *params = nullptr)
         {
