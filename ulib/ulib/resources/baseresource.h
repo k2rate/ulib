@@ -6,7 +6,7 @@ namespace ulib
 	class BaseResource : public AllocatorT
 	{
 	public:
-		BaseResource(AllocatorT::Params params)
+		BaseResource(typename AllocatorT::Params params)
 			: AllocatorT(params)
 		{}
 	};

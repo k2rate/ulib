@@ -122,6 +122,7 @@ namespace regar
 */
 
 using MainAllocator = ulib::StaticAllocator<ulib::GrowLinearAllocator<ulib::MallocAllocator>, 0>;
+using MainAllocator = ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>, 0>;
 
 void *operator new(size_t size)
 {

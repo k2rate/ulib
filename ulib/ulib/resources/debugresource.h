@@ -9,7 +9,7 @@ namespace ulib
 	class DebugResource : public BaseResource<AllocatorT>
 	{
 	public:
-		inline DebugResource(AllocatorT::Params params)
+		inline DebugResource(typename AllocatorT::Params params)
 			: BaseResource<AllocatorT>(params)
 		{
 			mUsage = 0;
