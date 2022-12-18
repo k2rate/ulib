@@ -6,18 +6,24 @@
 
 namespace ulib
 {
-    class LinearAllocator
+    class UnsafeLinearAllocator
     {
     public:
         struct Params
         {
-            Params(void *_begin, void *_end)
+            inline Params()
+            {
+                begin = nullptr;
+                end = nullptr;
+            }
+
+            inline Params(void *_begin, void *_end)
             {
                 begin = _begin;
                 end = _end;
             }
 
-            Params(void *ptr, size_t size)
+            inline Params(void *ptr, size_t size)
             {
                 begin = ptr;
                 end = rawptr_t(ptr) + size;
@@ -27,23 +33,23 @@ namespace ulib
             void *end;
         };
 
-        LinearAllocator()
+        inline UnsafeLinearAllocator()
         {
             mBegin = nullptr;
             mIt = nullptr;
             mEnd = nullptr;
         }
 
-        LinearAllocator(Params params)
+        inline UnsafeLinearAllocator(Params params)
         {
             mBegin = rawptr_t(params.begin);
             mIt = rawptr_t(params.begin);
             mEnd = rawptr_t(params.end);
 
-           assert(mEnd >= mBegin);
+            assert(mEnd >= mBegin);
         }
 
-        ~LinearAllocator()
+        inline ~UnsafeLinearAllocator()
         {
         }
 
@@ -68,25 +74,16 @@ namespace ulib
 
         inline void *AttemptAlloc(size_t size)
         {
-            if (mIt + size <= mEnd)
-            {
-                assert(Left() >= size); // size_t overflow protection
+            assert(Left() >= size);
 
-                void *ptr = mIt;
-                mIt += size;
-                return ptr;
-            }
-
-            return nullptr;
+            void *ptr = mIt;
+            mIt += size;
+            return ptr;
         }
 
         inline void *Alloc(size_t size)
         {
-            void *ptr = AttemptAlloc(size);
-            if (!ptr)
-                throw std::bad_alloc{};
-
-            return ptr;
+            return AttemptAlloc(size);
         }
 
         inline void Free(void *ptr)
