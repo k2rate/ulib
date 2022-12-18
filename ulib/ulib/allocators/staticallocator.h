@@ -8,7 +8,7 @@ namespace ulib
     public:
         using Params = AllocatorT::Params;
 
-        static AllocatorT &Instance(AllocatorT::Params *params = nullptr)
+        static AllocatorT &Instance(typename AllocatorT::Params *params = nullptr)
         {
             static AllocatorT *ptr = nullptr;
             if (ptr)
@@ -33,7 +33,7 @@ namespace ulib
             Instance();
         }
 
-        StaticAllocator(AllocatorT::Params params)
+        StaticAllocator(typename AllocatorT::Params params)
         {
             Instance(&params);
         }

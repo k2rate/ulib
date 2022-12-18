@@ -17,7 +17,7 @@ namespace ulib
             using other = StandardAllocator<T, AllocatorT>;
         };
 
-        StandardAllocator(AllocatorT::Params params = {})
+        StandardAllocator(typename AllocatorT::Params params = {})
             : AllocatorT(params)
         {
         }

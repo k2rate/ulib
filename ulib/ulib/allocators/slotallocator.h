@@ -10,7 +10,7 @@ namespace ulib
     class SlotAllocator : public AllocatorT
     {
     public:
-        SlotAllocator(AllocatorT::Params params = {})
+        SlotAllocator(typename AllocatorT::Params params = {})
             : AllocatorT(params)
         {
             mStep = 64;

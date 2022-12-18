@@ -98,12 +98,12 @@ namespace ulib
                 
             }
 
-            inline Params(AllocatorT::Params params)
+            inline Params(typename AllocatorT::Params params)
             {
                 allocatorParams = params;
             }
 
-            AllocatorT::Params allocatorParams;
+            typename AllocatorT::Params allocatorParams;
         };
 
         FastMemAllocator(Params params = {})

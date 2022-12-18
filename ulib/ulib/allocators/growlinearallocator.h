@@ -15,7 +15,7 @@ namespace ulib
             Block *next;
         };
 
-        GrowLinearAllocator(AllocatorT::Params params = {})
+        GrowLinearAllocator(typename AllocatorT::Params params = {})
             : AllocatorT(params)
         {
             mNextBlock = nullptr;

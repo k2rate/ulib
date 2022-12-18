@@ -47,7 +47,7 @@ namespace ulib
         class Allocator : public IAllocator, public AllocatorT
         {
         public:
-            Allocator(AllocatorT::Params params = {})
+            Allocator(typename AllocatorT::Params params = {})
                 : AllocatorT(params)
             {
             }

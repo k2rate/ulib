@@ -8,7 +8,7 @@ namespace ulib
     class SynchronizedAllocator : public AllocatorT
     {
     public:
-        SynchronizedAllocator(AllocatorT::Params params = {})
+        SynchronizedAllocator(typename AllocatorT::Params params = {})
             : AllocatorT(params)
         {
         }
