@@ -7,6 +7,7 @@
 #include <ulib/allocators/standardallocator.h>
 #include <ulib/allocators/slotallocator.h>
 #include <ulib/allocators/growlinearallocator.h>
+#include <ulib/allocators/staticallocator.h>
 
 #include <algorithm>
 #include <random>
@@ -107,110 +108,7 @@ __declspec(noinline) void RepeatTestLinearAllocator(const std::string &name, Lin
     }
 }
 
-namespace ulib
-{
-    template <class AllocatorT, int iIndex>
-    class StaticAllocator
-    {
-    public:
-        using Params = AllocatorT::Params;
 
-        static AllocatorT &Instance(AllocatorT::Params *params = nullptr)
-        {
-            static AllocatorT *ptr = nullptr;
-            if (ptr)
-                return *ptr;
-
-            if (params)
-            {
-                static AllocatorT al(*params);
-                ptr = &al;
-            }
-            else
-            {
-                static AllocatorT al;
-                ptr = &al;
-            }
-
-            return *ptr;
-        }
-
-        StaticAllocator()
-        {
-            Instance();
-        }
-
-        StaticAllocator(AllocatorT::Params params)
-        {
-            Instance(&params);
-        }
-
-        ~StaticAllocator()
-        {
-        }
-
-        static void *Alloc(size_t size)
-        {
-            return Instance().Alloc(size);
-        }
-
-        static void Free(void *ptr)
-        {
-            Instance().Free(ptr);
-        }
-    };
-
-    template <class AllocatorT, int iIndex, class Allocator2T = AllocatorT>
-    class StaticPointerAllocator
-    {
-    public:
-        using Params = AllocatorT::Params;
-
-        static AllocatorT &Instance(AllocatorT::Params *params = nullptr)
-        {
-            static AllocatorT *ptr = nullptr;
-            if (ptr)
-                return *ptr;
-
-            ptr = (AllocatorT *)Allocator2T::Alloc(sizeof(*ptr));
-
-            if (params)
-            {
-                new (ptr) AllocatorT(*params);
-            }
-            else
-            {
-                new (ptr) AllocatorT;
-            }
-
-            return *ptr;
-        }
-
-        StaticPointerAllocator()
-        {
-            Instance();
-        }
-
-        StaticPointerAllocator(AllocatorT::Params params)
-        {
-            Instance(&params);
-        }
-
-        ~StaticPointerAllocator()
-        {
-        }
-
-        static void *Alloc(size_t size)
-        {
-            return Instance().Alloc(size);
-        }
-
-        static void Free(void *ptr)
-        {
-            Instance().Free(ptr);
-        }
-    };
-}
 
 /*
 namespace regar
