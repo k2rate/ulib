@@ -1,0 +1,13 @@
+type: executable
+name: test
+
+deps:
+  - ulib
+
+actions:
+  - install:
+     to: "${path}/../"
+
+cxx-build-flags:
+  linker:
+    - "/DEBUG /PDB:\"${path}/../test.pdb\""

@@ -1,0 +1,14 @@
+type: project
+name: ulib-project
+
+arch: x64
+
+config.release:
+  cxx-build-flags:
+    compiler:
+      - "/Oi /GL /Ot /O2 /GS- /MD"
+
+config.debug:
+  cxx-build-flags:
+    compiler:
+      - "/MTd /Zi"
