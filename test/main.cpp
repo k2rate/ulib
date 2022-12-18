@@ -55,7 +55,7 @@ void PerfDump(const std::string &name)
 
 const size_t kBlockSize = 0x200000;
 const size_t kAllocationCount = 4000;
-const size_t kMinAlloc = 16;
+const size_t kMinAlloc = 5000;
 const size_t kMaxAlloc = 100;
 
 template <class AllocatorT>
@@ -73,9 +73,13 @@ void TestAllocator(const std::string &name, AllocatorT &alloc)
 
             for (size_t i = 0; i != kAllocationCount; i++)
             {
-                ptrs[i] = alloc.Alloc(kMinAlloc);
+                ptrs[i] = alloc.Alloc(kMinAlloc + rand() % 0x100);
             }
         }
+
+        size_t index = rand() % kAllocationCount;
+        alloc.Free(ptrs[index]);
+        ptrs[index] = alloc.Alloc(0x10000);
 
         std::shuffle(ptrs.begin(), ptrs.end(), g);
 
@@ -108,8 +112,6 @@ __declspec(noinline) void RepeatTestLinearAllocator(const std::string &name, Lin
     }
 }
 
-
-
 /*
 namespace regar
 {
@@ -121,7 +123,7 @@ namespace regar
 }
 */
 
-using MainAllocator = ulib::StaticAllocator<ulib::GrowLinearAllocator<ulib::MallocAllocator>, 0>;
+// using MainAllocator = ulib::StaticAllocator<ulib::GrowLinearAllocator<ulib::MallocAllocator>, 0>;
 using MainAllocator = ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>, 0>;
 
 void *operator new(size_t size)
@@ -165,6 +167,9 @@ int main()
 
         ulib::MallocAllocator mallocAllocator;
         RepeatTestAllocator("std.malloc", mallocAllocator, 2000);
+
+        ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
+        RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
 
         ulib::GrowLinearAllocator<ulib::MallocAllocator> grow;
         RepeatTestLinearAllocator("ulib.grow", grow, 2000);

@@ -38,7 +38,7 @@ namespace ulib
             if (void *ptr = mLinearAllocator.AttemptAlloc(size))
                 return ptr;
 
-            size_t allocSize = size > allocSize ? size : mStep;
+            size_t allocSize = size > mStep ? size : mStep;
             void* newmem = AllocNewBlock(allocSize);
             mStep += allocSize;
 
