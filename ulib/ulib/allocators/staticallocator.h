@@ -2,7 +2,9 @@
 
 namespace ulib
 {
-    template <class AllocatorT, int iIndex>
+    class DefaultAllocatorPlaceholder {};
+
+    template <class AllocatorT, int iIndex = 0, class Placeholder = DefaultAllocatorPlaceholder>
     class StaticAllocator
     {
     public:
@@ -36,6 +38,16 @@ namespace ulib
         StaticAllocator(typename AllocatorT::Params params)
         {
             Instance(&params);
+        }
+
+        StaticAllocator(StaticAllocator&& source)
+        {
+
+        }
+
+        StaticAllocator& operator=(StaticAllocator&& source)
+        {
+            return *this;
         }
 
         ~StaticAllocator()

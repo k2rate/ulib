@@ -17,6 +17,15 @@ namespace ulib
 		{
 		}
 
+		MallocAllocator(MallocAllocator &&)
+		{
+		}
+
+		MallocAllocator &operator=(MallocAllocator &&)
+		{
+			return *this;
+		}
+
 		static void *Alloc(size_t size)
 		{
 			void *ptr = ::malloc(size);
@@ -29,7 +38,7 @@ namespace ulib
 		static void Free(void *page)
 		{
 			assert(page);
-			free(page);
+			::free(page);
 		}
 	};
 }

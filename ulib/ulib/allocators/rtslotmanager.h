@@ -51,8 +51,8 @@ namespace ulib
 			rawptr_t e = rawptr_t(end);
 
 			assert(e > b);
-			assert(e - b >= kPageHeaderSize);
-			assert(e - b >= mSlotSize);
+			assert((size_t(e) - size_t(b)) >= kPageHeaderSize);
+			assert((size_t(e) - size_t(b)) >= mSlotSize);
 
 			Page *page = (Page *)b;
 

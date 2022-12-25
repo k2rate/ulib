@@ -8,11 +8,14 @@
 #include <ulib/allocators/slotallocator.h>
 #include <ulib/allocators/growlinearallocator.h>
 #include <ulib/allocators/staticallocator.h>
+#include <ulib/containers/list.h>
+#include <ulib/containers/queue.h>
 
 #include <algorithm>
 #include <random>
 #include <memory_resource>
 #include <vector>
+#include <assert.h>
 
 void StatDescDump(const ulib::perf::StatisticsDescription &desc)
 {
@@ -125,6 +128,7 @@ namespace regar
 
 // using MainAllocator = ulib::StaticAllocator<ulib::GrowLinearAllocator<ulib::MallocAllocator>, 0>;
 using MainAllocator = ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>, 0>;
+using StaticFastMemAllocator = MainAllocator;
 
 void *operator new(size_t size)
 {
@@ -133,13 +137,61 @@ void *operator new(size_t size)
 
 void operator delete(void *ptr)
 {
-    return MainAllocator::Free(ptr);
+    if (ptr)
+        MainAllocator::Free(ptr);
+}
+
+__declspec(noinline) void testvec()
+{
+    std::vector<std::string> vstr;
+    for (int i = 0; i != 200; i++)
+    {
+        vstr.push_back("hello");
+    }
+
+    {
+        ulib::perf::Test test("std.erase");
+
+        vstr.erase(vstr.begin() + 2);
+        vstr.erase(vstr.begin() + 3);
+        vstr.erase(vstr.begin() + 1);
+    }
+}
+
+__declspec(noinline) void testvecl()
+{
+    ulib::List<std::string> vstr;
+    for (int i = 0; i != 200; i++)
+    {
+        vstr.push_back("hello");
+    }
+
+    {
+        ulib::perf::Test test("ulib.erase");
+
+        vstr.erase(vstr.begin() + 2);
+        vstr.erase(vstr.begin() + 3);
+        vstr.erase(vstr.begin() + 1);
+    }
 }
 
 int main()
 {
     try
     {
+
+
+        std::vector<std::string> ky;
+        std::string arr[20];
+        ky.insert(ky.begin(), std::move(std::begin(arr)), std::move(std::end(arr)));
+
+        ulib::List<std::string, ulib::MallocAllocator> strs = {"hi", "ky", "pizdec"};
+        auto l2 = std::move(strs);
+        auto l3 = ulib::List<std::string, ulib::MallocAllocator>({"1", "2"});
+        l3 = std::move(l2);
+
+        system("pause");
+        return 0;
 
         /*
         regar::vector<int> vec({});

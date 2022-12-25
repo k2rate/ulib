@@ -4,39 +4,60 @@
 
 namespace ulib
 {
-	template<class T>
-	class FastQueue : public Resource
+	template <class T, class AllocatorT = DefaultAllocator>
+	class FastQueue : private List<T, AllocatorT>
 	{
 	public:
-		FastQueue(ULIB_RESOURCE_PARAMS) : Resource(ULIB_RESOURCE_ARGS), 
-			mList(mAllocator), mIdx(0) 
-		{}
+		using ListT = List<T, AllocatorT>;
+		using AllocatorParams = typename AllocatorT::Params;
 
-		inline void Push(const T& out) { mList.Add(out); }
-		inline size_t Size() { return mList.Size(); }
-		inline void Clear() { mList.Clear(); mIdx = 0; }
-
-		inline bool Peek(T& out)
+		FastQueue(AllocatorParams params)
+			: ListT(params), mIdx(0)
 		{
-			size_t size = mList.Size();
+		}
+
+		FastQueue(FastQueue &&source)
+			: ListT(std::move(source)), mIdx(source.mIdx)
+		{
+		}
+
+		FastQueue& operator=(FastQueue &&source)
+		{
+			ListT& lt = *this;
+			lt = std::move(source);
+
+			mIdx = source.mIdx;
+		}
+
+		inline void Push(const T &o) { ListT::PushBack(o); }
+		inline void Push(T &&o) { ListT::PushBack(o); }
+
+		inline size_t Size() { return ListT::Size(); }
+		inline void Clear()
+		{
+			ListT::Clear();
+			mIdx = 0;
+		}
+
+		inline bool Peek(T &out)
+		{
+			size_t size = ListT::Size();
 			if (!size)
 				return false;
 
 			if (mIdx == size)
 			{
-				Clear();
+				ListT::Clear();
 				return false;
 			}
 
-			out = mList[mIdx];
+			out = std::move(ListT::At(mIdx));
 			mIdx++;
 
 			return true;
-		}	
+		}
 
 	private:
-
-		ulib::List<T> mList;
 		int mIdx;
 	};
 }

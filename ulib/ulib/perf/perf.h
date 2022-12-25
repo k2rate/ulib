@@ -7,6 +7,7 @@
 #include <ulib/types.h>
 #include <ulib/utility/average.h>
 
+
 namespace ulib
 {
 	namespace perf
@@ -58,7 +59,7 @@ namespace ulib
 				ready = false;
 			}
 
-			std::map<std::string, StatisticsDescription> mDescs;
+			std::map<std::string, StatisticsDescription, > mDescs;
 
 			uint64 stamp;
 			std::string desc;
