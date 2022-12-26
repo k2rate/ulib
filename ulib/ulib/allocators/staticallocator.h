@@ -5,7 +5,7 @@
 namespace ulib
 {
     template <class TagT>
-    class AllocatorTag
+    struct AllocatorTag
     {
     };
 

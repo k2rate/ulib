@@ -2,22 +2,22 @@
 
 namespace ulib
 {
-    class DefaultTag
+    struct DefaultTag
     {
     };
 
     template <class TagT>
-    class Tag
+    struct Tag
     {
     };
 
     template <size_t Index>
-    class IndexedTag
+    struct IndexedTag
     {
     };
 
     template <class TagT, size_t Index>
-    class MultiTag
+    struct MultiTag
     {
     };
 
