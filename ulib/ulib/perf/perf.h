@@ -59,7 +59,7 @@ namespace ulib
 				ready = false;
 			}
 
-			std::map<std::string, StatisticsDescription, > mDescs;
+			std::map<std::string, StatisticsDescription> mDescs;
 
 			uint64 stamp;
 			std::string desc;
