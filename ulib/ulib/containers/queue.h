@@ -11,7 +11,7 @@ namespace ulib
 		using ListT = List<T, AllocatorT>;
 		using AllocatorParams = typename AllocatorT::Params;
 
-		FastQueue(AllocatorParams params)
+		FastQueue(AllocatorParams params = {})
 			: ListT(params), mIdx(0)
 		{
 		}
@@ -58,6 +58,6 @@ namespace ulib
 		}
 
 	private:
-		int mIdx;
+		size_t mIdx;
 	};
 }
