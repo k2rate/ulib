@@ -175,11 +175,16 @@ __declspec(noinline) void testvecl()
     }
 }
 
+#include <ulib/random/uniquegenerator.h>
+
 int main()
 {
     try
     {
+        ulib::UniqueGenerator<int, ulib::MallocAllocator> gen;
 
+        gen.Generate();
+        gen.Generate();
 
         std::vector<std::string> ky;
         std::string arr[20];
