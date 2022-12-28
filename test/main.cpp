@@ -176,11 +176,16 @@ __declspec(noinline) void testvecl()
 }
 
 #include <ulib/random/uniquegenerator.h>
+#include <ulib/allocators/handledstaticallocator.h>
 
 int main()
 {
     try
     {
+        using StaticFastMem = ulib::HandledStaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>;
+        StaticFastMem::Construct();
+        StaticFastMem::Alloc(100);
+
         ulib::UniqueGenerator<int, ulib::MallocAllocator> gen;
 
         gen.Generate();

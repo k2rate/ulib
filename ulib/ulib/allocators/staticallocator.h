@@ -2,32 +2,31 @@
 
 #include <ulib/typetraits/singleton.h>
 
+#include "allocatortag.h"
+
 namespace ulib
 {
-    template <class TagT>
-    struct AllocatorTag
-    {
-    };
-
     template <class AllocatorT, class TagT = AllocatorTag<DefaultTag>>
     class StaticAllocator
     {
     public:
         using Current = Singleton<AllocatorT, TagT>;
-        using Params = typename AllocatorT::Params;
+        using AllocatorParams = typename AllocatorT::Params;
 
-        template <class... Args>
-        static AllocatorT &Instance(Args &&...args) { return Current::Instance(args...); }
+        struct Params
+        {};
 
-        StaticAllocator() { Instance(); }
-        StaticAllocator(Params params) { Instance(params); }
-        StaticAllocator(StaticAllocator &&source) {}
+        inline static AllocatorT &Instance(AllocatorParams params = {}) { return Current::Instance(params); }
+
+        StaticAllocator() {}
+        StaticAllocator(Params params) {}
+        StaticAllocator(StaticAllocator<AllocatorT, TagT> &&source) {}
         ~StaticAllocator() {}
 
-        StaticAllocator &operator=(StaticAllocator &&source) { return *this; }
+        StaticAllocator<AllocatorT, TagT> &operator=(StaticAllocator<AllocatorT, TagT> &&source) { return *this; }
 
-        static void *Alloc(size_t size) { return Instance().Alloc(size); }
-        static void Free(void *ptr) { Instance().Free(ptr); }
+        inline static void *Alloc(size_t size) { return Instance().Alloc(size); }
+        inline static void Free(void *ptr) { Instance().Free(ptr); }
     };
 
 }
