@@ -1,5 +1,5 @@
 type: executable
-name: test
+name: .test
 
 deps:
   - ulib

@@ -6,7 +6,7 @@ arch: x64
 config.release:
   cxx-build-flags:
     compiler:
-      - "/Oi /GL /Ot /O1 /GS- /MD"
+      - "/Oi /GL /Ot /O2 /GS- /MD"
 
 config.debug:
   cxx-build-flags:
