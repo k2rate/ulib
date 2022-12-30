@@ -178,10 +178,56 @@ __declspec(noinline) void testvecl()
 #include <ulib/random/uniquegenerator.h>
 #include <ulib/allocators/handledstaticallocator.h>
 
+#include <ulib/containers/range.h>
+
+class Test
+{
+public:
+protected:
+    int prot;
+};
+
+class Test2 : public Test
+{
+public:
+    void test()
+    {
+        this->prot;
+    }
+
+private:
+};
+
 int main()
 {
     try
     {
+
+        std::string str = "pizdec";
+
+        ulib::Range<const char> rr = str;
+        rr.begin();
+
+        
+        ulib::Range<char> rg = str;
+
+        printf("rg: %s\n", rg.data());
+
+        ulib::List<char> list = {'p', 'o', 'z', 'o', 'r', 0};
+        
+        ulib::Range<char> rg0 = list;
+        printf("rg0: %s\n", rg0.data());
+
+        ulib::List<std::string> sl1;
+        ulib::List<std::string> sl2(sl1);
+        ulib::List<std::string, ulib::MallocAllocator> sl3(sl1);
+        ulib::List<std::string, ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>> sl4(sl3);
+        sl1 = sl2;
+        sl2 = sl4;
+
+        ulib::List<std::string_view>::kTrivally;
+        // ulib::List<ulib::Range<int>>::kTrivally;
+
         using StaticFastMem = ulib::HandledStaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>;
         StaticFastMem::Construct();
         StaticFastMem::Alloc(100);
@@ -199,9 +245,6 @@ int main()
         auto l2 = std::move(strs);
         auto l3 = ulib::List<std::string, ulib::MallocAllocator>({"1", "2"});
         l3 = std::move(l2);
-
-        system("pause");
-        return 0;
 
         /*
         regar::vector<int> vec({});

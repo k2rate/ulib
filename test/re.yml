@@ -8,6 +8,8 @@ actions:
   - install:
      to: "${path}/../"
 
+artifact-name: "test"
+
 cxx-build-flags:
   linker:
     - "/DEBUG /PDB:\"${path}/../test.pdb\""

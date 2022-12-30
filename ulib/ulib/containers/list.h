@@ -15,6 +15,7 @@
 
 namespace ulib
 {
+
 	enum class ExpandMemoryPolicy
 	{
 		Flex = 0,
@@ -61,47 +62,20 @@ namespace ulib
 		inline List(std::initializer_list<T> init, AllocatorParams al = {})
 			: Resource<AllocatorT>(al)
 		{
-			size_t dataSize = init.size() * sizeof(T);
-
-			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(dataSize)) + dataSize;
-			assert(mBegin && "Out of memory in List<T>::List(initializer_list<T>)");
-
-			if constexpr (kTrivally)
-			{
-				memcpy(mBeginB, mLastB, dataSize);
-			}
-			else
-			{
-				T *ptr = mBegin;
-				const T *ptr2 = init.begin();
-
-				for (; ptr != mLast; ptr++, ptr2++)
-					new (ptr) T(*ptr2);
-			}
+			CopyInit(init.begin(), init.size() * sizeof(T));
 		}
 
 		template <class LAllocatorT>
 		inline List(const List<T, LAllocatorT> &source, AllocatorParams al = {})
 			: Resource<AllocatorT>(al)
 		{
-			// size_t allocSize = source.CapacityInBytes();
-			size_t dataSize = source.SizeInBytes();
+			CopyInit(source);
+		}
 
-			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(dataSize)) + dataSize;
-			assert(mBegin && "Out of memory in List<T>::List(const List&)");
-
-			if constexpr (kTrivally)
-			{
-				memcpy(mBeginB, mLastB, dataSize);
-			}
-			else
-			{
-				T *ptr = mBegin;
-				const T *ptr2 = source.mBegin;
-
-				for (; ptr != mLast; ptr++, ptr2++)
-					new (ptr) T(*ptr2);
-			}
+		inline List(const List<T, AllocatorT> &source)
+			: Resource<AllocatorT>(source)
+		{
+			CopyInit(source);
 		}
 
 		inline List(List<T, AllocatorT> &&source)
@@ -137,7 +111,7 @@ namespace ulib
 			if (CapacityInBytes() < requiredSize)
 			{
 				AllocatorT::Free(mBeginB);
-				mEndB = (mBeginB = AllocatorT::Alloc(allocSize)) + allocSize;
+				mEndB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 			}
 
 			mLastB = mBeginB + requiredSize;
@@ -173,14 +147,20 @@ namespace ulib
 			source.mBegin = nullptr;
 		}
 
-		template <class LAllocatorT>
-		inline List &operator=(const List<T, LAllocatorT> &source)
+		inline List<T, AllocatorT> &operator=(const List<T, AllocatorT> &source)
 		{
 			Assign(source);
 			return *this;
 		}
 
-		inline List &operator=(List<T, AllocatorT> &&source)
+		template <class LAllocatorT>
+		inline List<T, AllocatorT> &operator=(const List<T, LAllocatorT> &source)
+		{
+			Assign(source);
+			return *this;
+		}
+
+		inline List<T, AllocatorT> &operator=(List<T, AllocatorT> &&source)
 		{
 			Assign(std::move(source));
 			return *this;
@@ -375,14 +355,16 @@ namespace ulib
 		}
 
 		inline T *Data() { return mBegin; }
+		inline const T *Data() const { return mBegin; }
 
 		inline iterator begin() { return mBegin; }
 		inline iterator end() { return mLast; }
 		inline const_iterator begin() const { return mBegin; }
 		inline const_iterator end() const { return mLast; }
-		inline size_t size() { return Size(); }
-		inline size_t capacity() { return Capacity(); }
+		inline size_t size() const { return Size(); }
+		inline size_t capacity() const { return Capacity(); }
 		inline T *data() { return Data(); }
+		inline const T *data() const { return Data(); }
 		inline void erase(iterator it) { Erase(it); }
 		inline void push_back(const T &o) { PushBack(o); }
 		inline void push_back(T &&o) { PushBack(std::move(o)); }
@@ -404,6 +386,31 @@ namespace ulib
 
 			::memcpy(mBegin, oldBegin, oldSizeInBytes);
 			AllocatorT::Free(oldBegin);
+		}
+
+		inline void CopyInit(const T *source, size_t dataSize)
+		{
+			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(dataSize)) + dataSize;
+			assert(mBegin && "Out of memory in List<T>::List(const List&)");
+
+			if constexpr (kTrivally)
+			{
+				memcpy(mBeginB, source, dataSize);
+			}
+			else
+			{
+				T *ptr = mBegin;
+				const T *ptr2 = source;
+
+				for (; ptr != mLast; ptr++, ptr2++)
+					new (ptr) T(*ptr2);
+			}
+		}
+
+		template <class ListT>
+		inline void CopyInit(const ListT &source)
+		{
+			CopyInit(source.mBegin, source.SizeInBytes());
 		}
 
 		union

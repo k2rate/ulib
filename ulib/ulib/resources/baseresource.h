@@ -16,6 +16,10 @@ namespace ulib
 			: AllocatorT(std::move(source))
 		{}
 
+		inline BaseResource(const BaseResource<AllocatorT>& source)
+			: AllocatorT(source)
+		{}
+
 		inline BaseResource<AllocatorT>& operator=(BaseResource<AllocatorT>&& source)
 		{
 			AllocatorT& al = *this;
