@@ -18,8 +18,8 @@ namespace ulib
             using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*cont.data())>>;
             static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
 
-            mBegin = (T *)&*cont.begin();
-            mLast = (T *)&*cont.end();
+            mBegin = cont.data();
+            mLast = cont.data() + cont.size();
         }
 
         template <class ContainerT>
@@ -28,8 +28,8 @@ namespace ulib
             using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*cont.data())>>;
             static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
 
-            mBegin = &*cont.begin();
-            mLast = &*cont.end();
+            mBegin = cont.data();
+            mLast = cont.data() + cont.size();
 
             return *this;
         }
