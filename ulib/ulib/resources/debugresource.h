@@ -9,10 +9,20 @@ namespace ulib
 	class DebugResource : public BaseResource<AllocatorT>
 	{
 	public:
+		inline DebugResource()
+		{
+			mUsage = 0;
+		}
+
 		inline DebugResource(typename AllocatorT::Params params)
 			: BaseResource<AllocatorT>(params)
 		{
 			mUsage = 0;
+		}
+
+		inline DebugResource(const DebugResource<AllocatorT> &source)
+			: BaseResource<AllocatorT>(source)
+		{
 		}
 
 		inline DebugResource(DebugResource &&source)

@@ -31,7 +31,7 @@ namespace ulib
         inline static T &Construct(Args &&...args)
         {
             assert(!InitFlag());
-            new (RawData()) T(args..);
+            new (RawData()) T(args...);
             InitFlag() = true;
             return *RawData();
         }

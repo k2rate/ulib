@@ -1,8 +1,6 @@
 type: project
 name: ulib-project
 
-arch: x64
-
 config.release:
   cxx-build-flags:
     compiler:
