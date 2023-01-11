@@ -7,3 +7,4 @@ deps:
       cmake-extra-options:
         gtest_force_shared_crt: true
         gtest_build_tests: false
+        gtest_disable_pthreads: true
