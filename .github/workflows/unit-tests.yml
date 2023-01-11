@@ -1,0 +1,27 @@
+name: build
+
+on: push
+
+jobs:
+  run-unit-tests:
+    strategy:
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-20.04
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Re
+        uses: osdeverr/actions-setup-re@v1
+        with:
+          github-api-token: ${{ secrets.CI_RE_TOKEN }}
+      
+      - name: Build and run tests
+        uses: osdeverr/actions-run-re-target@v1
+        with:
+          target: .unit-tests
