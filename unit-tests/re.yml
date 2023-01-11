@@ -1,0 +1,6 @@
+type: executable
+name: .unit-tests
+
+deps:
+  - ulib
+  - vcpkg:gtest
