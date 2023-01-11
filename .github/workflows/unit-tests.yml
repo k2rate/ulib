@@ -8,7 +8,7 @@ jobs:
       matrix:
         os:
           - windows-latest
-          # - ubuntu-20.04
+          - ubuntu-20.04
 
     runs-on: ${{ matrix.os }}
     
@@ -20,6 +20,17 @@ jobs:
         uses: osdeverr/actions-setup-re@v1
         with:
           github-api-token: ${{ secrets.CI_RE_TOKEN }}
+
+      # Cache the output and cache directories so we don't have to suffer
+      - name: Cache build outputs
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./out
+            ./.re-cache
+          key: ${{ runner.os }}-re-build-${{ hashFiles('**/re.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-re-build-
       
       - name: Build and run tests
         uses: osdeverr/actions-run-re-target@v1
