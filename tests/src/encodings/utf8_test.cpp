@@ -4,8 +4,6 @@
 
 #include <ulib/encodings/converter.h>
 
-#include <ulib/containers/string_ostream.h>
-
 #include <gtest/gtest.h>
 
 TEST(Utf8Test, ToUtf16)
