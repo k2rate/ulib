@@ -1,7 +1,7 @@
 #include <ulib/types.h>
 #include <gtest/gtest.h>
 
-TEST(UlibCoreTypesTest, IntegerSizesAreCorrect)
+TEST(CoreTypesTest, IntegerSizesAreCorrect)
 {
     ASSERT_GE(sizeof(ushort), sizeof(uchar));
     ASSERT_GE(sizeof(uint), sizeof(ushort));
@@ -9,7 +9,7 @@ TEST(UlibCoreTypesTest, IntegerSizesAreCorrect)
     ASSERT_GE(sizeof(ullong), sizeof(ulong));
 }
 
-TEST(UlibCoreTypesTest, NativeIntegerIsEqualToIntPtr)
+TEST(CoreTypesTest, NativeIntegerIsEqualToIntPtr)
 {
     ASSERT_GE(sizeof(nuint), sizeof(std::intptr_t));
 }
