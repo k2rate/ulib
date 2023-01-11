@@ -31,8 +31,11 @@ jobs:
           key: ${{ runner.os }}-re-build-${{ hashFiles('**/re.yml') }}
           restore-keys: |
             ${{ runner.os }}-re-build-
+
+      - name: Build tests
+        uses: osdeverr/actions-build-re-target@v1
       
-      - name: Build and run tests
+      - name: Run tests
         uses: osdeverr/actions-run-re-target@v1
         with:
           target: .tests
