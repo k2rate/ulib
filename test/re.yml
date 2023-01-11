@@ -13,3 +13,10 @@ artifact-name: "test"
 cxx-build-flags:
   linker:
     - "/DEBUG /PDB:\"${path}/../test.pdb\""
+
+cxx-link-deps:
+  - "user32.lib"
+
+cxx-build-flags:
+  compiler:
+    - "/utf-8"

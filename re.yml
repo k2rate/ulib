@@ -1,16 +1,3 @@
 type: project
 name: ulib-project
 
-config.release:
-  cxx-build-flags:
-    compiler:
-      - "/Oi /GL /Ot /O2 /GS- /MD"
-
-config.debug:
-  cxx-build-flags:
-    compiler:
-      - "/MTd /Zi"
-
-cxx-build-flags:
-  compiler:
-    - "/W3"

@@ -12,11 +12,24 @@ namespace ulib
     class Range
     {
     public:
+
+        inline Range()
+        {
+            mBegin = nullptr;
+            mLast = nullptr;
+        }
+
+        inline Range(const T* begin, const T* end)
+        {
+            mBegin = begin;
+            mLast = end;
+        }
+
         template <class ContainerT>
         inline Range(ContainerT &cont)
         {
             using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*cont.data())>>;
-            static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
+            static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "Range<T> type conversion failed");
 
             mBegin = cont.data();
             mLast = cont.data() + cont.size();

@@ -23,11 +23,14 @@ namespace ulib
 		inline DebugResource(const DebugResource<AllocatorT> &source)
 			: BaseResource<AllocatorT>(source)
 		{
+			mUsage = 0;
 		}
 
 		inline DebugResource(DebugResource &&source)
 			: BaseResource<AllocatorT>(std::move(source))
 		{
+			mUsage = source.mUsage;
+			source.mUsage = 0;
 		}
 
 		inline ~DebugResource()

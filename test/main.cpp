@@ -175,48 +175,70 @@ __declspec(noinline) void testvecl()
     }
 }
 
+#include <string>
+
 #include <ulib/random/uniquegenerator.h>
 #include <ulib/allocators/handledstaticallocator.h>
 
 #include <ulib/containers/range.h>
+#include <ulib/containers/string.h>
 
-class Test
-{
-public:
-protected:
-    int prot;
-};
+#include <ulib/containers/string.h>
+#include <ulib/containers/stringview.h>
 
-class Test2 : public Test
-{
-public:
-    void test()
-    {
-        this->prot;
-    }
+#include <ulib/encodings/utf8/string.h>
+#include <ulib/encodings/utf16/string.h>
+#include <ulib/encodings/utf32/string.h>
+#include <ulib/encodings/utf8/stringview.h>
 
-private:
-};
+#include <ulib/encodings/converter.h>
+#include <windows.h>
 
 int main()
 {
     try
     {
+        {
+            std::string_view ky = "plakmp";
+            ulib::StringView u = ky;
 
-        std::string str = "pizdec";
+            ulib::u8string str = u8"пиздец сука заебался нахуй я аниме смотреть блять";
+            ulib::u16string u16str = ulib::Convert<ulib::Utf8, ulib::Utf16>(str);
 
-        ulib::Range<const char> rr = str;
-        rr.begin();
+            MessageBoxW(0, u16str.c_str(), L"хуй", MB_OK);
 
-        
-        ulib::Range<char> rg = str;
+            // printf("test: %s\n", str.data());
 
-        printf("rg: %s\n", rg.data());
+            /*
+            ulib::u8string u8str = u8"u8str";
+            ulib::u16string u16str = u"u16str";
+            ulib::u32string u32str = U"u32str";
 
-        ulib::List<char> list = {'p', 'o', 'z', 'o', 'r', 0};
-        
-        ulib::Range<char> rg0 = list;
-        printf("rg0: %s\n", rg0.data());
+            // сомнительные сука вещи
+            ulib::wstring wstr = L"";
+            ulib::string str = "test string";
+
+            wstr = u16str; // windows only
+            wstr = u32str; // linux only
+
+            ulib::path path;
+
+            wstr = path; // windows
+            str = path; // linux
+
+            u8str = path; // linux
+            u16str = path; // windows
+
+
+
+
+            char buf[3] = "re";
+            size_t test = std::end(buf) - std::begin(buf);
+            printf("test: %d\n", int(test));
+            */
+
+            return 0;
+        }
 
         ulib::List<std::string> sl1;
         ulib::List<std::string> sl2(sl1);

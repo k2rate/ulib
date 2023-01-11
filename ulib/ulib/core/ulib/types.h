@@ -17,8 +17,7 @@ typedef int int32;
 typedef short int16;
 typedef char int8;
 
-typedef uchar* rawptr_t;
-
+typedef uchar *rawptr_t;
 
 #ifdef _WIN64
 typedef uint64 nuint;
@@ -26,3 +25,12 @@ typedef uint64 nuint;
 typedef uint32 nuint;
 #endif
 
+typedef uchar char8;
+typedef ushort char16;
+typedef uint char32;
+
+#ifdef _WIN64
+typedef uint64 nuint;
+#else
+typedef uint32 nuint;
+#endif
