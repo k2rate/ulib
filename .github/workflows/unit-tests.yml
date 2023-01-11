@@ -35,4 +35,4 @@ jobs:
       - name: Build and run tests
         uses: osdeverr/actions-run-re-target@v1
         with:
-          target: .unit-tests
+          target: .tests

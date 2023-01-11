@@ -1,5 +1,5 @@
 type: executable
-name: .unit-tests
+name: .tests
 
 deps:
   - ulib

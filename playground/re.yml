@@ -1,0 +1,14 @@
+type: executable
+name: .playground
+
+deps:
+  - ulib
+
+cxx-build-flags:
+  compiler:
+    - "/utf-8"
+  linker:
+    - "/DEBUG /PDB:\"${path}/../playground.pdb\""
+
+cxx-link-deps:
+  - "user32.lib"
