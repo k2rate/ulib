@@ -1,6 +1,9 @@
 type: executable
 name: .playground
 
+platform.!windows:
+  enabled: false
+
 deps:
   - ulib
 
