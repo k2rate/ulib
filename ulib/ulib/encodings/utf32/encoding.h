@@ -10,7 +10,7 @@ namespace ulib
         using Type = uint;
 
         // BasicString main char
-        using CharT = u32char;
+        using CharT = detail::u32char;
         
         // EncodingString constructor type 
         using CharAliasT = char32_t;

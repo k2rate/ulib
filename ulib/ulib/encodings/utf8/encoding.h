@@ -11,17 +11,10 @@ namespace ulib
         using Type = uchar;
 
         // BasicString main char
-        using CharT = u8char;
+        using CharT = detail::u8char;
 
         // EncodingString constructor type
-        using CharAliasT = char8_t;
-
-        
-#if (__cplusplus >= 202002L)
-        using CharAliasT = char8_t;
-#else
-        using CharAliasT = char;
-#endif
+        using CharAliasT = char8;
         
 
         inline static CharT *Encode(uint codepoint, CharT *out)

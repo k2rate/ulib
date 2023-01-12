@@ -3,6 +3,7 @@
 #include <ulib/types.h>
 #include <new>
 #include <assert.h>
+#include <cstddef>
 
 namespace ulib
 {

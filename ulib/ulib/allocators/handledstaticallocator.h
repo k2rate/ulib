@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cstddef>
 #include <ulib/typetraits/handledsingleton.h>
-
 #include "allocatortag.h"
 
 namespace ulib

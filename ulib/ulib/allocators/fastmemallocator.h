@@ -6,7 +6,7 @@
 #include "pager.h"
 #include "rtslotmanager.h"
 
-#include <stdio.h>
+#include <cstddef>
 
 namespace ulib
 {

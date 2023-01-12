@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Re
-        uses: osdeverr/actions-setup-re@v1
+        uses: osdeverr/actions-setup-re@v2
         with:
           github-api-token: ${{ secrets.CI_RE_TOKEN }}
 
@@ -32,10 +32,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-re-build-
 
+      # The run is split into two steps for cleaner output
+
       - name: Build tests
-        uses: osdeverr/actions-build-re-target@v1
+        uses: osdeverr/actions-build-re-target@v2
+        with:
+          targets: .tests # Make sure we only build .tests and not anything else
       
       - name: Run tests
-        uses: osdeverr/actions-run-re-target@v1
+        uses: osdeverr/actions-run-re-target@v2
         with:
           target: .tests

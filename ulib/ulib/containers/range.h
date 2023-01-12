@@ -28,21 +28,27 @@ namespace ulib
         template <class ContainerT>
         inline Range(ContainerT &cont)
         {
-            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*cont.data())>>;
+            using std::data;
+            using std::size;
+
+            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*data(cont))>>;
             static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "Range<T> type conversion failed");
 
-            mBegin = cont.data();
-            mLast = cont.data() + cont.size();
+            mBegin = data(cont);
+            mLast = data(cont) + size(cont);
         }
 
         template <class ContainerT>
         inline Range<T> &operator=(ContainerT &cont)
         {
-            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*cont.data())>>;
+            using std::data;
+            using std::size;
+            
+            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*data(cont))>>;
             static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
 
-            mBegin = cont.data();
-            mLast = cont.data() + cont.size();
+            mBegin = data(cont);
+            mLast = data(cont) + size(cont);
 
             return *this;
         }

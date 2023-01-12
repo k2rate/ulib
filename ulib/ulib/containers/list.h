@@ -3,7 +3,6 @@
 #include <string.h> // memcpy
 #include <new>		// overloaded new / delete
 #include <initializer_list>
-#include <cstddef> // size_t
 
 #include <ulib/types.h>
 #include <ulib/resources/resource.h>
@@ -15,6 +14,14 @@
 
 namespace ulib
 {
+	namespace args
+	{
+		struct Capacity
+		{
+			Capacity(size_t c) : cc(c) {}
+			size_t cc;
+		};
+	}
 
 	enum class ExpandMemoryPolicy
 	{
@@ -50,10 +57,22 @@ namespace ulib
 			assert(mBegin && "Out of memory in List<T>::List()");
 		}
 
-		inline List(size_t capacity, AllocatorParams al = {})
+		inline List(size_t size, AllocatorParams al = {})
 			: Resource<AllocatorT>(al)
 		{
-			size_t allocSize = sizeof(T) * capacity;
+			size_t allocSize = sizeof(T) * size;
+			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+			assert(mBegin && "Out of memory in List<T>::List(size_t)");
+
+			for (auto it = mBegin; it != mEnd; it++)
+				new (it) T();
+		}
+
+		inline List(args::Capacity capacity, AllocatorParams al = {})
+			: Resource<AllocatorT>(al)
+		{
+			size_t allocSize = sizeof(T) * capacity.cc;
 			mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
 			assert(mBegin && "Out of memory in List<T>::List(size_t)");
@@ -164,6 +183,33 @@ namespace ulib
 		{
 			Assign(std::move(source));
 			return *this;
+		}
+
+		inline void Resize(size_t newSize)
+		{
+			auto point = mBegin + newSize;
+			if (point <= mLast)
+			{
+				if constexpr (!kTrivally)
+				{
+					for (auto it = point; it != mLast; it++)
+						it->~T();
+				}
+
+				mLast = point;
+
+				return;
+			}
+			else
+			{
+				if (point > mEnd)
+					ReallocateMemory(SizeInBytes(), point - mEnd);
+
+				for (auto it = mLast; it != point; it++)
+					new (it) T();
+
+				mLast = point;
+			}
 		}
 
 		inline size_t Size() const { return mLast - mBegin; }

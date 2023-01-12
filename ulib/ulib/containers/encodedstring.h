@@ -10,6 +10,7 @@ namespace ulib
         using AllocatorParams = typename AllocatorT::Params;
         using CharT = typename EncodingT::CharT;
         using CharAliasT = typename EncodingT::CharAliasT;
+        using BaseT = BasicString<typename EncodingT::CharT, AllocatorT>;
 
     public:
         inline EncodedString(AllocatorParams al = {})
@@ -27,10 +28,14 @@ namespace ulib
         {
         }
 
-        inline EncodedString(const BasicString<CharT, AllocatorT>& str)
+        inline EncodedString(const BasicString<CharT, AllocatorT> &str)
             : BasicString<CharT, AllocatorT>(str)
         {
         }
 
+        inline bool Equal(const CharAliasT *cstr) const { return BaseT::Equal((const CharT *)cstr); }
+
+        inline bool operator==(const CharAliasT *right) const { return Equal(right); }
+        inline bool operator!=(const CharAliasT *right) const { return !Equal(right); }
     };
 }

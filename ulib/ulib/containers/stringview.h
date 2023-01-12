@@ -19,11 +19,14 @@ namespace ulib
         {
         }
 
+        
         template <class StringT>
         BasicStringView(const StringT &str)
             : Range<const CharT>(str)
         {
         }
+        
+        
 
         ~BasicStringView()
         {

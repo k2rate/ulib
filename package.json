@@ -1,0 +1,25 @@
+{
+  "name": "ulib",
+  "version": "0.9.8",
+  "description": "A powerful utitity library for C++",
+  "scripts": {
+    "test": "re run .tests",
+    "start": "re run .playground",
+    "build": "re",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k2rate/ulib.git"
+  },
+  "keywords": [
+    "FULL_PLAK_FULL_PLAK_FULL_PLAK_FULL_PLAK"
+  ],
+  "author": "k2rate",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/k2rate/ulib/issues"
+  },
+  "homepage": "https://github.com/k2rate/ulib#readme"
+}
