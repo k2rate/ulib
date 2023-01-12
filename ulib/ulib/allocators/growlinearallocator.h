@@ -2,6 +2,7 @@
 
 #include "linearallocator.h"
 #include <assert.h>
+#include <cstddef>
 
 namespace ulib
 {

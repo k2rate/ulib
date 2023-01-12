@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <typeinfo>
+#include <cstddef>
 
 namespace ulib
 {

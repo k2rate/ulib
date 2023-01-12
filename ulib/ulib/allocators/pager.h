@@ -2,6 +2,7 @@
 
 // #undef NDEBUG
 #include <assert.h>
+#include <cstddef>
 
 namespace ulib
 {
