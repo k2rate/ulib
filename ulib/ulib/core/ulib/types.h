@@ -22,6 +22,11 @@ typedef uchar *rawptr_t;
 
 typedef uintptr_t nuint;
 
-typedef uchar char8;
-typedef ushort char16;
-typedef uint char32;
+#if (__cplusplus >= 202002L)
+        typedef char8_t char8;
+#else
+        typedef char char8;
+#endif
+
+typedef char16_t char16;
+typedef char32_t char32;

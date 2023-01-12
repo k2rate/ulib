@@ -16,15 +16,18 @@ namespace ulib
         }
 
         EncodedStringView(const CharAliasT *str)
-            : BasicStringView<CharT>((CharT*)str)
+            : BasicStringView<CharT>((const CharT*)str)
         {
         }
 
+        
         template <class StringT>
         EncodedStringView(const StringT &str)
             : BasicStringView<CharT>(str)
         {
         }
+        
+        
 
         ~EncodedStringView()
         {

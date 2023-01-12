@@ -131,7 +131,7 @@ namespace ulib
             *mLast = 0;
         }
 
-        inline CharT* c_str()
+        inline CharT *c_str()
         {
             MarkZeroEnd();
             return Data();
@@ -166,6 +166,33 @@ namespace ulib
 
             source.mBegin = nullptr;
         }
+
+        inline bool Equal(const CharT *cstr) const
+        {
+            size_t sizeInBytes = CStringLengthHack(cstr) * sizeof(CharT);
+            if (sizeInBytes != SizeInBytes())
+                return false;
+
+            return memcmp(mBeginB, cstr, sizeInBytes) == 0;
+        }
+
+        template <class LAllocatorT>
+        inline bool Equal(const BasicString<CharT, LAllocatorT> &right) const
+        {
+            size_t sizeInBytes = right.SizeInBytes();
+            if (sizeInBytes != SizeInBytes())
+                return false;
+
+            return memcmp(mBeginB, right.mBeginB, sizeInBytes) == 0;
+        }
+
+        template <class LAllocatorT>
+        inline bool operator==(const BasicString<CharT, LAllocatorT> &right) const { return Equal(right); }
+        template <class LAllocatorT>
+        inline bool operator!=(const BasicString<CharT, LAllocatorT> &right) const { return !Equal(right); }
+
+        inline bool operator==(const CharT *right) const { return Equal(right); }
+        inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
         inline BasicString<CharT, AllocatorT> &operator=(const BasicString<CharT, AllocatorT> &source)
         {

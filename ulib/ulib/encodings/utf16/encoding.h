@@ -11,10 +11,10 @@ namespace ulib
         using Type = ushort;
 
         // BasicString main char
-        using CharT = u16char;
+        using CharT = detail::u16char;
         
         // EncodingString constructor type 
-        using CharAliasT = char16_t;
+        using CharAliasT = char16;
 
         inline static CharT *Encode(uint codepoint, CharT *out)
         {
