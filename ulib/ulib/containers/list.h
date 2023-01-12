@@ -14,16 +14,14 @@
 
 namespace ulib
 {
-
-	struct Capacity
+	namespace args
 	{
-		Capacity(size_t c)
-			: cc(c)
+		struct Capacity
 		{
-		}
-
-		size_t cc;
-	};
+			Capacity(size_t c) : cc(c) {}
+			size_t cc;
+		};
+	}
 
 	enum class ExpandMemoryPolicy
 	{
@@ -71,7 +69,7 @@ namespace ulib
 				new (it) T();
 		}
 
-		inline List(Capacity capacity, AllocatorParams al = {})
+		inline List(args::Capacity capacity, AllocatorParams al = {})
 			: Resource<AllocatorT>(al)
 		{
 			size_t allocSize = sizeof(T) * capacity.cc;
