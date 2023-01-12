@@ -14,6 +14,8 @@
 
 #include <type_traits>
 
+#include <cstring>
+
 namespace ulib
 {
     template <class CharT, class AllocatorT>

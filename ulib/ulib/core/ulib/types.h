@@ -22,7 +22,7 @@ typedef uchar *rawptr_t;
 
 typedef uintptr_t nuint;
 
-#if (__cplusplus >= 202002L)
+#if (__cplusplus >= 202000L)
         typedef char8_t char8;
 #else
         typedef char char8;
