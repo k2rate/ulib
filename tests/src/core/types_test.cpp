@@ -8,8 +8,3 @@ TEST(CoreTypesTest, IntegerSizesAreCorrect)
     ASSERT_GE(sizeof(ulong), sizeof(uint));
     ASSERT_GE(sizeof(ullong), sizeof(ulong));
 }
-
-TEST(CoreTypesTest, NativeIntegerIsEqualToIntPtr)
-{
-    ASSERT_GE(sizeof(nuint), sizeof(std::intptr_t));
-}

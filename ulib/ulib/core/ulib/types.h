@@ -1,5 +1,7 @@
 #pragma once
-#include <stdint.h>
+
+#include <cstdint>
+#include <cstddef>
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -19,8 +21,6 @@ typedef short int16;
 typedef char int8;
 
 typedef uchar *rawptr_t;
-
-typedef uintptr_t nuint;
 
 #if (__cplusplus >= 202000L)
         typedef char8_t char8;

@@ -21,12 +21,8 @@ TEST(ListTest, Resizes)
 
     EXPECT_EQ(list.Size(), 10);
 
-    FAIL() << "TODO: ulib::List<T> does not have Resize() yet!";
-
-/*
     list.Resize(5);
-    EXPECT_EQ(list.Size(), 5);
-    */
+    EXPECT_EQ(list.Size(), 5);  
 }
 
 TEST(ListTest, Clears)
