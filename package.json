@@ -1,6 +1,6 @@
 {
   "name": "ulib",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "A powerful utitity library for C++",
   "scripts": {
     "test": "re run .tests",
