@@ -29,10 +29,10 @@ namespace ulib
         };
 
         template <class PageT>
-        struct Block
+        struct BasicBlock
         {
-            Block *next;
-            Block *prev;
+            BasicBlock *next;
+            BasicBlock *prev;
             size_t size;
             PageT firstPage;
         };
@@ -188,7 +188,7 @@ namespace ulib
         {
         public:
             using Page = PageT;
-            using Block = Block<Page>;
+            using Block = BasicBlock<Page>;
 
             inline PageManager()
             {
