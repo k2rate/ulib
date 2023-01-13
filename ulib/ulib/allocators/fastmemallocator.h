@@ -3,7 +3,7 @@
 #include <ulib/resources/resource.h>
 #include <ulib/allocators/defaultallocator.h>
 
-#include "pager.h"
+#include "pagemanager.h"
 #include "rtslotmanager.h"
 
 #include <cstddef>
@@ -75,6 +75,8 @@ namespace ulib
         inline static constexpr size_t kPoolArraySize = PoolCount;
         inline static constexpr size_t kPagerIndex = 0x1000;
         inline static constexpr size_t kMaxPoolIndex = PoolCount - 1;
+
+        using PagerT = BasicPageManager<pages::DefaultPage, MinimumNewPageDataLength>;
 
         static inline constexpr size_t GetPoolIndex(size_t allocSize)
         {
@@ -210,7 +212,7 @@ namespace ulib
             if (void *ptr = mPager.Alloc(realSize))
                 return ptr;
 
-            size_t allocSize = (mPagerStep > realSize ? mPagerStep : realSize) + Pager::PageOverhead();
+            size_t allocSize = (mPagerStep > realSize ? mPagerStep : realSize) + PagerT::FreePageOverhead();
             void *newmem = AllocNewBlock(allocSize);
 
             mPagerStep += allocSize;
@@ -248,7 +250,7 @@ namespace ulib
 
         RtSlotManager mSlotManagers[PoolCount];
         size_t mSlotSteps[PoolCount];
-        pager::PageManager<ulib::pager::DefaultPage, MinimumNewPageDataLength> mPager;
+        PagerT mPager;
         size_t mPagerStep;
         Block *mNextBlock;
     };

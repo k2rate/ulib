@@ -1,4 +1,3 @@
-#include <ulib/allocators/pager.h>
 #include <ulib/perf/perf.h>
 #include <ulib/allocators/mallocallocator.h>
 #include <ulib/allocators/fastmemallocator.h>
