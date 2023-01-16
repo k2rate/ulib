@@ -191,8 +191,11 @@ __declspec(noinline) void testvecl()
 #include <ulib/encodings/utf8/stringview.h>
 
 #include <ulib/encodings/converter.h>
+#include <ulib/encodings/platform/string.h>
 
 #include <windows.h>
+
+#include <filesystem>
 
 int main()
 {

@@ -11,6 +11,7 @@
 
 #ifdef ULIB_USE_STD_STRING_VIEW
 #include <string_view>
+#include <string>
 #endif
 
 #include <type_traits>
@@ -18,6 +19,7 @@
 #include <cstring>
 
 #include "iterators/randomaccessiterator.h"
+#include "args.h"
 
 namespace ulib
 {
@@ -46,12 +48,26 @@ namespace ulib
             mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(M_STEP))) + M_STEP;
         }
 
-        inline BasicString(size_t capacity, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = sizeof(CharT) * capacity;
-            mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(allocSize))) + allocSize;
-        }
+		inline BasicString(size_t size, AllocatorParams al = {})
+			: Resource<AllocatorT>(al)
+		{
+			size_t allocSize = sizeof(CharT) * size;
+			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+			assert(mBegin && "Out of memory in List<T>::List(size_t)");
+
+			for (auto it = mBegin; it != mEnd; it++)
+				new (it) CharT();
+		}
+
+		inline BasicString(args::Capacity capacity, AllocatorParams al = {})
+			: Resource<AllocatorT>(al)
+		{
+			size_t allocSize = sizeof(CharT) * capacity.cc;
+			mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+			assert(mBegin && "Out of memory in List<T>::List(size_t)");
+		}
 
         inline BasicString(const CharT *str, AllocatorParams al = {})
             : Resource<AllocatorT>(al)
@@ -108,11 +124,25 @@ namespace ulib
         }
 
 #ifdef ULIB_USE_STD_STRING_VIEW
-        operator std::basic_string_view<CharT>()
+
+        operator std::basic_string_view<CharT>() const
         {
             return std::basic_string_view<CharT>(mBegin, Size());
         }
+
+        operator std::basic_string<CharT, std::char_traits<CharT>, std::allocator<CharT>>() const
+        {
+            return std::basic_string<CharT, std::char_traits<CharT>, std::allocator<CharT>>(mBegin, mLast);
+        }
+
 #endif
+        /*
+                operator const std::basic_string_view<CharT>&() const
+        {
+            return std::basic_string_view<CharT>(mBegin, Size());
+        }
+
+        */
 
         /*
                template <size_t N>
@@ -188,6 +218,25 @@ namespace ulib
         inline void push_back(CharT &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
         inline bool empty() { return Empty(); }
+        inline size_t reserve(size_t s) { Reserve(s); }
+
+        inline void Reserve(size_t s)
+        {
+            if (Capacity() >= s)
+                return;
+
+            uchar *newMem = (uchar *)AllocatorT::Alloc(s);
+            assert(newMem && "Out of memory in List<T>::Reserve");
+
+            CharT *oldBegin = mBegin;
+            size_t oldSizeInBytes = SizeInBytes();
+
+            mEndB = (mLastB = mBeginB = newMem) + s;
+            mLastB += oldSizeInBytes;
+
+            ::memcpy(mBegin, oldBegin, oldSizeInBytes);
+            AllocatorT::Free(oldBegin);
+        }
 
         inline void Erase(iterator it)
         {

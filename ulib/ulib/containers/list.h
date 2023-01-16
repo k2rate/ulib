@@ -9,20 +9,13 @@
 #include <ulib/allocators/defaultallocator.h>
 
 #include "iterators/randomaccessiterator.h"
+#include "args.h"
 
 #include <assert.h>
 
+
 namespace ulib
 {
-	namespace args
-	{
-		struct Capacity
-		{
-			Capacity(size_t c) : cc(c) {}
-			size_t cc;
-		};
-	}
-
 	enum class ExpandMemoryPolicy
 	{
 		Flex = 0,
