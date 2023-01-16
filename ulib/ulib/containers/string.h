@@ -21,6 +21,8 @@
 #include "iterators/randomaccessiterator.h"
 #include "args.h"
 
+#include "range.h"
+
 namespace ulib
 {
     template <class CharT, class AllocatorT>
@@ -48,26 +50,38 @@ namespace ulib
             mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(M_STEP))) + M_STEP;
         }
 
-		inline BasicString(size_t size, AllocatorParams al = {})
-			: Resource<AllocatorT>(al)
-		{
-			size_t allocSize = sizeof(CharT) * size;
-			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+        template <class ContainerT, class vt = typename ContainerT::value_type, class RangeT = Range<const typename ContainerT::value_type>, std::enable_if_t<std::is_same_v<CharT, std::remove_cv_t<vt>>, bool> = true>
+        inline BasicString(const ContainerT &cont, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            RangeT str = cont;
 
-			assert(mBegin && "Out of memory in List<T>::List(size_t)");
+            size_t allocSize = str.SizeInBytes();
+            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
-			for (auto it = mBegin; it != mEnd; it++)
-				new (it) CharT();
-		}
+            memcpy(mBeginB, str.Data(), allocSize);
+        }
 
-		inline BasicString(args::Capacity capacity, AllocatorParams al = {})
-			: Resource<AllocatorT>(al)
-		{
-			size_t allocSize = sizeof(CharT) * capacity.cc;
-			mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+        inline BasicString(size_t size, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            size_t allocSize = sizeof(CharT) * size;
+            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
-			assert(mBegin && "Out of memory in List<T>::List(size_t)");
-		}
+            assert(mBegin && "Out of memory in List<T>::List(size_t)");
+
+            for (auto it = mBegin; it != mEnd; it++)
+                new (it) CharT();
+        }
+
+        inline BasicString(args::Capacity capacity, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            size_t allocSize = sizeof(CharT) * capacity.cc;
+            mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+            assert(mBegin && "Out of memory in List<T>::List(size_t)");
+        }
 
         inline BasicString(const CharT *str, AllocatorParams al = {})
             : Resource<AllocatorT>(al)
@@ -94,15 +108,6 @@ namespace ulib
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, b, allocSize);
-        }
-
-        inline BasicString(BasicStringView<CharT> str, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = str.SizeInBytes();
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
-
-            memcpy(mBeginB, str.Data(), allocSize);
         }
 
         inline BasicString(const BasicString<CharT, AllocatorT> &str)
@@ -217,7 +222,7 @@ namespace ulib
         inline void push_back(const CharT &o) { PushBack(o); }
         inline void push_back(CharT &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
-        inline bool empty() { return Empty(); }
+        inline bool empty() const { return Empty(); }
         inline size_t reserve(size_t s) { Reserve(s); }
 
         inline void Reserve(size_t s)
@@ -334,6 +339,15 @@ namespace ulib
             return memcmp(mBeginB, cstr, sizeInBytes) == 0;
         }
 
+        inline bool Equal(ulib::Range<const CharT> right) const
+        {
+            size_t sizeInBytes = right.SizeInBytes();
+            if (sizeInBytes != SizeInBytes())
+                return false;
+
+            return memcmp(mBeginB, right.Data(), sizeInBytes) == 0;
+        }
+
         template <class LAllocatorT>
         inline bool Equal(const BasicString<CharT, LAllocatorT> &right) const
         {
@@ -342,6 +356,13 @@ namespace ulib
                 return false;
 
             return memcmp(mBeginB, right.mBeginB, sizeInBytes) == 0;
+        }
+
+        template <class ContainerT, class vt = typename ContainerT::value_type, class RangeT = Range<const typename ContainerT::value_type>, std::enable_if_t<std::is_same_v<CharT, std::remove_cv_t<vt>>, bool> = true>
+        inline bool operator==(const ContainerT &right) const
+        {
+            RangeT str = right;
+            return Equal(str);
         }
 
         template <class LAllocatorT>
@@ -384,6 +405,22 @@ namespace ulib
             }
 
             memcpy(mLast, right.Data(), right.SizeInBytes());
+            mLast = mBegin + reqSize;
+        }
+
+        inline void Append(const CharT* right)
+        {
+            size_t rlen = CStringLengthHack(right);        
+            size_t sizeInBytes = SizeInBytes();
+            size_t rightSizeInBytes = sizeof(CharT) * rlen;
+
+            size_t reqSize = sizeInBytes + rightSizeInBytes;
+            if (Capacity() < reqSize)
+            {
+                ReallocateMemory(sizeInBytes, reqSize);
+            }
+
+            memcpy(mLast, right, rightSizeInBytes);
             mLast = mBegin + reqSize;
         }
 

@@ -1,12 +1,11 @@
 #pragma once
 
 #include <type_traits>
-#include <ulib/types.h>
-
-#include <stdio.h>
 #include <typeinfo>
-
 #include <iterator>
+
+#include <ulib/types.h>
+#include "iterators/randomaccessiterator.h"
 
 namespace ulib
 {
@@ -14,6 +13,14 @@ namespace ulib
     class Range
     {
     public:
+        using Iterator = RandomAccessIterator<T>;
+        using ConstIterator = RandomAccessIterator<const T>;
+
+        using value_type = T;
+        using pointer = value_type *;
+        using reference = value_type &;
+        using iterator = Iterator;
+        using const_iterator = ConstIterator;
 
         inline Range()
         {
@@ -21,10 +28,16 @@ namespace ulib
             mLast = nullptr;
         }
 
-        inline Range(const T* begin, const T* end)
+        inline Range(T *begin, T *end)
         {
             mBegin = begin;
             mLast = end;
+        }
+
+        inline Range(Range<std::remove_cv_t<T>> &other)
+        {
+            mBegin = other.mBegin;
+            mLast = other.mLast;
         }
 
         template <class ContainerT>
@@ -45,7 +58,7 @@ namespace ulib
         {
             using std::data;
             using std::size;
-            
+
             using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*data(cont))>>;
             static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
 
@@ -55,21 +68,28 @@ namespace ulib
             return *this;
         }
 
-        inline T *begin() const { return mBegin; }
-        inline T *end() const { return mLast; }
-        inline T *data() const { return mBegin; }
-        inline size_t size() const { return mLast - mBegin; }
-        inline bool empty() const { return mLast == mBegin; }
-
-        inline T *Begin() const { return mBegin; }
-        inline T *End() const { return mLast; }
+        inline T *Data() { return mBegin; }
         inline T *Data() const { return mBegin; }
+        inline iterator Begin() { return mBegin; }
+        inline iterator End() { return mLast; }
+        inline const_iterator Begin() const { return mBegin; }
+        inline const_iterator End() const { return mLast; }
+        inline iterator ReverseBegin() { return mLast - 1; }
+        inline iterator ReverseEnd() { return mBegin - 1; }
+        inline const_iterator ReverseBegin() const { return mLast - 1; }
+        inline const_iterator ReverseEnd() const { return mBegin - 1; }
+        inline bool Empty() const { return mBegin == mLast; }
         inline size_t Size() const { return mLast - mBegin; }
-        inline bool Empty() const { return mLast == mBegin; }
-        inline size_t SizeInBytes() const { return (uchar *)mLast - (uchar *)mBegin; }
+        inline size_t SizeInBytes() const { return size_t(mLast) - size_t(mBegin); }
 
-        inline T *ReverseBegin() const { return mLast - 1; }
-        inline T *ReverseEnd() const { return mBegin - 1; }
+        inline iterator begin() { return mBegin; }
+        inline iterator end() { return mLast; }
+        inline const_iterator begin() const { return mBegin; }
+        inline const_iterator end() const { return mLast; }
+        inline size_t size() const { return Size(); }
+        inline T *data() { return Data(); }
+        inline const T *data() const { return Data(); }
+        inline bool empty() { return Empty(); }
 
         inline const T &Front() const
         {
@@ -87,45 +107,4 @@ namespace ulib
         T *mBegin;
         T *mLast;
     };
-
-    /*
-        template <class T>
-    class Range : public RangeView<T>
-    {
-    public:
-        template <class ContainerT>
-        Range(ContainerT &cont) : RangeView<T>(cont)
-        {
-        }
-
-        inline T *begin() { return this->mBegin; }
-        inline T *end() { return this->mLast; }
-        inline const T *data() { return this->mBegin; }
-        inline size_t size() { return this->mLast - this->mBegin; }
-        inline bool empty() { return this->mLast == this->mBegin; }
-
-        inline T *Begin() { return this->mBegin; }
-        inline T *End() { return this->mLast; }
-        inline T *Data() { return this->mBegin; }
-        inline size_t Size() { return this->mLast - this->mBegin; }
-        inline bool Empty() { return this->mLast == this->mBegin; }
-        inline size_t SizeInBytes() { return (uchar *)this->mLast - (uchar *)this->mBegin; }
-
-        inline T *ReverseBegin() { return this->mLast - 1; }
-        inline T *ReverseEnd() { return this->mBegin - 1; }
-
-        inline T &Front()
-        {
-            assert(!Empty());
-            return *Begin();
-        }
-
-        inline T &Back()
-        {
-            assert(!Empty());
-            return *ReverseBegin();
-        }
-    };
-    */
-
 }

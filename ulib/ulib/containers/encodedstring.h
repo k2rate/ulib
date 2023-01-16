@@ -46,7 +46,7 @@ namespace ulib
         }
 
         inline EncodedString(EncodedStringView<EncodingT> str, AllocatorParams al = {})
-            : BasicString<CharT, AllocatorT>((CharT *)str.Begin(), (CharT *)str.End(), al)
+            : BasicString<CharT, AllocatorT>((CharT *)str.Begin().Raw(), (CharT *)str.End().Raw(), al)
         {
         }
 

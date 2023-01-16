@@ -202,6 +202,21 @@ int main()
     try
     {
         {
+            {
+                ulib::String test;
+                std::string_view tests = test;
+                
+                ulib::Range<const char> rr = tests;
+
+                ulib::String blyat = ulib::Range<const typename std::string_view::value_type>(tests);
+                ulib::String test2 = rr;
+                ulib::String test3 = ulib::Range<char>(0, 0);
+
+                ulib::String pzr = tests;
+
+                blyat.Append("pads");
+            }
+
             std::string_view ky = ulib::u8string("test");
 
             ulib::String tstr{"ky"};
