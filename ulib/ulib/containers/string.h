@@ -110,7 +110,7 @@ namespace ulib
 #ifdef ULIB_USE_STD_STRING_VIEW
         operator std::basic_string_view<CharT>()
         {
-            return std::basic_string_view<CharT>(mBegin, mEnd);
+            return std::basic_string_view<CharT>(mBegin, Size());
         }
 #endif
 
@@ -363,7 +363,7 @@ namespace ulib
                 ReallocateMemory(sizeInBytes, sizeInBytes);
             }
 
-            mLast = ch;
+            *mLast = ch;
             mLast++;
         }
 

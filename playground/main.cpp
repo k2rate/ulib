@@ -199,6 +199,8 @@ int main()
     try
     {
         {
+            std::string_view ky = ulib::u8string("test");
+
             ulib::String tstr{"ky"};
 
             ulib::u8string str8 = u8"пиздец сука заебался нахуй я аниме смотреть блять";
