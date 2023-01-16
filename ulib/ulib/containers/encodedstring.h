@@ -1,10 +1,11 @@
 #pragma once
 
 #include <ulib/containers/string.h>
+#include <ulib/containers/encodedstringview.h>
 
 namespace ulib
 {
-        template <class EncodingT, class AllocatorT = DefaultAllocator>
+    template <class EncodingT, class AllocatorT = DefaultAllocator>
     class EncodedString : public BasicString<typename EncodingT::CharT, AllocatorT>
     {
     public:
@@ -41,6 +42,11 @@ namespace ulib
 
         inline EncodedString(const CharAliasT *b, const CharAliasT *e, AllocatorParams al = {})
             : BasicString<CharT, AllocatorT>((CharT *)b, (CharT *)e, al)
+        {
+        }
+
+        inline EncodedString(EncodedStringView<EncodingT> str, AllocatorParams al = {})
+            : BasicString<CharT, AllocatorT>((CharT *)str.Begin(), (CharT *)str.End(), al)
         {
         }
 

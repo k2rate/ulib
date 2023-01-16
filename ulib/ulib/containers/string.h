@@ -5,6 +5,7 @@
 #include <ulib/resources/resource.h>
 
 #include "clength.h"
+#include "stringview.h"
 
 #define ULIB_USE_STD_STRING_VIEW
 
@@ -66,6 +67,15 @@ namespace ulib
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, b, allocSize);
+        }
+
+        inline BasicString(BasicStringView<CharT> str, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            size_t allocSize = str.SizeInBytes();
+            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+            memcpy(mBeginB, str.Data(), allocSize);
         }
 
         inline BasicString(const BasicString<CharT, AllocatorT> &str)
