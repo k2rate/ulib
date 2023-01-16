@@ -1,11 +1,11 @@
 {
   "name": "ulib",
-  "version": "0.9.8",
+  "version": "1.0.4",
   "description": "A powerful utitity library for C++",
   "scripts": {
-    "test": "re run .tests",
-    "start": "re run .playground",
-    "build": "re",
+    "test": "re run .tests --msg-level problems",
+    "start": "re run .playground --msg-level problems",
+    "build": "re --msg-level problems",
     "preversion": "npm test",
     "postversion": "git push && git push --tags"
   },
