@@ -1,1 +1,3 @@
-null
+{
+    "github:google/googletest^1.12.1": "release-1.12.1"
+}
