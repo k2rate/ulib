@@ -26,6 +26,7 @@ namespace ulib
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
 
         using AllocatorParams = typename AllocatorT::Params;
+        using value_type = CharT;
 
         inline BasicString(AllocatorParams al = {})
             : Resource<AllocatorT>(al)
@@ -47,6 +48,24 @@ namespace ulib
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, str, allocSize);
+        }
+
+        inline BasicString(const CharT *str, size_t size, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            size_t allocSize = size * sizeof(CharT);
+            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+            memcpy(mBeginB, str, allocSize);
+        }
+
+        inline BasicString(const CharT *b, const CharT *e, AllocatorParams al = {})
+            : Resource<AllocatorT>(al)
+        {
+            size_t allocSize = (e - b) * sizeof(CharT);
+            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+            memcpy(mBeginB, b, allocSize);
         }
 
         inline BasicString(const BasicString<CharT, AllocatorT> &str)

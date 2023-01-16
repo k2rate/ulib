@@ -9,6 +9,8 @@ namespace ulib
     class BasicStringView : public Range<const CharT>
     {
     public:
+        using value_type = CharT;
+
         BasicStringView()
             : Range<const CharT>()
         {
@@ -18,16 +20,13 @@ namespace ulib
             : Range<const CharT>(str, str + CStringLengthHack(str))
         {
         }
-
         
-        template <class StringT>
+        template <class StringT, class CharT = typename StringT::value_type>
         BasicStringView(const StringT &str)
             : Range<const CharT>(str)
         {
         }
         
-        
-
         ~BasicStringView()
         {
         }

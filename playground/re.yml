@@ -6,6 +6,7 @@ platform.!windows:
 
 deps:
   - ulib
+  - global:k2rate/ulib-fmt [/ulib-fmt]
 
 cxx-build-flags:
   compiler:

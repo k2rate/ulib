@@ -191,6 +191,8 @@ __declspec(noinline) void testvecl()
 #include <ulib/encodings/utf8/stringview.h>
 
 #include <ulib/encodings/converter.h>
+#include <ulib/fmt/format.h>
+
 #include <windows.h>
 
 int main()
@@ -198,13 +200,22 @@ int main()
     try
     {
         {
+            ulib::u8string str8 = u8"пиздец сука заебался нахуй я аниме смотреть блять";
+            ulib::u16string str16 = u"пиздец сука заебался нахуй я аниме смотреть блять";
+            ulib::u32string str32 = U"пиздец сука заебался нахуй я аниме смотреть блять";
+
+            auto out = ulib::format<ulib::Utf16>(u8"Utf8: {}\nUtf16: {}\nUtf32: {}\n", str8, str16, str32);
+
+            MessageBoxW(0, out.c_str(), L"хуй", MB_OK);
+
+            /*
             std::string_view ky = "plakmp";
             ulib::StringView u = ky;
 
             ulib::u8string str = u8"пиздец сука заебался нахуй я аниме смотреть блять";
             ulib::u16string u16str = ulib::Convert<ulib::Utf8, ulib::Utf16>(str);
 
-            MessageBoxW(0, u16str.c_str(), L"хуй", MB_OK);
+            */
 
             // printf("test: %s\n", str.data());
 

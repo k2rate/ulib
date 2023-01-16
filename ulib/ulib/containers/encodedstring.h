@@ -4,15 +4,16 @@
 
 namespace ulib
 {
-    template <class EncodingT, class AllocatorT = DefaultAllocator>
+        template <class EncodingT, class AllocatorT = DefaultAllocator>
     class EncodedString : public BasicString<typename EncodingT::CharT, AllocatorT>
     {
+    public:
         using AllocatorParams = typename AllocatorT::Params;
         using CharT = typename EncodingT::CharT;
         using CharAliasT = typename EncodingT::CharAliasT;
         using BaseT = BasicString<typename EncodingT::CharT, AllocatorT>;
+        using value_type = CharT;
 
-    public:
         inline EncodedString(AllocatorParams al = {})
             : BasicString<CharT, AllocatorT>(al)
         {
@@ -30,6 +31,16 @@ namespace ulib
 
         inline EncodedString(const BasicString<CharT, AllocatorT> &str)
             : BasicString<CharT, AllocatorT>(str)
+        {
+        }
+
+        inline EncodedString(const CharAliasT *str, size_t size, AllocatorParams al = {})
+            : BasicString<CharT, AllocatorT>((CharT *)str, size, al)
+        {
+        }
+
+        inline EncodedString(const CharAliasT *b, const CharAliasT *e, AllocatorParams al = {})
+            : BasicString<CharT, AllocatorT>((CharT *)b, (CharT *)e, al)
         {
         }
 
