@@ -17,6 +17,8 @@
 
 #include <cstring>
 
+#include "iterators/randomaccessiterator.h"
+
 namespace ulib
 {
     template <class CharT, class AllocatorT>
@@ -25,6 +27,15 @@ namespace ulib
     public:
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
+
+        using Iterator = RandomAccessIterator<CharT>;
+        using ConstIterator = RandomAccessIterator<const CharT>;
+
+        using value_type = CharT;
+        using pointer = value_type *;
+        using reference = value_type &;
+        using iterator = Iterator;
+        using const_iterator = ConstIterator;
 
         using AllocatorParams = typename AllocatorT::Params;
         using value_type = CharT;
@@ -148,8 +159,75 @@ namespace ulib
 
         inline CharT *Data() { return mBegin; }
         inline CharT *Data() const { return mBegin; }
-        inline CharT *data() { return mBegin; }
-        inline CharT *data() const { return mBegin; }
+        inline iterator Begin() { return mBegin; }
+        inline iterator End() { return mLast; }
+        inline const_iterator Begin() const { return mBegin; }
+        inline const_iterator End() const { return mLast; }
+        inline iterator ReverseBegin() { return mLast - 1; }
+        inline iterator ReverseEnd() { return mBegin - 1; }
+        inline const_iterator ReverseBegin() const { return mLast - 1; }
+        inline const_iterator ReverseEnd() const { return mBegin - 1; }
+        inline bool Empty() const { return mBegin == mLast; }
+
+        inline size_t Size() const { return mLast - mBegin; }
+        inline size_t Capacity() const { return mEnd - mBegin; }
+        inline size_t SizeInBytes() const { return mLastB - mBeginB; }
+        inline size_t CapacityInBytes() const { return mEndB - mBeginB; }
+        inline void SetSize(size_t newSize) { mLast = mBegin + newSize; }
+
+        inline iterator begin() { return mBegin; }
+        inline iterator end() { return mLast; }
+        inline const_iterator begin() const { return mBegin; }
+        inline const_iterator end() const { return mLast; }
+        inline size_t size() const { return Size(); }
+        inline size_t capacity() const { return Capacity(); }
+        inline CharT *data() { return Data(); }
+        inline const CharT *data() const { return Data(); }
+        inline void erase(iterator it) { Erase(it); }
+        inline void push_back(const CharT &o) { PushBack(o); }
+        inline void push_back(CharT &&o) { PushBack(std::move(o)); }
+        inline void pop_back() { PopBack(); }
+        inline bool empty() { return Empty(); }
+
+        inline void Erase(iterator it)
+        {
+            assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::Erase");
+            assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::Erase");
+
+            CharT *from = it.ptr + 1;
+            ::memcpy(it.ptr, from, mLastB - (uchar *)from);
+            mLast--;
+        }
+
+        inline void Erase(size_t i) { Erase(mBegin + i); }
+        inline int Index(const_iterator it) const { return int(it.ptr - mBegin); }
+        inline int Index(iterator it) const { return int(it.ptr - mBegin); }
+
+        inline void FastErase(iterator it)
+        {
+            assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::FastErase");
+            assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::FastErase");
+
+            CharT *pBack = mLast - 1;
+            if (it.ptr != pBack)
+            {
+                // c++ fan version
+                // new (it.ptr) T(std::move(*pBack));
+
+                // right version
+                memcpy(it.ptr, pBack, sizeof(CharT));
+            }
+
+            mLast--;
+        }
+
+        inline void PopBack()
+        {
+            assert(Size() && "Attempt pop element in empty list in List<T>::Pop");
+            mLast--;
+        }
+
+        inline void Pop() { PopBack(); }
 
         void MarkZeroEnd()
         {
@@ -287,36 +365,6 @@ namespace ulib
 
             mLast = ch;
             mLast++;
-        }
-
-        size_t Size() const
-        {
-            return mLast - mBegin;
-        }
-
-        size_t size() const
-        {
-            return mLast - mBegin;
-        }
-
-        size_t Capacity() const
-        {
-            return mEnd - mBegin;
-        }
-
-        size_t SizeInBytes() const
-        {
-            return mLastB - mBeginB;
-        }
-
-        size_t CapacityInBytes() const
-        {
-            return mEndB - mBeginB;
-        }
-
-        void SetSize(size_t newSize)
-        {
-            mLast = mBegin + newSize;
         }
 
     protected:

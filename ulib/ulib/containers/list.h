@@ -8,7 +8,7 @@
 #include <ulib/resources/resource.h>
 #include <ulib/allocators/defaultallocator.h>
 
-#include "iterators/binaryiterator.h"
+#include "iterators/randomaccessiterator.h"
 
 #include <assert.h>
 
@@ -37,8 +37,8 @@ namespace ulib
 		constexpr static size_t M_STEP = sizeof(T) * C_STEP;
 
 	public:
-		using Iterator = BinaryIterator<T>;
-		using ConstIterator = BinaryIterator<const T>;
+		using Iterator = RandomAccessIterator<T>;
+		using ConstIterator = RandomAccessIterator<const T>;
 
 		using value_type = T;
 		using pointer = value_type *;
