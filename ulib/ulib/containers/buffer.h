@@ -277,6 +277,21 @@ namespace ulib
             return *this;
         }
 
+        inline void Append(const T* data, size_t size)
+        {
+            size_t sizeInBytes = SizeInBytes();
+            size_t rightSizeInBytes = size * sizeof(T);
+
+            size_t reqSize = sizeInBytes + rightSizeInBytes;
+            if (Capacity() < reqSize)
+            {
+                ReallocateMemory(sizeInBytes, reqSize);
+            }
+
+            memcpy(mLast, data, rightSizeInBytes);
+            mLast = mBegin + reqSize;
+        }
+
         template <class LAllocatorT>
         inline void Append(const BasicBuffer<T, LAllocatorT> &right)
         {
