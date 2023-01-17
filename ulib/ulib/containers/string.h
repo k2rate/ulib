@@ -25,7 +25,7 @@
 
 namespace ulib
 {
-    template <class CharT, class AllocatorT>
+    template <class CharT, class AllocatorT = DefaultAllocator>
     class BasicString : public Resource<AllocatorT>
     {
     public:
@@ -141,49 +141,6 @@ namespace ulib
         }
 
 #endif
-        /*
-                operator const std::basic_string_view<CharT>&() const
-        {
-            return std::basic_string_view<CharT>(mBegin, Size());
-        }
-
-        */
-
-        /*
-               template <size_t N>
-        inline BasicString(std::initializer_list<CharT> init, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = init.size() * sizeof(CharT);
-            mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(allocSize))) + allocSize;
-
-            memcpy(mBeginB, init.begin(), init.size() * sizeof(CharT));
-        }
-
-        */
-
-        /*
-               template <size_t N>
-        inline BasicString(const CharT (&arr)[N], AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = sizeof(CharT) * N;
-            mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(allocSize))) + allocSize;
-            memcpy(mBeginB, arr, N);
-        }
-        */
-
-        /*
-                template <size_t N>
-         inline BasicString(const CharT (&arr)[N], AllocatorParams al = {})
-             : Resource<AllocatorT>(al)
-         {
-             size_t allocSize = sizeof(CharT) * N;
-             mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(allocSize))) + allocSize;
-             memcpy(mBeginB, arr, N);
-         }
-        */
-
         inline ~BasicString()
         {
             if (mBegin)
@@ -206,8 +163,10 @@ namespace ulib
 
         inline size_t Size() const { return mLast - mBegin; }
         inline size_t Capacity() const { return mEnd - mBegin; }
+        inline size_t Available() const { return mEnd - mLast; }
         inline size_t SizeInBytes() const { return mLastB - mBeginB; }
         inline size_t CapacityInBytes() const { return mEndB - mBeginB; }
+        inline size_t AvailableInBytes() const { return mEnd - mLast; }
         inline void SetSize(size_t newSize) { mLast = mBegin + newSize; }
 
         inline iterator begin() { return mBegin; }

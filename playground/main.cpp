@@ -9,12 +9,28 @@
 #include <ulib/allocators/staticallocator.h>
 #include <ulib/containers/list.h>
 #include <ulib/containers/queue.h>
+#include <ulib/containers/range.h>
+#include <ulib/containers/string.h>
+#include <ulib/containers/stringview.h>
+#include <ulib/containers/buffer.h>
+#include <ulib/encodings/utf8/string.h>
+#include <ulib/encodings/utf16/string.h>
+#include <ulib/encodings/utf32/string.h>
+#include <ulib/encodings/utf8/stringview.h>
+#include <ulib/encodings/converter.h>
+#include <ulib/encodings/platform/string.h>
+#include <ulib/random/uniquegenerator.h>
+#include <ulib/allocators/handledstaticallocator.h>
 
 #include <algorithm>
 #include <random>
-#include <memory_resource>
 #include <vector>
+#include <string>
+#include <filesystem>
+
 #include <assert.h>
+
+#include <windows.h>
 
 void StatDescDump(const ulib::perf::StatisticsDescription &desc)
 {
@@ -174,28 +190,7 @@ __declspec(noinline) void testvecl()
     }
 }
 
-#include <string>
 
-#include <ulib/random/uniquegenerator.h>
-#include <ulib/allocators/handledstaticallocator.h>
-
-#include <ulib/containers/range.h>
-#include <ulib/containers/string.h>
-
-#include <ulib/containers/string.h>
-#include <ulib/containers/stringview.h>
-
-#include <ulib/encodings/utf8/string.h>
-#include <ulib/encodings/utf16/string.h>
-#include <ulib/encodings/utf32/string.h>
-#include <ulib/encodings/utf8/stringview.h>
-
-#include <ulib/encodings/converter.h>
-#include <ulib/encodings/platform/string.h>
-
-#include <windows.h>
-
-#include <filesystem>
 
 int main()
 {
@@ -210,8 +205,6 @@ int main()
 
                 ulib::String blyat = ulib::Range<const typename std::string_view::value_type>(tests);
                 ulib::String test2 = rr;
-                ulib::String test3 = ulib::Range<char>(0, 0);
-
                 ulib::String pzr = tests;
 
                 blyat.Append("pads");
