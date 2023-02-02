@@ -19,6 +19,7 @@
 #include <ulib/encodings/utf8/stringview.h>
 #include <ulib/encodings/converter.h>
 #include <ulib/encodings/platform/string.h>
+#include <ulib/encodings/widestring.h>
 #include <ulib/random/uniquegenerator.h>
 #include <ulib/allocators/handledstaticallocator.h>
 
@@ -34,41 +35,41 @@
 
 void StatDescDump(const ulib::perf::StatisticsDescription &desc)
 {
-    printf("- min: %.10fs\n- max: %.10fs\n- avg: %.10fs\n- sum: %.10fs\n- calls: %llu\n- minCall: %llu\n- maxCall: %llu\n",
-           ulib::perf::ToSeconds(desc.min), ulib::perf::ToSeconds(desc.max), ulib::perf::ToSeconds(desc.avg.Value()), ulib::perf::ToSeconds(desc.sum), desc.avg.Count(),
-           desc.minCallIndex, desc.maxCallIndex);
+	printf("- min: %.10fs\n- max: %.10fs\n- avg: %.10fs\n- sum: %.10fs\n- calls: %llu\n- minCall: %llu\n- maxCall: %llu\n",
+		   ulib::perf::ToSeconds(desc.min), ulib::perf::ToSeconds(desc.max), ulib::perf::ToSeconds(desc.avg.Value()), ulib::perf::ToSeconds(desc.sum), desc.avg.Count(),
+		   desc.minCallIndex, desc.maxCallIndex);
 }
 
 void PerfDump(const std::string &name)
 {
-    if (ulib::perf::Statistics *pStatistics = ulib::perf::Status(name))
-    {
-        if (!pStatistics->ready)
-        {
-            printf("perf %s is not ready\n", name.c_str());
-            return;
-        }
+	if (ulib::perf::Statistics *pStatistics = ulib::perf::Status(name))
+	{
+		if (!pStatistics->ready)
+		{
+			printf("perf %s is not ready\n", name.c_str());
+			return;
+		}
 
-        printf("\n--- perf dump start ---\n");
+		printf("\n--- perf dump start ---\n");
 
-        if (pStatistics->mDescs.size() > 1)
-        {
-            printf("\n[%s]: (all)\n", name.c_str());
-            StatDescDump(*pStatistics);
-        }
+		if (pStatistics->mDescs.size() > 1)
+		{
+			printf("\n[%s]: (all)\n", name.c_str());
+			StatDescDump(*pStatistics);
+		}
 
-        for (auto &obj : pStatistics->mDescs)
-        {
-            printf("\n[%s]: (%s)\n", name.c_str(), obj.first.c_str());
-            StatDescDump(obj.second);
-        }
+		for (auto &obj : pStatistics->mDescs)
+		{
+			printf("\n[%s]: (%s)\n", name.c_str(), obj.first.c_str());
+			StatDescDump(obj.second);
+		}
 
-        printf("\n--- perf dump end --- \n\n");
-    }
-    else
-    {
-        printf("perf %s not found\n", name.c_str());
-    }
+		printf("\n--- perf dump end --- \n\n");
+	}
+	else
+	{
+		printf("perf %s not found\n", name.c_str());
+	}
 }
 
 const size_t kBlockSize = 0x200000;
@@ -79,65 +80,65 @@ const size_t kMaxAlloc = 100;
 template <class AllocatorT>
 void TestAllocator(const std::string &name, AllocatorT &alloc)
 {
-    std::vector<void *> ptrs;
-    ptrs.resize(kAllocationCount);
+	std::vector<void *> ptrs;
+	ptrs.resize(kAllocationCount);
 
-    std::random_device rd;
-    std::mt19937 g(rd());
+	std::random_device rd;
+	std::mt19937 g(rd());
 
-    {
-        {
-            ulib::perf::Test test(name + ".alloc");
+	{
+		{
+			ulib::perf::Test test(name + ".alloc");
 
-            for (size_t i = 0; i != kAllocationCount; i++)
-            {
-                ptrs[i] = alloc.Alloc(kMinAlloc + rand() % 0x100);
-            }
-        }
+			for (size_t i = 0; i != kAllocationCount; i++)
+			{
+				ptrs[i] = alloc.Alloc(kMinAlloc + rand() % 0x100);
+			}
+		}
 
-        size_t index = rand() % kAllocationCount;
-        alloc.Free(ptrs[index]);
-        ptrs[index] = alloc.Alloc(0x10000);
+		size_t index = rand() % kAllocationCount;
+		alloc.Free(ptrs[index]);
+		ptrs[index] = alloc.Alloc(0x10000);
 
-        std::shuffle(ptrs.begin(), ptrs.end(), g);
+		std::shuffle(ptrs.begin(), ptrs.end(), g);
 
-        {
-            ulib::perf::Test test(name + ".free");
+		{
+			ulib::perf::Test test(name + ".free");
 
-            for (size_t i = 0; i != kAllocationCount; i++)
-            {
-                if (ptrs[i])
-                    alloc.Free(ptrs[i]);
-            }
-        }
-    }
+			for (size_t i = 0; i != kAllocationCount; i++)
+			{
+				if (ptrs[i])
+					alloc.Free(ptrs[i]);
+			}
+		}
+	}
 }
 
 template <class AllocatorT>
 __declspec(noinline) void RepeatTestAllocator(const std::string &name, AllocatorT &alloc, size_t repeatCount)
 {
-    for (size_t i = 0; i != repeatCount; i++)
-        TestAllocator<AllocatorT>(name, alloc);
+	for (size_t i = 0; i != repeatCount; i++)
+		TestAllocator<AllocatorT>(name, alloc);
 }
 
 template <class LinearAllocatorT>
 __declspec(noinline) void RepeatTestLinearAllocator(const std::string &name, LinearAllocatorT &alloc, size_t repeatCount)
 {
-    for (size_t i = 0; i != repeatCount; i++)
-    {
-        TestAllocator<LinearAllocatorT>(name, alloc);
-        alloc.Clear();
-    }
+	for (size_t i = 0; i != repeatCount; i++)
+	{
+		TestAllocator<LinearAllocatorT>(name, alloc);
+		alloc.Clear();
+	}
 }
 
 /*
 namespace regar
 {
-    template <class T>
-    using MyAllocator = ulib::StandardAllocator<T, ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>, 0>>;
+	template <class T>
+	using MyAllocator = ulib::StandardAllocator<T, ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>, 0>>;
 
-    template <class T>
-    using vector = std::vector<T, MyAllocator<T>>;
+	template <class T>
+	using vector = std::vector<T, MyAllocator<T>>;
 }
 */
 
@@ -147,211 +148,242 @@ using StaticFastMemAllocator = MainAllocator;
 
 void *operator new(size_t size)
 {
-    return MainAllocator::Alloc(size);
+	return MainAllocator::Alloc(size);
 }
 
 void operator delete(void *ptr)
 {
-    if (ptr)
-        MainAllocator::Free(ptr);
+	if (ptr)
+		MainAllocator::Free(ptr);
 }
 
 __declspec(noinline) void testvec()
 {
-    std::vector<std::string> vstr;
-    for (int i = 0; i != 200; i++)
-    {
-        vstr.push_back("hello");
-    }
+	std::vector<std::string> vstr;
+	for (int i = 0; i != 200; i++)
+	{
+		vstr.push_back("hello");
+	}
 
-    {
-        ulib::perf::Test test("std.erase");
+	{
+		ulib::perf::Test test("std.erase");
 
-        vstr.erase(vstr.begin() + 2);
-        vstr.erase(vstr.begin() + 3);
-        vstr.erase(vstr.begin() + 1);
-    }
+		vstr.erase(vstr.begin() + 2);
+		vstr.erase(vstr.begin() + 3);
+		vstr.erase(vstr.begin() + 1);
+	}
 }
 
 __declspec(noinline) void testvecl()
 {
-    ulib::List<std::string> vstr;
-    for (int i = 0; i != 200; i++)
-    {
-        vstr.push_back("hello");
-    }
+	ulib::List<std::string> vstr;
+	for (int i = 0; i != 200; i++)
+	{
+		vstr.push_back("hello");
+	}
 
-    {
-        ulib::perf::Test test("ulib.erase");
+	{
+		ulib::perf::Test test("ulib.erase");
 
-        vstr.erase(vstr.begin() + 2);
-        vstr.erase(vstr.begin() + 3);
-        vstr.erase(vstr.begin() + 1);
-    }
+		vstr.erase(vstr.begin() + 2);
+		vstr.erase(vstr.begin() + 3);
+		vstr.erase(vstr.begin() + 1);
+	}
 }
-
-
 
 int main()
 {
-    try
-    {
-        {
-            {
-                ulib::String test;
-                std::string_view tests = test;
-                
-                ulib::Range<const char> rr = tests;
+	try
+	{
+		{
 
-                ulib::String blyat = ulib::Range<const typename std::string_view::value_type>(tests);
-                ulib::String test2 = rr;
-                ulib::String pzr = tests;
+			{
+				{
+					ulib::u8string test = u8"пиздец нахуй";
+					ulib::u16string test2 = u"ахуеть блять";
+					ulib::u32string test3 = U"впизду крч";
 
-                blyat.Append("pads");
-            }
+					ulib::wstring w1 = ulib::ToWideString<ulib::Utf8>(test);
+					ulib::wstring w2 = ulib::ToWideString<ulib::Utf16>(test2);
+					ulib::wstring w3 = ulib::ToWideString<ulib::Utf32>(test3);
 
-            std::string_view ky = ulib::u8string("test");
+					auto full = w1 + L"\n" + w2 + L"\n" + w3;
 
-            ulib::String tstr{"ky"};
+					auto tt = ulib::Convert<ulib::Utf16, ulib::Utf16>(test2);
+					MessageBoxW(0, full.c_str(), L"ky", MB_OK);
+				}
 
-            ulib::u8string str8 = u8"пиздец сука заебался нахуй я аниме смотреть блять";
-            ulib::u16string str16 = u"пиздец сука заебался нахуй я аниме смотреть блять";
-            ulib::u32string str32 = U"пиздец сука заебался нахуй я аниме смотреть блять";
+				ulib::List<char> list = {'p', 'o', 'z', 'o', 'r'};
+				ulib::String test = list;
+				printf("test: %s\n", test.c_str());
 
-            // auto out = ulib::format<ulib::Utf16>(u8"Utf8: {}\nUtf16: {}\nUtf32: {}\n", str8, str16, str32);
-            ulib::u16string out;
+				std::vector<char> list0 = {'p', 'o', 'z', 'o', 'r'};
+				ulib::String test0 = list0;
+				printf("test0: %s\n", test0.c_str());
 
-            MessageBoxW(0, out.c_str(), L"хуй", MB_OK);
+				ulib::String str = "afjlkdsajfdksa";
+				ulib::List<char> tt = str;
+				ulib::String ky{std::string("pizdec")};
 
-            ulib::u8string_view vv = u8"пиздец";
-            ulib::u8string str = vv;
+				ulib::u8string u8str;
+				u8str = str;
+			}
 
-            ulib::string_view vs = "pizdec";
-            ulib::string rstr = vs;
-            
+			{
 
-            /*
-            std::string_view ky = "plakmp";
-            ulib::StringView u = ky;
+				ulib::String test;
+				std::string_view tests = test;
 
-            ulib::u8string str = u8"пиздец сука заебался нахуй я аниме смотреть блять";
-            ulib::u16string u16str = ulib::Convert<ulib::Utf8, ulib::Utf16>(str);
+				ulib::Range<const char> rr = tests;
 
-            */
+				ulib::String blyat = ulib::Range<const typename std::string_view::value_type>(tests);
+				ulib::String test2 = rr;
+				ulib::String pzr = tests;
 
-            // printf("test: %s\n", str.data());
+				blyat.Append("pads");
+			}
 
-            /*
-            ulib::u8string u8str = u8"u8str";
-            ulib::u16string u16str = u"u16str";
-            ulib::u32string u32str = U"u32str";
+			std::string_view ky = ulib::u8string("test");
 
-            // сомнительные сука вещи
-            ulib::wstring wstr = L"";
-            ulib::string str = "test string";
+			ulib::String tstr{"ky"};
 
-            wstr = u16str; // windows only
-            wstr = u32str; // linux only
+			ulib::u8string str8 = u8"пиздец сука заебался нахуй я аниме смотреть блять";
+			ulib::u16string str16 = u"пиздец сука заебался нахуй я аниме смотреть блять";
+			ulib::u32string str32 = U"пиздец сука заебался нахуй я аниме смотреть блять";
 
-            ulib::path path;
+			// auto out = ulib::format<ulib::Utf16>(u8"Utf8: {}\nUtf16: {}\nUtf32: {}\n", str8, str16, str32);
+			ulib::u16string out;
 
-            wstr = path; // windows
-            str = path; // linux
+			MessageBoxW(0, out.c_str(), L"хуй", MB_OK);
 
-            u8str = path; // linux
-            u16str = path; // windows
+			ulib::u8string_view vv = u8"пиздец";
+			ulib::u8string str = vv;
 
+			ulib::string_view vs = "pizdec";
+			ulib::string rstr = vs;
 
+			/*
+			std::string_view ky = "plakmp";
+			ulib::StringView u = ky;
 
+			ulib::u8string str = u8"пиздец сука заебался нахуй я аниме смотреть блять";
+			ulib::u16string u16str = ulib::Convert<ulib::Utf8, ulib::Utf16>(str);
 
-            char buf[3] = "re";
-            size_t test = std::end(buf) - std::begin(buf);
-            printf("test: %d\n", int(test));
-            */
+			*/
 
-            return 0;
-        }
+			// printf("test: %s\n", str.data());
 
-        ulib::List<std::string> sl1;
-        ulib::List<std::string> sl2(sl1);
-        ulib::List<std::string, ulib::MallocAllocator> sl3(sl1);
-        ulib::List<std::string, ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>> sl4(sl3);
-        sl1 = sl2;
-        sl2 = sl4;
+			/*
+			ulib::u8string u8str = u8"u8str";
+			ulib::u16string u16str = u"u16str";
+			ulib::u32string u32str = U"u32str";
 
-        ulib::List<std::string_view>::kTrivally;
-        // ulib::List<ulib::Range<int>>::kTrivally;
+			// сомнительные сука вещи
+			ulib::wstring wstr = L"";
+			ulib::string str = "test string";
 
-        using StaticFastMem = ulib::HandledStaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>;
-        StaticFastMem::Construct();
-        StaticFastMem::Alloc(100);
+			wstr = u16str; // windows only
+			wstr = u32str; // linux only
 
-        ulib::UniqueGenerator<int, ulib::MallocAllocator> gen;
+			ulib::path path;
 
-        gen.Generate();
-        gen.Generate();
+			wstr = path; // windows
+			str = path; // linux
 
-        std::vector<std::string> ky;
-        std::string arr[20];
-        ky.insert(ky.begin(), std::move(std::begin(arr)), std::move(std::end(arr)));
-
-        ulib::List<std::string, ulib::MallocAllocator> strs = {"hi", "ky", "pizdec"};
-        auto l2 = std::move(strs);
-        auto l3 = ulib::List<std::string, ulib::MallocAllocator>({"1", "2"});
-        l3 = std::move(l2);
-
-        /*
-        regar::vector<int> vec({});
-
-        vec.push_back(1);
-        vec.push_back(2);
-        vec.push_back(3);
-
-        */
-
-        srand(time(0));
-
-        /*
-            ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
-        RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
+			u8str = path; // linux
+			u16str = path; // windows
 
 
 
-        ulib::StaticAllocator<ulib::SlotAllocator<char[kMinAlloc], ulib::MallocAllocator>, 2> slotAllocator;
-        RepeatTestAllocator("ulib.slot", slotAllocator, 2000);
 
-        ulib::StaticPointerAllocator<ulib::SlotAllocator<char[kMinAlloc], ulib::MallocAllocator>, 2, ulib::MallocAllocator> slot2Allocator;
-        RepeatTestAllocator("ulib.slot2", slot2Allocator, 2000);
-        */
+			char buf[3] = "re";
+			size_t test = std::end(buf) - std::begin(buf);
+			printf("test: %d\n", int(test));
+			*/
 
-        ulib::MallocAllocator mallocAllocator;
-        RepeatTestAllocator("std.malloc", mallocAllocator, 2000);
+			return 0;
+		}
 
-        ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
-        RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
+		ulib::List<std::string> sl1;
+		ulib::List<std::string> sl2(sl1);
+		ulib::List<std::string, ulib::MallocAllocator> sl3(sl1);
+		ulib::List<std::string, ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>> sl4(sl3);
+		sl1 = sl2;
+		sl2 = sl4;
 
-        ulib::GrowLinearAllocator<ulib::MallocAllocator> grow;
-        RepeatTestLinearAllocator("ulib.grow", grow, 2000);
+		ulib::List<std::string_view>::kTrivally;
+		// ulib::List<ulib::Range<int>>::kTrivally;
 
-        PerfDump("std.malloc.alloc");
-        PerfDump("std.malloc.free");
+		using StaticFastMem = ulib::HandledStaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>;
+		StaticFastMem::Construct();
+		StaticFastMem::Alloc(100);
 
-        PerfDump("ulib.fastmem.alloc");
-        PerfDump("ulib.fastmem.free");
+		ulib::UniqueGenerator<int, ulib::MallocAllocator> gen;
 
-        PerfDump("ulib.slot.alloc");
-        PerfDump("ulib.slot.free");
+		gen.Generate();
+		gen.Generate();
 
-        PerfDump("ulib.slot2.alloc");
-        PerfDump("ulib.slot2.free");
+		std::vector<std::string> ky;
+		std::string arr[20];
+		ky.insert(ky.begin(), std::move(std::begin(arr)), std::move(std::end(arr)));
 
-        PerfDump("ulib.grow.alloc");
-        PerfDump("ulib.grow.free");
-    }
-    catch (const std::exception &e)
-    {
-        printf("exception: %s\n", e.what());
-    }
+		ulib::List<std::string, ulib::MallocAllocator> strs = {"hi", "ky", "pizdec"};
+		auto l2 = std::move(strs);
+		auto l3 = ulib::List<std::string, ulib::MallocAllocator>({"1", "2"});
+		l3 = std::move(l2);
 
-    return 0;
+		/*
+		regar::vector<int> vec({});
+
+		vec.push_back(1);
+		vec.push_back(2);
+		vec.push_back(3);
+
+		*/
+
+		srand(time(0));
+
+		/*
+			ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
+		RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
+
+
+
+		ulib::StaticAllocator<ulib::SlotAllocator<char[kMinAlloc], ulib::MallocAllocator>, 2> slotAllocator;
+		RepeatTestAllocator("ulib.slot", slotAllocator, 2000);
+
+		ulib::StaticPointerAllocator<ulib::SlotAllocator<char[kMinAlloc], ulib::MallocAllocator>, 2, ulib::MallocAllocator> slot2Allocator;
+		RepeatTestAllocator("ulib.slot2", slot2Allocator, 2000);
+		*/
+
+		ulib::MallocAllocator mallocAllocator;
+		RepeatTestAllocator("std.malloc", mallocAllocator, 2000);
+
+		ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
+		RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
+
+		ulib::GrowLinearAllocator<ulib::MallocAllocator> grow;
+		RepeatTestLinearAllocator("ulib.grow", grow, 2000);
+
+		PerfDump("std.malloc.alloc");
+		PerfDump("std.malloc.free");
+
+		PerfDump("ulib.fastmem.alloc");
+		PerfDump("ulib.fastmem.free");
+
+		PerfDump("ulib.slot.alloc");
+		PerfDump("ulib.slot.free");
+
+		PerfDump("ulib.slot2.alloc");
+		PerfDump("ulib.slot2.free");
+
+		PerfDump("ulib.grow.alloc");
+		PerfDump("ulib.grow.free");
+	}
+	catch (const std::exception &e)
+	{
+		printf("exception: %s\n", e.what());
+	}
+
+	return 0;
 }

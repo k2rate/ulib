@@ -9,10 +9,10 @@
 #include <ulib/allocators/defaultallocator.h>
 
 #include "iterators/randomaccessiterator.h"
+#include "range.h"
 #include "args.h"
 
 #include <assert.h>
-
 
 namespace ulib
 {
@@ -48,6 +48,18 @@ namespace ulib
 			mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(M_STEP)) + M_STEP;
 
 			assert(mBegin && "Out of memory in List<T>::List()");
+		}
+
+		template <class ContainerT, class vt = typename ContainerT::value_type, class RangeT = Range<const typename ContainerT::value_type>, std::enable_if_t<std::is_same_v<T, std::remove_cv_t<vt>>, bool> = true>
+		inline List(const ContainerT &cont, AllocatorParams al = {})
+			: Resource<AllocatorT>(al)
+		{
+			RangeT rn = cont;
+
+			size_t allocSize = rn.SizeInBytes();
+			mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+
+			memcpy(mBeginB, rn.Data(), allocSize);
 		}
 
 		inline List(size_t size, AllocatorParams al = {})
