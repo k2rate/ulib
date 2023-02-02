@@ -26,4 +26,15 @@ namespace ulib
 
 		return result;
 	}
+	
+	template<class EncodingT, class AllocatorT = DefaultAllocator>
+	inline EncodedString<EncodingT, AllocatorT> WideStringTo(ulib::WideStringView str, typename AllocatorT::Params al = {})
+	{
+		EncodedString<EncodingT, AllocatorT> result(str.size() * 4, al);
+
+		auto end = ulib::Convert<WideEncoding, EncodingT>(str.data(), str.data() + str.size(), result.data());
+        result.SetSize(end - result.data());
+
+		return result;
+	}
 }

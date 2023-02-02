@@ -207,9 +207,7 @@ int main()
 					ulib::wstring w2 = ulib::ToWideString<ulib::Utf16>(test2);
 					ulib::wstring w3 = ulib::ToWideString<ulib::Utf32>(test3);
 
-					auto full = w1 + L"\n" + w2 + L"\n" + w3;
-
-					auto tt = ulib::Convert<ulib::Utf16, ulib::Utf16>(test2);
+					auto full = w1 + L"\n" + w2 + L"\n" + w3 + L"\n" + ulib::ToWideString<ulib::Utf8>(ulib::WideStringTo<ulib::Utf8>(L"Широкий пиздец"));
 					MessageBoxW(0, full.c_str(), L"ky", MB_OK);
 				}
 
