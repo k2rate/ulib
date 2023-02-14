@@ -2,6 +2,7 @@
 
 #include <ulib/encodings/wide/string.h>
 #include <ulib/encodings/wide/stringview.h>
+#include <ulib/encodings/convert.h>
 
 namespace ulib
 {
