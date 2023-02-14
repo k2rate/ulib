@@ -3,19 +3,22 @@
 #include <ulib/types.h>
 #include "../exceptions.h"
 #include "../uchars.h"
+#include "../type.h"
+#include "../multibyte/encoding.h"
 
 namespace ulib
 {
     struct Utf8
     {
-        using Type = uchar;
+        using CharT = char8;
 
-        // BasicString main char
-        using CharT = detail::u8char;
+        using ParentEncodingT = MultibyteEncoding;
 
-        // EncodingString constructor type
-        using CharAliasT = char8;
-        
+#ifdef __cpp_char8_t
+        using CharStd = char;
+#endif
+
+        constexpr static EncodingType kType = EncodingType::Concrete;
 
         inline static CharT *Encode(uint codepoint, CharT *out)
         {

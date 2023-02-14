@@ -3,19 +3,19 @@
 #include <ulib/types.h>
 #include "../exceptions.h"
 #include "../uchars.h"
+#include "../type.h"
+#include "../nullencoding.h"
 
 namespace ulib
 {
     struct Utf16
     {
-        using Type = ushort;
-
-        // BasicString main char
-        using CharT = detail::u16char;
-        
-        // EncodingString constructor type 
-        using CharAliasT = char16;
-
+        using CharT = char16;
+        using ParentEncodingT = NullEncoding<CharT>;
+        constexpr static EncodingType kType = EncodingType::Concrete;
+#ifdef __cpp_char8_t
+        using CharStd = int;
+#endif
         inline static CharT *Encode(uint codepoint, CharT *out)
         {
             if (codepoint <= 0xFFFF)
@@ -52,14 +52,14 @@ namespace ulib
 
         inline static const CharT *Decode(const CharT *begin, const CharT *end, uint &out)
         {
-            auto it = (ushort*)begin;
-       
+            auto it = (ushort *)begin;
+
             if ((it[0] & 0xFC00) == 0xD800)
             {
                 // first 0xD800 - 0xDBFF
                 // 4 bytes
 
-                if (it + 1 == (ushort*)end)
+                if (it + 1 == (ushort *)end)
                 {
                     throw CharacterOutOfRangeException{};
                 }
@@ -68,13 +68,13 @@ namespace ulib
                 ushort second = it[1] - 0xDC00;
                 out = uint(first) + uint(second) + 0x10000;
 
-                return (CharT*)&it[2];         
+                return (CharT *)&it[2];
             }
             else
             {
                 out = it[0];
-                return (CharT*)&it[1];
-            }       
+                return (CharT *)&it[1];
+            }
         }
     };
 }

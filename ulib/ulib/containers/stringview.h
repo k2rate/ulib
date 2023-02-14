@@ -32,9 +32,12 @@ namespace ulib
         }
     };
 
-    using StringView = BasicStringView<char>;
+    /*
+        using StringView = BasicStringView<char>;
     using WideStringView = BasicStringView<wchar_t>;
 
     using string_view = StringView;
     using wstring_view = WideStringView;
+    */
+
 }

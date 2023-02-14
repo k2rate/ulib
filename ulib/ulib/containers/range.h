@@ -103,6 +103,20 @@ namespace ulib
             return *ReverseBegin();
         }
 
+		inline bool Equal(Range<T> right) const
+		{
+			size_t size = Size();
+			if(size != right.Size())
+				return false;
+
+			return memcmp(mBegin, right.mBegin, size) == 0;
+		}
+
+		inline bool operator==(Range<T> right) const
+		{
+			return Equal(right);
+		}
+
     protected:
         T *mBegin;
         T *mLast;

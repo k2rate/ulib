@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "types.h"
 #include <assert.h>
 
@@ -55,3 +56,4 @@ namespace ulib
 		uint32 c;
 	};
 }
+*/

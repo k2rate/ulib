@@ -1,6 +1,9 @@
 #define ULIB_USE_STD_STRING_VIEW
 
 #include <ulib/containers/string.h>
+#include <ulib/encodings/multibyte/string.h>
+#include <ulib/encodings/multibyte/stringview.h>
+
 #include <gtest/gtest.h>
 
 TEST(StringTest, Constructs)

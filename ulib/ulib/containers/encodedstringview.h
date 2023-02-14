@@ -4,12 +4,12 @@
 
 namespace ulib
 {
-    template <class EncodingT>
-    class EncodedStringView : public BasicStringView<typename EncodingT::CharT>
+    template <class EncodingTy>
+    class EncodedStringView : public BasicStringView<typename EncodingTy::CharT>
     {
     public:
+        using EncodingT = EncodingTy;
         using CharT = typename EncodingT::CharT;
-        using CharAliasT = typename EncodingT::CharAliasT;
         using value_type = CharT;
 
         EncodedStringView()
@@ -17,8 +17,8 @@ namespace ulib
         {
         }
 
-        EncodedStringView(const CharAliasT *str)
-            : BasicStringView<CharT>((const CharT *)str)
+        EncodedStringView(const CharT *str)
+            : BasicStringView<CharT>(str)
         {
         }
 

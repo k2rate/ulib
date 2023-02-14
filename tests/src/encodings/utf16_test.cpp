@@ -2,7 +2,7 @@
 #include <ulib/encodings/utf16/encoding.h>
 #include <ulib/encodings/utf32/encoding.h>
 
-#include <ulib/encodings/converter.h>
+#include <ulib/encodings/convert.h>
 
 #include <gtest/gtest.h>
 

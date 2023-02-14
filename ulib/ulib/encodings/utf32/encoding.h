@@ -2,19 +2,19 @@
 
 #include <ulib/types.h>
 #include "../uchars.h"
+#include "../type.h"
+#include "../nullencoding.h"
 
 namespace ulib
 {
     struct Utf32
     {
-        using Type = uint;
-
-        // BasicString main char
-        using CharT = detail::u32char;
-        
-        // EncodingString constructor type 
-        using CharAliasT = char32_t;
-
+        using CharT = char32;
+        using ParentEncodingT = NullEncoding<CharT>;
+        constexpr static EncodingType kType = EncodingType::Concrete;
+#ifdef __cpp_char8_t
+        using CharStd = int;
+#endif
         inline static CharT *Encode(uint codepoint, CharT *out)
         {
             *out = codepoint;
