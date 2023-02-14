@@ -5,18 +5,44 @@
 #include <ulib/encodings/multibyte/string.h>
 #include <ulib/encodings/multibyte/stringview.h>
 
+#include <ulib/encodings/literalencoding.h>
+#include <ulib/encodings/convert.h>
+
 #ifdef ULIB_USE_STD_STRING_VIEW
 #include <string_view>
 #include <string>
+
 #endif
 
 namespace ulib
 {
-    template <class StringT, class EncodingT = typename StringT::EncodingT,
-              std::enable_if_t<sizeof(typename String::CharT) == sizeof(typename EncodingT::CharT), bool> = true>
+    template <class StringT, class EncodingT = typename StringT::EncodingT>
     inline string str(const StringT &str)
     {
-        using CharT = typename String::CharT;
-        return string((CharT *)str.data(), (CharT *)str.data() + str.size());
+        return Convert<MultibyteEncoding>(str);
     }
+
+    template <class CharT, class EncodingT = LiteralEncodingT<CharT>, std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
+    inline string str(const CharT *str)
+    {
+        return Convert<MultibyteEncoding>(str);
+    }
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+
+    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
+    inline string str(const std::basic_string<CharT> &str)
+    {
+        return Convert<MultibyteEncoding>(str);
+    }
+
+    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
+    inline string str(std::basic_string_view<CharT> str)
+    {
+        return Convert<MultibyteEncoding>(str);
+    }
+
+#endif
 }

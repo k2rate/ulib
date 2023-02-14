@@ -69,6 +69,19 @@ int main()
         test = ulib::u8(su8view);
         test = ulib::u8(su16view);
         test = ulib::u8(su32view);
+
+        test = ulib::Convert<ulib::Utf8>(test);
+        test = ulib::Convert<ulib::Utf8>(su8view);
+        test = ulib::Convert<ulib::Utf8>(view);
+        test = ulib::Convert<ulib::Utf8>("adfdsafdsafas");
+        test = ulib::Convert<ulib::Utf8>(L"да");
+
+        auto tttt = ulib::u8(ulib::u16(ulib::u32(ulib::u8(ulib::str(ulib::u8(ulib::wstr(u8"полный ку")))))));
+
+        auto ww = ulib::wstr(tttt);
+        MessageBoxW(0, (wchar_t*)ww.c_str(), L"Check", MB_OK);
+        
+
     }
 
     {

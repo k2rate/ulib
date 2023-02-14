@@ -15,34 +15,60 @@
 
 namespace ulib
 {
+    /*
+        template <class EncodingT, class AllocatorT, class StringT, class SourceEncodingT = typename StringT::EncodingT>
+    inline ulib::EncodedString<EncodingT> recode(const StringT &str, typename AllocatorT::Params al = {})
+    {
+        if constexpr (std::is_same_v<typename SourceEncodingT::ParentEncodingT, EncodingT>)
+        {
+            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
+            using DestCharT = typename EncodingT::CharT;
+            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
+                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
+
+            return ulib::EncodedString<EncodingT, AllocatorT>((DestCharT *)str.data(), (DestCharT *)str.data() + str.size(), al);
+        }
+
+        return Convert<SourceEncodingT, EncodingT>(str);
+    }
+
+    template <class EncodingT, class CharT, class SourceEncodingT = LiteralEncodingT<CharT>, std::enable_if_t<!std::is_same_v<SourceEncodingT, void>, bool> = true>
+    inline ulib::EncodedString<EncodingT> recode(const CharT *str)
+    {
+        if constexpr (std::is_same_v<typename SourceEncodingT::ParentEncodingT, EncodingT>)
+        {
+            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
+            using DestCharT = typename EncodingT::CharT;
+            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
+                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
+
+            return ulib::EncodedString<EncodingT>((DestCharT *)str);
+        }
+
+        return Convert<SourceEncodingT, EncodingT>(str);
+    }
+    */
+
+
     // convert multibyte string to u8 string
     template <class StringT, class EncodingT = typename StringT::EncodingT,
               std::enable_if_t<std::is_same_v<EncodingT, MultibyteEncoding>, bool> = true>
     inline u8string u8(const StringT &str)
     {
-        using CharT = typename u8string::CharT;
-        return u8string((CharT *)str.data(), (CharT *)str.data() + str.size());
+        return Convert<Utf8>(str);
     }
 
     template <class StringT, class EncodingT = typename StringT::EncodingT,
               std::enable_if_t<!std::is_same_v<EncodingT, MultibyteEncoding>, bool> = true>
     inline u8string u8(const StringT &str)
     {
-        return Convert<EncodingT, Utf8>(str);
+        return Convert<Utf8>(str);
     }
 
     template <class CharT, class EncodingT = LiteralEncodingT<CharT>, std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
     inline u8string u8(const CharT *str)
     {
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            using Char8T = typename u8string::CharT;
-            return u8string((Char8T *)str);
-        }
-        else
-        {
-            return Convert<EncodingT, Utf8>(str);
-        }
+        return Convert<Utf8>(str);
     }
 
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -51,41 +77,25 @@ namespace ulib
               std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
     inline u8string u8(const std::basic_string<CharT> &str)
     {
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            using Char8T = typename u8string::CharT;
-            return u8string((Char8T *)str.data(), (Char8T *)str.data() + str.size());
-        }
-        else
-        {
-            return Convert<EncodingT, Utf8>(str);
-        }
+        return Convert<Utf8>(str);
     }
 
     template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
-            std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline u8string u8(const std::basic_string_view<CharT> &str)
+              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
+    inline u8string u8(std::basic_string_view<CharT> str)
     {
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            using Char8T = typename u8string::CharT;
-            return u8string((Char8T *)str.data(), (Char8T *)str.data() + str.size());
-        }
-        else
-        {
-            return Convert<EncodingT, Utf8>(str);
-        }
+        return Convert<Utf8>(str);
     }
 
 #endif
-}
 
+}
 
 /*
 template<class StringT, class CharT = typename StringT::value_type, class AllocatorT = typename StringT::allocator_type>
 struct StdStringCheck
 {
-    constexpr static bool kResult = std::is_same_v<StringT, std::basic_string<CharT, std::char_traits<CharT>, AllocatorT>>; 
+    constexpr static bool kResult = std::is_same_v<StringT, std::basic_string<CharT, std::char_traits<CharT>, AllocatorT>>;
 };
 
 template<class StringT>
