@@ -9,64 +9,16 @@
 #include <vector>
 
 #include <windows.h>
-#include <ulib/encodings/charcase.h>
+#include <ulib/charcase.h>
 
 #include <locale>
-#include <ulib/containers/range.h>
 
-#ifndef __cpp_char8_t
-namespace std
-{
 
-}
-#endif
-
-/*
-void test(const ulib::string& ustr, const std::string& str)
-{
-    ustr == str;
-    str == ustr;
-}
-*/
 
 int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
-    {
-        ulib::string ustr;
-        ustr == ustr; 
-
-        std::string kystr("ky");
-        ulib::Range<const char> rrstr = ustr;
-
-
-        ulib::u8string u8str;
-        const ulib::u8string_view u8view;
-
-        u8str == u8view;
-        u8view == u8str;
-
-        u8str == u8"asdf";
-
-        // ulib::string ustr;
-        ustr == std::string_view{"adsfsdafsda"};
-
-
-
-        
-    }
-    /*
-        ulib::string ustr;
-    std::string str;
-
-    ustr == str;
-    str == ustr;
-
-    test(ustr, str);
-    */
-
-        /*
     try
     {
         {
@@ -93,6 +45,37 @@ int main()
             auto s5 = ulib::ToUpper(su8view);
             auto s6 = ulib::ToUpper(su16view);
             auto s7 = ulib::ToUpper(su32view);
+
+            s0 = ulib::ToLower(wview);
+            s1 = ulib::ToLower(u8view);
+            s2 = ulib::ToLower(u16view);
+            s3 = ulib::ToLower(u32view);
+
+            s4 = ulib::ToLower(swview);
+            s5 = ulib::ToLower(su8view);
+            s6 = ulib::ToLower(su16view);
+            s7 = ulib::ToLower(su32view);
+
+            s0 = ulib::upper(wview);
+            s1 = ulib::upper(u8view);
+            s2 = ulib::upper(u16view);
+            s3 = ulib::upper(u32view);
+
+            s4 = ulib::upper(swview);
+            s5 = ulib::upper(su8view);
+            s6 = ulib::upper(su16view);
+            s7 = ulib::upper(su32view);
+
+
+            s0 = ulib::lower(wview);
+            s1 = ulib::lower(u8view);
+            s2 = ulib::lower(u16view);
+            s3 = ulib::lower(u32view);
+
+            s4 = ulib::lower(swview);
+            s5 = ulib::lower(su8view);
+            s6 = ulib::lower(su16view);
+            s7 = ulib::lower(su32view);
 
             wstr = ulib::wstr(ulib::u8(s0) + ulib::u8(s1) + ulib::u8(s2) + ulib::u8(s3) +
                               ulib::u8(s4) + ulib::u8(s5) + ulib::u8(s6) + ulib::u8(s7));
@@ -284,7 +267,6 @@ int main()
     {
         printf("exception: %s\n", e.what());
     }
-    */
 
     return 0;
 }
