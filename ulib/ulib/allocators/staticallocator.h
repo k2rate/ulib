@@ -22,7 +22,7 @@ namespace ulib
         StaticAllocator() {}
         StaticAllocator(Params params) {}
         StaticAllocator(StaticAllocator<AllocatorT, TagT> &&source) {}
-        StaticAllocator(StaticAllocator<AllocatorT, TagT> &source) {}
+        StaticAllocator(const StaticAllocator<AllocatorT, TagT> &source) {}
         ~StaticAllocator() {}
 
         StaticAllocator<AllocatorT, TagT> &operator=(StaticAllocator<AllocatorT, TagT> &&source) { return *this; }
