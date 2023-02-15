@@ -21,11 +21,14 @@ namespace std
 #endif
 
 
+/*
 void test(const ulib::string& ustr, const std::string& str)
 {
     ustr == str;
     str == ustr;
 }
+*/
+
 
 
 
@@ -33,13 +36,16 @@ int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
-    ulib::string ustr;
+    /*
+        ulib::string ustr;
     std::string str;
 
     ustr == str;
     str == ustr;
 
     test(ustr, str);
+    */
+
 
     /*
     try

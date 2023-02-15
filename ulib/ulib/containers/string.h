@@ -581,6 +581,7 @@ namespace ulib
  */
 }
 
+/*
 #ifdef ULIB_USE_STD_STRING_VIEW
 template <class CharT>
 inline bool operator==(const std::basic_string<CharT> &str, const ulib::BasicString<CharT> &ustr)
@@ -588,3 +589,4 @@ inline bool operator==(const std::basic_string<CharT> &str, const ulib::BasicStr
     return ustr == str;
 }
 #endif
+*/

@@ -1,6 +1,8 @@
 #define ULIB_USE_STD_STRING_VIEW
 
 #include <ulib/containers/string.h>
+#include <ulib/containers/encodedstring.h>
+
 #include <ulib/encodings/multibyte/string.h>
 #include <ulib/encodings/multibyte/stringview.h>
 
@@ -28,7 +30,7 @@ TEST(StringTest, ConstructsFromStdString)
     std::string source = "hello";
     ulib::String str = source;
 
-    ASSERT_EQ(source, str);
+    ASSERT_EQ(str, source);
 }
 
 TEST(StringTest, ConstructsFromStringView)
@@ -36,7 +38,7 @@ TEST(StringTest, ConstructsFromStringView)
     std::string_view source = "hello";
     ulib::String str = source;
 
-    ASSERT_EQ(source, str);
+    ASSERT_EQ(str, source);
 }
 
 TEST(StringTest, ConstructsFromUlibStringView)
@@ -44,7 +46,7 @@ TEST(StringTest, ConstructsFromUlibStringView)
     ulib::StringView source = "hello";
     ulib::String str = source;
 
-    ASSERT_EQ(source, str);
+    ASSERT_EQ(str, source);
 }
 
 TEST(StringTest, ConstructsFromPointerAndSize)
