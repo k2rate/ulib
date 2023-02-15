@@ -25,15 +25,21 @@ namespace ulib
 
         template <class U>
         StandardAllocator(const StandardAllocator<U, AllocatorT> &other)
+            : AllocatorT({})
         {
             /*
             if (!std::is_same<T, U>::value)
                 throw std::exception(typeid(T).name());
-            */
-            
+            */           
         }
 
-        void deallocate(T *_Ptr, size_t _Count)
+        StandardAllocator(const StandardAllocator<T, AllocatorT> &right)
+            : AllocatorT(right)
+        {
+                      
+        }
+
+        inline void deallocate(T *_Ptr, size_t _Count)
         {
             assert(_Ptr);
             assert(_Count);
@@ -41,7 +47,7 @@ namespace ulib
             AllocatorT::Free(_Ptr);
         }
 
-        T *allocate(size_t _Count)
+        inline T *allocate(size_t _Count)
         {
             assert(_Count);
 
