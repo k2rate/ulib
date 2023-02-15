@@ -9,9 +9,45 @@
 #include <vector>
 
 #include <windows.h>
+#include <ulib/encodings/charcase.h>
+
+#include <locale>
 
 int main()
 {
+    std::setlocale(LC_ALL, ".utf8");
+
+    {
+        ulib::wstring wstr = L"пиздец";
+
+        // ulib::string_view view = "niggers";
+        ulib::wstring_view wview = L"niggers ";
+        ulib::u8string_view u8view = u8"негры блять ";
+        ulib::u16string_view u16view = u"негры блять ";
+        ulib::u32string_view u32view = U"негры блять ";
+
+        // std::string_view sview = "niggers";
+        std::wstring_view swview = L"niggers ";
+        std::u8string_view su8view = u8"негры блять ";
+        std::u16string_view su16view = u"негры блять ";
+        std::u32string_view su32view = U"негры блять ";
+
+        auto s0 = ulib::ToUpper(wview);
+        auto s1 = ulib::ToUpper(u8view);
+        auto s2 = ulib::ToUpper(u16view);
+        auto s3 = ulib::ToUpper(u32view);
+
+        auto s4 = ulib::ToUpper(swview);
+        auto s5 = ulib::ToUpper(su8view);
+        auto s6 = ulib::ToUpper(su16view);
+        auto s7 = ulib::ToUpper(su32view);
+
+        wstr = ulib::wstr(ulib::u8(s0) + ulib::u8(s1) + ulib::u8(s2) + ulib::u8(s3) +
+                          ulib::u8(s4) + ulib::u8(s5) + ulib::u8(s6) + ulib::u8(s7));
+
+        MessageBoxW(0, wstr.c_str(), L"re", MB_OK);
+        MessageBoxW(0, ulib::ToLower(wstr).c_str(), L"re", MB_OK);
+    }
 
     {
         ulib::string_view view = "test";
