@@ -14,6 +14,38 @@ int main()
 {
 
     {
+        ulib::string_view view = "test";
+        ulib::wstring_view wview = L"test";
+        ulib::u8string_view u8view = u8"test";
+        ulib::u16string_view u16view = u"test";
+        ulib::u32string_view u32view = U"test";
+
+        ulib::string_view view1 = view;
+        ulib::wstring_view wview1 = wview;
+        ulib::u8string_view u8view1 = u8view;
+        ulib::u16string_view u16view1 = u16view;
+        ulib::u32string_view u32view1 = u32view;
+
+        view1 = view;
+        wview1 = wview;
+        u8view1 = u8view;
+        u16view1 = u16view;
+        u32view1 = u32view;
+
+        std::string sstr;
+        std::u8string su8str;
+        ulib::u8string u8str;
+        ulib::u8string_view u8view2 = u8str;
+
+        u8view = u8str;
+        u8view = u8view;
+        u8view = su8str;
+        // u8view = sstr;
+        // u8view = u16view;
+
+    }
+
+    {
         ulib::u8string test = u8"пиздец нахуй";
         ulib::u16string test2 = u"ахуеть блять";
         ulib::u32string test3 = U"впизду крч";
@@ -79,9 +111,7 @@ int main()
         auto tttt = ulib::u8(ulib::u16(ulib::u32(ulib::u8(ulib::str(ulib::u8(ulib::wstr(u8"полный ку")))))));
 
         auto ww = ulib::wstr(tttt);
-        MessageBoxW(0, (wchar_t*)ww.c_str(), L"Check", MB_OK);
-        
-
+        MessageBoxW(0, (wchar_t *)ww.c_str(), L"Check", MB_OK);
     }
 
     {

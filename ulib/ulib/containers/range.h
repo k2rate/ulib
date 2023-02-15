@@ -40,27 +40,23 @@ namespace ulib
             mLast = other.mLast;
         }
 
-        template <class ContainerT>
+        template <class ContainerT, class ContT = typename ContainerT::value_type,
+                  std::enable_if_t<std::is_same_v<std::remove_cv_t<ContT>, std::remove_cv_t<T>>, bool> = true>
         inline Range(ContainerT &cont)
         {
             using std::data;
             using std::size;
 
-            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*data(cont))>>;
-            static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "Range<T> type conversion failed");
-
             mBegin = data(cont);
             mLast = data(cont) + size(cont);
         }
 
-        template <class ContainerT>
+        template <class ContainerT, class ContT = typename ContainerT::value_type,
+                  std::enable_if_t<std::is_same_v<std::remove_cv_t<ContT>, std::remove_cv_t<T>>, bool> = true>
         inline Range<T> &operator=(ContainerT &cont)
         {
             using std::data;
             using std::size;
-
-            using ContT = std::remove_cv_t<std::remove_reference_t<decltype(*data(cont))>>;
-            static_assert(std::is_same_v<ContT, std::remove_cv_t<T>>, "RangeView type conversion failed");
 
             mBegin = data(cont);
             mLast = data(cont) + size(cont);
@@ -103,19 +99,19 @@ namespace ulib
             return *ReverseBegin();
         }
 
-		inline bool Equal(Range<T> right) const
-		{
-			size_t size = Size();
-			if(size != right.Size())
-				return false;
+        inline bool Equal(Range<T> right) const
+        {
+            size_t size = Size();
+            if (size != right.Size())
+                return false;
 
-			return memcmp(mBegin, right.mBegin, size) == 0;
-		}
+            return memcmp(mBegin, right.mBegin, size) == 0;
+        }
 
-		inline bool operator==(Range<T> right) const
-		{
-			return Equal(right);
-		}
+        inline bool operator==(Range<T> right) const
+        {
+            return Equal(right);
+        }
 
     protected:
         T *mBegin;

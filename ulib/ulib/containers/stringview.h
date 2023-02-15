@@ -31,9 +31,10 @@ namespace ulib
         {
         }
 
-        template <class StringT, class CharT = typename StringT::value_type>
+        template <class StringT, class SCharT = typename StringT::value_type,
+                  std::enable_if_t<std::is_same_v<SCharT, CharT>, bool> = true>
         BasicStringView(const StringT &str)
-            : Range<const CharT>(str)
+            : Range<const SCharT>(str)
         {
         }
 
