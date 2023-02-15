@@ -20,7 +20,7 @@ namespace ulib
 		inline void Free(void *page)
 		{
 			assert(page);
-			delete page;
+			delete (char*)page;
 		}
 
 	private:

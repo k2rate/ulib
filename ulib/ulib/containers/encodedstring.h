@@ -132,8 +132,8 @@ namespace ulib
         inline void push_back(CharT &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
-        inline size_t reserve(size_t s) { Reserve(s); }
-        inline void Reserve(size_t s) { return BaseT::Reserve(s); }
+        inline void reserve(size_t s) { Reserve(s); }
+        inline void Reserve(size_t s) { BaseT::Reserve(s); }
         inline void Erase(iterator it) { return BaseT::Erase(it); }
         inline void Erase(size_t i) { Erase(this->mBegin + i); }
         inline void FastErase(iterator it) { return BaseT::FastErase(it); }

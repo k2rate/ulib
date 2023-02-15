@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 
 #include <numeric>
-#include <windows.h>
 #include <ulib/containers/string.h>
 
 TEST(ListTest, SupportsAddingValues)
