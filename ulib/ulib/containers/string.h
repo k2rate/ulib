@@ -30,15 +30,13 @@ namespace ulib
 
         using Iterator = RandomAccessIterator<CharT>;
         using ConstIterator = RandomAccessIterator<const CharT>;
+        using AllocatorParams = typename AllocatorT::Params;
 
         using value_type = CharT;
         using pointer = value_type *;
         using reference = value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
-
-        using AllocatorParams = typename AllocatorT::Params;
-        using value_type = CharT;
 
         inline BasicString(AllocatorParams al = {})
             : Resource<AllocatorT>(al)
@@ -177,7 +175,7 @@ namespace ulib
         inline void push_back(CharT &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
-        inline size_t reserve(size_t s) { Reserve(s); }
+        inline void reserve(size_t s) { Reserve(s); }
 
         inline void Reserve(size_t s)
         {
