@@ -248,3 +248,11 @@ namespace ulib
         */
     };
 }
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+template<class EncodingT, class AllocatorT>
+inline bool operator==(const std::basic_string<typename EncodingT::CharT>& str, const ulib::EncodedString<EncodingT, AllocatorT>& ustr)
+{
+    return ustr == str;
+}
+#endif

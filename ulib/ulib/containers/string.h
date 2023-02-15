@@ -300,7 +300,9 @@ namespace ulib
             return memcmp(mBeginB, right.mBeginB, sizeInBytes) == 0;
         }
 
-        template <class ContainerT, class vt = typename ContainerT::value_type, class RangeT = Range<const typename ContainerT::value_type>, std::enable_if_t<std::is_same_v<CharT, std::remove_cv_t<vt>>, bool> = true>
+        template <class ContainerT, class vt = typename ContainerT::value_type,
+                  class RangeT = Range<const typename ContainerT::value_type>,
+                  std::enable_if_t<std::is_same_v<CharT, std::remove_cv_t<vt>>, bool> = true>
         inline bool operator==(const ContainerT &right) const
         {
             RangeT str = right;
@@ -578,3 +580,11 @@ namespace ulib
 
  */
 }
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+template <class CharT>
+inline bool operator==(const std::basic_string<CharT> &str, const ulib::BasicString<CharT> &ustr)
+{
+    return ustr == str;
+}
+#endif
