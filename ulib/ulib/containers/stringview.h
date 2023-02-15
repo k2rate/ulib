@@ -3,6 +3,10 @@
 #include "range.h"
 #include "clength.h"
 
+#ifdef ULIB_USE_STD_STRING_VIEW
+#include <string_view>
+#endif
+
 namespace ulib
 {
     template <class CharT>
@@ -41,6 +45,13 @@ namespace ulib
         ~BasicStringView()
         {
         }
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+        operator std::basic_string_view<CharT>() const
+        {
+            return std::basic_string_view<CharT>(this->mBegin, this->Size());
+        }
+#endif
     };
 
     /*

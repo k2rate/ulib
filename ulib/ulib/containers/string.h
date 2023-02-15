@@ -1,27 +1,23 @@
 #pragma once
 
 #include <ulib/types.h>
+#include <ulib/config.h>
+
 #include <ulib/allocators/defaultallocator.h>
 #include <ulib/resources/resource.h>
 
 #include "clength.h"
 #include "stringview.h"
+#include "iterators/randomaccessiterator.h"
+#include "args.h"
+#include "range.h"
 
-#define ULIB_USE_STD_STRING_VIEW
+#include <type_traits>
+#include <cstring>
 
 #ifdef ULIB_USE_STD_STRING_VIEW
 #include <string_view>
-#include <string>
 #endif
-
-#include <type_traits>
-
-#include <cstring>
-
-#include "iterators/randomaccessiterator.h"
-#include "args.h"
-
-#include "range.h"
 
 namespace ulib
 {

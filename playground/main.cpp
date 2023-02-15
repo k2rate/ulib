@@ -43,6 +43,9 @@ int main()
         // u8view = sstr;
         // u8view = u16view;
 
+        ulib::u8string u8str1(u8view);
+        u8str = u8view;
+
     }
 
     {

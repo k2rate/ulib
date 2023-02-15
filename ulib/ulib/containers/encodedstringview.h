@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ulib/config.h>
 #include "stringview.h"
 
 namespace ulib
@@ -47,5 +48,22 @@ namespace ulib
         ~EncodedStringView()
         {
         }
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+
+        operator std::basic_string_view<CharT>() const
+        {
+            return std::basic_string_view<CharT>(this->mBegin, this->Size());
+        }
+
+#ifdef __cpp_char8_t
+        // template <class CurrentCharT = typename EncodingT::CharStd, std::enable_if_t<std::is_same_v<ParentEncodingT, MultibyteEncoding>, bool> = true>
+        operator std::basic_string_view<typename EncodingT::CharStd>() const
+        {
+            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, this->Size());
+        }
+
+#endif
+#endif
     };
 }
