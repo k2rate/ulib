@@ -30,7 +30,7 @@ TEST(StringTest, ConstructsFromStdString)
     std::string source = "hello";
     ulib::String str = source;
 
-    ASSERT_EQ(str, source);
+    ASSERT_EQ(str, ulib::String(source.c_str()));
 }
 
 TEST(StringTest, ConstructsFromStringView)
@@ -38,7 +38,7 @@ TEST(StringTest, ConstructsFromStringView)
     std::string_view source = "hello";
     ulib::String str = source;
 
-    ASSERT_EQ(str, source);
+    ASSERT_EQ(str, ulib::String(source.data(), source.size()));
 }
 
 TEST(StringTest, ConstructsFromUlibStringView)
@@ -94,5 +94,5 @@ TEST(StringTest, ConvertsToStringView)
     ulib::String str = "hello";
     std::string_view to = str;
 
-    ASSERT_EQ(str, to);
+    ASSERT_EQ(str, ulib::String(to.data(), to.size()));
 }

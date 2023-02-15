@@ -36,8 +36,8 @@ namespace ulib
 
         inline Range(Range<std::remove_cv_t<T>> &other)
         {
-            mBegin = other.mBegin;
-            mLast = other.mLast;
+            mBegin = other.data();
+            mLast = other.data() + other.size();
         }
 
         template <class ContainerT, class ContT = typename ContainerT::value_type,

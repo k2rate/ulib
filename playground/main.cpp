@@ -12,6 +12,7 @@
 #include <ulib/encodings/charcase.h>
 
 #include <locale>
+#include <ulib/containers/range.h>
 
 #ifndef __cpp_char8_t
 namespace std
@@ -19,7 +20,6 @@ namespace std
 
 }
 #endif
-
 
 /*
 void test(const ulib::string& ustr, const std::string& str)
@@ -29,13 +29,33 @@ void test(const ulib::string& ustr, const std::string& str)
 }
 */
 
-
-
-
 int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
+    {
+        ulib::string ustr;
+        ustr == ustr; 
+
+        std::string kystr("ky");
+        ulib::Range<const char> rrstr = ustr;
+
+
+        ulib::u8string u8str;
+        const ulib::u8string_view u8view;
+
+        u8str == u8view;
+        u8view == u8str;
+
+        u8str == u8"asdf";
+
+        // ulib::string ustr;
+        ustr == std::string_view{"adsfsdafsda"};
+
+
+
+        
+    }
     /*
         ulib::string ustr;
     std::string str;
@@ -46,8 +66,7 @@ int main()
     test(ustr, str);
     */
 
-
-    /*
+        /*
     try
     {
         {
@@ -266,7 +285,6 @@ int main()
         printf("exception: %s\n", e.what());
     }
     */
-    
 
     return 0;
 }

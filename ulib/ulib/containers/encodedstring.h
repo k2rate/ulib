@@ -5,6 +5,23 @@
 
 namespace ulib
 {
+#ifdef ULIB_USE_STD_STRING_VIEW
+    template <class T>
+    struct CheckStdStringView
+    {
+        constexpr static bool kTrue = false;
+    };
+
+    template <class CharT>
+    struct CheckStdStringView<std::basic_string_view<CharT>>
+    {
+        constexpr static bool kTrue = true;
+    };
+
+    template <class T>
+    inline constexpr bool IsStdStringView = CheckStdStringView<T>::kTrue;
+#endif
+
     template <class EncodingTy, class AllocatorTy = DefaultAllocator>
     class EncodedString : protected BasicString<typename EncodingTy::CharT, AllocatorTy>
     {
@@ -165,27 +182,42 @@ namespace ulib
         }
 
         template <class LAllocatorT>
-        inline EncodedString<EncodingT, AllocatorT>& operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
+        inline EncodedString<EncodingT, AllocatorT> &operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
         {
             Append(right);
             return *this;
         }
 
-        inline EncodedString<EncodingT, AllocatorT>& operator+=(const CharT *right)
+        inline EncodedString<EncodingT, AllocatorT> &operator+=(const CharT *right)
         {
             Append(right);
             return *this;
         }
 
-        template <class LAllocatorT>
+        /*
+                template <class LAllocatorT>
         inline bool operator==(const EncodedString<EncodingT, LAllocatorT> &right) const { return BaseT::Equal(right); }
         template <class LAllocatorT>
         inline bool operator!=(const EncodedString<EncodingT, LAllocatorT> &right) const { return !BaseT::Equal(right); }
 
+        */
+
         inline bool operator==(const CharT *right) const { return BaseT::Equal(right); }
         inline bool operator!=(const CharT *right) const { return !BaseT::Equal(right); }
 
+        template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
+                    std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline bool operator==(const StringT &right) const
+        {
+            return BaseT::Equal(right);
+        }
+        // inline bool operator!=(ulib::Range<const CharT> right) const { return !BaseT::Equal(right); }
+        // inline bool operator==(ulib::Range<CharT> right) const { return BaseT::Equal(right); }
+
+        /*
+        #ifdef ULIB_USE_STD_STRING_VIEW
         inline bool operator==(const std::basic_string<CharT> &right) const
         {
             return BaseT::Equal(Range<const CharT>(right.data(), right.data() + right.size()));
@@ -197,6 +229,7 @@ namespace ulib
         }
 
 #endif
+        */
 
     protected:
         inline EncodedString<EncodingT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes) const

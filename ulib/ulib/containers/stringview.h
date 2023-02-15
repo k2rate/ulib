@@ -52,6 +52,13 @@ namespace ulib
             return std::basic_string_view<CharT>(this->mBegin, this->Size());
         }
 #endif
+        /*
+        inline bool operator==(Range<const CharT> right) const
+        {
+            return BaseT::Equal(right);
+        }
+        */
+        
     };
 
     /*

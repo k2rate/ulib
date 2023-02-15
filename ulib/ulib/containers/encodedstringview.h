@@ -9,6 +9,7 @@ namespace ulib
     class EncodedStringView : public BasicStringView<typename EncodingTy::CharT>
     {
     public:
+        using BaseT = BasicStringView<typename EncodingTy::CharT>;
         using EncodingT = EncodingTy;
         using CharT = typename EncodingT::CharT;
         using value_type = CharT;
@@ -65,5 +66,13 @@ namespace ulib
 
 #endif
 #endif
+
+        /*
+        inline bool operator==(Range<CharT> right) const
+        {
+            return BaseT::Equal(right);
+        }
+        */
+        
     };
 }
