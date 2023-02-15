@@ -1,5 +1,6 @@
 type: project
 name: ulib-project
 
-cxx-link-deps:
-  - "user32.lib"
+cxxenv.msvc:
+  cxx-link-deps:
+    - "user32.lib"
