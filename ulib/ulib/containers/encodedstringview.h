@@ -22,6 +22,16 @@ namespace ulib
         {
         }
 
+        EncodedStringView(const CharT *b, const CharT *e)
+            : BasicStringView<CharT>(b, e)
+        {
+        }
+
+        EncodedStringView(const CharT *str, size_t size)
+            : BasicStringView<CharT>(str, size)
+        {
+        }
+
         EncodedStringView(const EncodedStringView<EncodingT> &str)
             : BasicStringView<CharT>(str)
         {
