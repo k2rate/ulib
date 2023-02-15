@@ -46,6 +46,10 @@ int main()
         ulib::u8string u8str1(u8view);
         u8str = u8view;
 
+        const ulib::u8string u8str22 = u8"asdokfdsaf";
+
+        ulib::u8string uu = u8str + u8str1 + u8str22 + u8str22;
+        uu += uu;
     }
 
     {

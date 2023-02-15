@@ -147,17 +147,34 @@ namespace ulib
         template <class LAllocatorT>
         inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source) { BaseT::Assign(source.mBegin, source.SizeInBytes()); }
         inline void Assign(const EncodedString<EncodingT> &&source) { BaseT::Assign(std::move(source)); }
-        inline void Append(const CharT *right) { BaseT::Append(right); }
 
         template <class LAllocatorT>
-        inline EncodedString<EncodingT, AllocatorT> operator+(const EncodedString<EncodingT, LAllocatorT> &right)
+        inline void Append(const EncodedString<EncodingT, LAllocatorT> &right) { BaseT::Append(right); }
+        inline void Append(const CharT *right) { BaseT::Append(right); }
+        inline void Append(const CharT *right, size_t rightSizeInBytes) { BaseT::Append(right, rightSizeInBytes); }
+
+        template <class LAllocatorT>
+        inline EncodedString<EncodingT, AllocatorT> operator+(const EncodedString<EncodingT, LAllocatorT> &right) const
         {
             return Sum(right.mBegin, right.SizeInBytes());
         }
 
-        inline EncodedString<EncodingT, AllocatorT> operator+(const CharT *right)
+        inline EncodedString<EncodingT, AllocatorT> operator+(const CharT *right) const
         {
             return Sum(right, CStringLengthHack(right) * sizeof(CharT));
+        }
+
+        template <class LAllocatorT>
+        inline EncodedString<EncodingT, AllocatorT>& operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
+        {
+            Append(right);
+            return *this;
+        }
+
+        inline EncodedString<EncodingT, AllocatorT>& operator+=(const CharT *right)
+        {
+            Append(right);
+            return *this;
         }
 
         template <class LAllocatorT>
@@ -182,7 +199,7 @@ namespace ulib
 #endif
 
     protected:
-        inline EncodedString<EncodingT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes)
+        inline EncodedString<EncodingT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes) const
         {
             size_t sizeInBytes = SizeInBytes();
             size_t reqSize = sizeInBytes + rightSizeInBytes;

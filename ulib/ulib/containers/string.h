@@ -348,14 +348,27 @@ namespace ulib
         }
 
         template <class LAllocatorT>
-        inline BasicString<CharT, AllocatorT> operator+(const BasicString<CharT, LAllocatorT> &right)
+        inline BasicString<CharT, AllocatorT> operator+(const BasicString<CharT, LAllocatorT> &right) const
         {
             return Sum(right.mBegin, right.SizeInBytes());
         }
 
-        inline BasicString<CharT, AllocatorT> operator+(const CharT *right)
+        inline BasicString<CharT, AllocatorT> operator+(const CharT *right) const
         {
             return Sum(right, CStringLengthHack(right) * sizeof(CharT));
+        }
+
+        template <class LAllocatorT>
+        inline BasicString<CharT, AllocatorT> &operator+=(const BasicString<CharT, AllocatorT> &right)
+        {
+            Append(right);
+            return *this;
+        }
+
+        inline BasicString<CharT, AllocatorT> &operator+=(const CharT *right)
+        {
+            Append(right);
+            return *this;
         }
 
         inline void PushBack(CharT ch)
@@ -399,7 +412,7 @@ namespace ulib
             mLast = mBegin + reqSize;
         }
 
-        inline BasicString<CharT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes)
+        inline BasicString<CharT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes) const
         {
             size_t sizeInBytes = SizeInBytes();
             size_t reqSize = sizeInBytes + rightSizeInBytes;
@@ -477,93 +490,93 @@ namespace ulib
     using u32string = Utf32String;
     */
 
-   /*
+    /*
 
-namespace ulib
-{
-    template <class StringViewT>
-    struct SplitIterator
-    {
-        SplitIterator()
-        {
-        }
+ namespace ulib
+ {
+     template <class StringViewT>
+     struct SplitIterator
+     {
+         SplitIterator()
+         {
+         }
 
-        SplitIterator(StringViewT str)
-        {
+         SplitIterator(StringViewT str)
+         {
 
-        }
+         }
 
-        inline StringViewT &operator*() const { return *ptr; }
-        inline StringViewT *operator->() const { return ptr; }
+         inline StringViewT &operator*() const { return *ptr; }
+         inline StringViewT *operator->() const { return ptr; }
 
-        inline SplitIterator &operator++()
-        {
-            assert(mCurrent.end() != mSource.end());
-            auto it = mCurrent.end();
+         inline SplitIterator &operator++()
+         {
+             assert(mCurrent.end() != mSource.end());
+             auto it = mCurrent.end();
 
-            return *this;
-        } // Prefix increment operator.
+             return *this;
+         } // Prefix increment operator.
 
-        inline SplitIterator &operator++(int)
-        {
-            ptr++;
-            return *this;
-        } // Postfix increment operator.
+         inline SplitIterator &operator++(int)
+         {
+             ptr++;
+             return *this;
+         } // Postfix increment operator.
 
-        StringViewT mCurrent;
-        StringViewT mSource;
-        StringViewT mSeparator;
-    };
+         StringViewT mCurrent;
+         StringViewT mSource;
+         StringViewT mSeparator;
+     };
 
-    template <class StringViewT>
-    struct SplitView
-    {
-    public:
-        SplitView()
-        {
-        }
+     template <class StringViewT>
+     struct SplitView
+     {
+     public:
+         SplitView()
+         {
+         }
 
-        ~SplitView()
-        {
-        }
+         ~SplitView()
+         {
+         }
 
-        StringViewT Next()
-        {
-            auto it = mCurrent.Begin();
-        }
+         StringViewT Next()
+         {
+             auto it = mCurrent.Begin();
+         }
 
-    private:
-        StringViewT mCurrent;
-        StringViewT mSeparator;
-    };
+     private:
+         StringViewT mCurrent;
+         StringViewT mSeparator;
+     };
 
-    template <class CharT>
-    void StrSplit(ulib::BasicStringView<CharT> str, ulib::BasicStringView<CharT> separator)
-    {
-    }
+     template <class CharT>
+     void StrSplit(ulib::BasicStringView<CharT> str, ulib::BasicStringView<CharT> separator)
+     {
+     }
 
-    template <class EncodingT, std::enable_if_t<sizeof(typename EncodingT::CharAliasT), bool> = true>
-    void StrSplit(ulib::EncodedStringView<EncodingT> str, ulib::EncodedStringView<EncodingT> separator)
-    {
-    }
+     template <class EncodingT, std::enable_if_t<sizeof(typename EncodingT::CharAliasT), bool> = true>
+     void StrSplit(ulib::EncodedStringView<EncodingT> str, ulib::EncodedStringView<EncodingT> separator)
+     {
+     }
 
-    template <class CharT>
-    void StrSplit(const CharT *str, const CharT *sep)
-    {
-        auto strLen = CStringLengthHack(str);
-        auto sepLen = CStringLengthHack(sep);
+     template <class CharT>
+     void StrSplit(const CharT *str, const CharT *sep)
+     {
+         auto strLen = CStringLengthHack(str);
+         auto sepLen = CStringLengthHack(sep);
 
-        return StrSplit(ulib::BasicStringView<CharT>(str, str + strLen), ulib::BasicStringView<CharT>(sep, sep + sepLen))
-    }
+         return StrSplit(ulib::BasicStringView<CharT>(str, str + strLen), ulib::BasicStringView<CharT>(sep, sep + sepLen))
+     }
 
-    void test()
-    {
-        for (auto str : ulib::StrSplit(u8"ky ky ky", u8" "))
-        {
-            str; // string_view
-        }
-    }
-}
+     void test()
+     {
+         for (auto str : ulib::StrSplit(u8"ky ky ky", u8" "))
+         {
+             str; // string_view
+         }
+     }
+ }
 
-*/
+ */
 }
