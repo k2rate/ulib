@@ -1,4 +1,9 @@
 #include <ulib/string.h>
+#include <ulib/wchar.h>
+#include <ulib/u8.h>
+#include <ulib/u16.h>
+#include <ulib/u32.h>
+
 #include <gtest/gtest.h>
 
 TEST(StringTest, Constructs)
@@ -168,4 +173,136 @@ TEST(StringTest, StringViewSum)
     ulib::string str = vstr + vstr2;
     
     ASSERT_EQ(str, "hello world");
+}
+
+TEST(StringTest, Assignment)
+{
+    ulib::string_view vstr = "hello";
+    ulib::wstring_view vwstr = L"hello";
+    ulib::u8string_view vu8str = u8"hello";
+    ulib::u16string_view vu16str = u"hello";
+    ulib::u32string_view vu32str = U"hello";
+    
+    ulib::string str = vstr;
+    ulib::wstring wstr = vwstr;
+    ulib::u8string u8str = vu8str;
+    ulib::u16string u16str = vu16str;
+    ulib::u32string u32str = vu32str;
+
+    ASSERT_EQ(str, "hello");
+    ASSERT_EQ(wstr, L"hello");
+    ASSERT_EQ(u8str, u8"hello");
+    ASSERT_EQ(u16str, u"hello");
+    ASSERT_EQ(u32str, U"hello");
+
+    str = vstr;
+    wstr = vwstr;
+    u8str = vu8str;
+    u16str = vu16str;
+    u32str = vu32str;
+
+    ASSERT_EQ(str, "hello");
+    ASSERT_EQ(wstr, L"hello");
+    ASSERT_EQ(u8str, u8"hello");
+    ASSERT_EQ(u16str, u"hello");
+    ASSERT_EQ(u32str, U"hello");
+
+    vstr = str;
+    vwstr = wstr;
+    vu8str = u8str;
+    vu16str = u16str;
+    vu32str = u32str;
+
+    ASSERT_EQ(str, "hello");
+    ASSERT_EQ(wstr, L"hello");
+    ASSERT_EQ(u8str, u8"hello");
+    ASSERT_EQ(u16str, u"hello");
+    ASSERT_EQ(u32str, U"hello");
+
+    ulib::string_view vstr1 = str;
+    ulib::wstring_view vwstr1 = wstr;
+    ulib::u8string_view vu8str1 = u8str;
+    ulib::u16string_view vu16str1 = u16str;
+    ulib::u32string_view vu32str1 = u32str;
+
+    ASSERT_EQ(vstr1, "hello");
+    ASSERT_EQ(vwstr1, L"hello");
+    ASSERT_EQ(vu8str1, u8"hello");
+    ASSERT_EQ(vu16str1, u"hello");
+    ASSERT_EQ(vu32str1, U"hello");
+
+    vstr1 = vstr;
+    vwstr1 = vwstr;
+    vu8str1 = vu8str;
+    vu16str1 = vu16str;
+    vu32str1 = vu32str;
+
+    ASSERT_EQ(vstr1, "hello");
+    ASSERT_EQ(vwstr1, L"hello");
+    ASSERT_EQ(vu8str1, u8"hello");
+    ASSERT_EQ(vu16str1, u"hello");
+    ASSERT_EQ(vu32str1, U"hello");
+
+    ulib::string_view vstr2 = vstr;
+    ulib::wstring_view vwstr2 = vwstr;
+    ulib::u8string_view vu8str2 = vu8str;
+    ulib::u16string_view vu16str2 = vu16str;
+    ulib::u32string_view vu32str2 = vu32str;
+
+    ASSERT_EQ(vstr2, "hello");
+    ASSERT_EQ(vwstr2, L"hello");
+    ASSERT_EQ(vu8str2, u8"hello");
+    ASSERT_EQ(vu16str2, u"hello");
+    ASSERT_EQ(vu32str2, U"hello");
+}
+
+TEST(StringTest, Compare)
+{
+    ulib::string_view vstr = "hello";
+    ulib::wstring_view vwstr = L"hello";
+    ulib::u8string_view vu8str = u8"hello";
+    ulib::u16string_view vu16str = u"hello";
+    ulib::u32string_view vu32str = U"hello";
+    
+    ulib::string str = vstr;
+    ulib::wstring wstr = vwstr;
+    ulib::u8string u8str = vu8str;
+    ulib::u16string u16str = vu16str;
+    ulib::u32string u32str = vu32str;
+
+    ASSERT_EQ(str == "hello", true);
+    ASSERT_EQ(wstr == L"hello", true);
+    ASSERT_EQ(u8str == u8"hello", true);
+    ASSERT_EQ(u16str == u"hello", true);
+    ASSERT_EQ(u32str == U"hello", true);
+
+    ASSERT_EQ(vstr == "hello", true);
+    ASSERT_EQ(vwstr == L"hello", true);
+    ASSERT_EQ(vu8str == u8"hello", true);
+    ASSERT_EQ(vu16str == u"hello", true);
+    ASSERT_EQ(vu32str == U"hello", true);
+
+    ASSERT_EQ(str == vstr, true);
+    ASSERT_EQ(wstr == vwstr, true);
+    ASSERT_EQ(u8str == vu8str, true);
+    ASSERT_EQ(u16str == vu16str, true);
+    ASSERT_EQ(u32str == vu32str, true);
+
+    ASSERT_EQ(vstr == str, true);
+    ASSERT_EQ(vwstr == wstr, true);
+    ASSERT_EQ(vu8str == u8str, true);
+    ASSERT_EQ(vu16str == u16str, true);
+    ASSERT_EQ(vu32str == u32str, true);
+
+    ASSERT_EQ(vstr == vstr, true);
+    ASSERT_EQ(vwstr == vwstr, true);
+    ASSERT_EQ(vu8str == vu8str, true);
+    ASSERT_EQ(vu16str == vu16str, true);
+    ASSERT_EQ(vu32str == vu32str, true);
+
+    ASSERT_EQ(str == str, true);
+    ASSERT_EQ(wstr == wstr, true);
+    ASSERT_EQ(u8str == u8str, true);
+    ASSERT_EQ(u16str == u16str, true);
+    ASSERT_EQ(u32str == u32str, true);
 }

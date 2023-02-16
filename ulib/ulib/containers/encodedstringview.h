@@ -19,7 +19,8 @@ namespace ulib
         using EncodingT = EncodingTy;
         using CharT = typename EncodingT::CharT;
         using BaseT = Range<const CharT>;
-        
+        using SelfT = EncodedStringView<EncodingTy>;
+
         using value_type = CharT;
 
         EncodedStringView()
@@ -85,11 +86,14 @@ namespace ulib
 #endif
 #endif
 
-        /*
-        inline bool operator==(Range<CharT> right) const
+        inline bool operator==(const CharT *right) const
+        {
+            return BaseT::Equal(BaseT(right, CStringLengthHack(right)));
+        }
+
+        inline bool operator==(SelfT right) const
         {
             return BaseT::Equal(right);
         }
-        */
-        };
+    };
 }

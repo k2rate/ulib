@@ -390,7 +390,7 @@ int main()
 
             ulib::u8string str;
 
-            ky == ky2;
+            // ky == ky2;
         }
     }
     catch (const std::exception &e)

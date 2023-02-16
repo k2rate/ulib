@@ -326,7 +326,7 @@ namespace ulib
         inline void MarkZeroEnd() { MarkZeroEndImpl(); }
 
         template <class LAllocatorT>
-        inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source) { Assign(source.mBegin, source.SizeInBytes()); }
+        inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source) { AssignImpl(source.mBegin, source.SizeInBytes()); }
         inline void Assign(SelfT &&source) { return AssignImpl(std::move(source)); }
 
         template <class LAllocatorT>
