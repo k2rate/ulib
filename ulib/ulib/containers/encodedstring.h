@@ -39,8 +39,12 @@ namespace ulib
     class EncodedString : public Resource<AllocatorTy>
     {
     public:
+        // type definitions
+
         using EncodingT = EncodingTy;
         using AllocatorT = AllocatorTy;
+        using SelfT = EncodedString<EncodingT, AllocatorT>;
+        using BaseT = Resource<AllocatorT>;
 
         using CharT = typename EncodingT::CharT;
         using Iterator = RandomAccessIterator<CharT>;
@@ -61,14 +65,16 @@ namespace ulib
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
 
+        // constructors
+
         inline EncodedString(AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(M_STEP))) + M_STEP;
         }
 
         inline EncodedString(const CharT *str, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             size_t allocSize = CStringLengthHack(str) * sizeof(CharT);
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -77,7 +83,7 @@ namespace ulib
         }
 
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             size_t allocSize = (e - b) * sizeof(CharT);
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -86,7 +92,7 @@ namespace ulib
         }
 
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             size_t allocSize = size * sizeof(CharT);
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -97,7 +103,7 @@ namespace ulib
         template <class ContainerT, class vt = typename ContainerT::value_type, class RangeT = Range<const typename ContainerT::value_type>,
                   std::enable_if_t<std::is_same_v<CharT, std::remove_cv_t<vt>>, bool> = true>
         inline EncodedString(const ContainerT &cont, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             RangeT str = cont;
 
@@ -108,7 +114,7 @@ namespace ulib
         }
 
         inline EncodedString(size_t size, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             size_t allocSize = sizeof(CharT) * size;
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -118,10 +124,74 @@ namespace ulib
         }
 
         inline EncodedString(args::Capacity capacity, AllocatorParams al = {})
-            : Resource<AllocatorT>(al)
+            : BaseT(al)
         {
             size_t allocSize = sizeof(CharT) * capacity.cc;
             mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+        }
+
+        // operators overloads
+
+        template <class LAllocatorT>
+        inline SelfT operator+(const EncodedString<EncodingT, LAllocatorT> &right) const { return Sum(right.mBegin, right.SizeInBytes()); }
+        inline SelfT operator+(const CharT *right) const { return Sum(right, CStringLengthHack(right) * sizeof(CharT)); }
+
+        template <class LAllocatorT>
+        inline SelfT &operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
+        {
+            Append(right); return *this;         
+        }
+
+        inline SelfT &operator+=(const EncodedStringView<EncodingT> &right)
+        {
+            Append(right.data(), right.size());
+            return *this;
+        }
+
+        inline SelfT &operator+=(const CharT *right)
+        {
+            Append(right);
+            return *this;
+        }
+
+        inline bool operator<(const CharT *right) const
+        {
+            return LowerThan(right);
+        }
+
+        template <class LAllocatorT>
+        inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const
+        {
+            return LowerThan(right.mBegin, right.mLast);
+        }
+
+        /*
+                template <class LAllocatorT>
+        inline bool operator==(const EncodedString<EncodingT, LAllocatorT> &right) const { return Equal(right); }
+        template <class LAllocatorT>
+        inline bool operator!=(const EncodedString<EncodingT, LAllocatorT> &right) const { return !Equal(right); }
+
+        */
+
+        inline bool operator==(const CharT *right) const { return Equal(right); }
+        inline bool operator!=(const CharT *right) const { return !Equal(right); }
+
+        template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline bool operator==(const StringT &right) const
+        {
+            return Equal(right);
+        }
+
+        template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline SelfT operator+(const StringT &right) const
+        {
+            return Sum(right.data(), right.size());
         }
 
         operator ParentEncodedStringT() const
@@ -280,7 +350,7 @@ namespace ulib
             return Data();
         }
 
-        inline void Assign(EncodedString<EncodingT, AllocatorT> &&source)
+        inline void Assign(SelfT &&source)
         {
             AllocatorT::Free(mBeginB);
 
@@ -324,7 +394,6 @@ namespace ulib
 
         template <class LAllocatorT>
         inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source) { Assign(source.mBegin, source.SizeInBytes()); }
-        inline void Assign(const EncodedString<EncodingT> &&source) { Assign(std::move(source)); }
 
         template <class LAllocatorT>
         inline void Append(const EncodedString<EncodingT, LAllocatorT> &right) { Append(right.data(), right.size()); }
@@ -342,76 +411,6 @@ namespace ulib
                 memcpy(mLast, right, rightSizeInBytes);
                 mLast = mBegin + reqSize;
             }
-        }
-
-        template <class LAllocatorT>
-        inline EncodedString<EncodingT, AllocatorT> operator+(const EncodedString<EncodingT, LAllocatorT> &right) const
-        {
-            return Sum(right.mBegin, right.SizeInBytes());
-        }
-
-        inline EncodedString<EncodingT, AllocatorT> operator+(const CharT *right) const
-        {
-            return Sum(right, CStringLengthHack(right) * sizeof(CharT));
-        }
-
-        template <class LAllocatorT>
-        inline EncodedString<EncodingT, AllocatorT> &operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
-        {
-            Append(right);
-            return *this;
-        }
-
-        inline EncodedString<EncodingT, AllocatorT> &operator+=(const EncodedStringView<EncodingT> &right)
-        {
-            Append(right.data(), right.size());
-            return *this;
-        }
-
-        inline EncodedString<EncodingT, AllocatorT> &operator+=(const CharT *right)
-        {
-            Append(right);
-            return *this;
-        }
-
-        inline bool operator<(const CharT *right) const
-        {
-            return LowerThan(right);
-        }
-
-        template <class LAllocatorT>
-        inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const
-        {
-            return LowerThan(right.mBegin, right.mLast);
-        }
-
-        /*
-                template <class LAllocatorT>
-        inline bool operator==(const EncodedString<EncodingT, LAllocatorT> &right) const { return Equal(right); }
-        template <class LAllocatorT>
-        inline bool operator!=(const EncodedString<EncodingT, LAllocatorT> &right) const { return !Equal(right); }
-
-        */
-
-        inline bool operator==(const CharT *right) const { return Equal(right); }
-        inline bool operator!=(const CharT *right) const { return !Equal(right); }
-
-        template <class StringT, class SCharT = typename StringT::value_type,
-#ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
-#endif
-        inline bool operator==(const StringT &right) const
-        {
-            return Equal(right);
-        }
-
-        template <class StringT, class SCharT = typename StringT::value_type,
-#ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
-#endif
-        inline EncodedString<EncodingT, AllocatorT> operator+(const StringT &right) const
-        {
-            return Sum(right.data(), right.size());
         }
 
         // inline bool operator!=(ulib::Range<const CharT> right) const { return !Equal(right); }
@@ -433,7 +432,6 @@ namespace ulib
         */
 
     protected:
-
         inline bool LowerThan(const CharT *right, const CharT *rightEnd) const
         {
             auto it = mBegin;
@@ -469,12 +467,12 @@ namespace ulib
             memcpy(mBegin, mLast, requiredSize);
         }
 
-        inline EncodedString<EncodingT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes) const
+        inline SelfT Sum(const CharT *right, size_t rightSizeInBytes) const
         {
             size_t sizeInBytes = SizeInBytes();
             size_t reqSize = sizeInBytes + rightSizeInBytes;
 
-            EncodedString<EncodingT, AllocatorT> result{args::Capacity(reqSize)};
+            SelfT result{args::Capacity(reqSize)};
             result.InitSummary(this->mBegin, sizeInBytes, right, rightSizeInBytes, reqSize);
 
             return result;
