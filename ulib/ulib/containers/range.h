@@ -34,6 +34,12 @@ namespace ulib
             mLast = end;
         }
 
+        inline Range(T *ptr, size_t size)
+        {
+            mBegin = ptr;
+            mLast = ptr + size;
+        }
+
         inline Range(Range<std::remove_cv_t<T>> &other)
         {
             mBegin = other.data();

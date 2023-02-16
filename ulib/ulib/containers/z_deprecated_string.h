@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include <ulib/types.h>
 #include <ulib/config.h>
 
@@ -18,10 +19,13 @@
 #ifdef ULIB_USE_STD_STRING_VIEW
 #include <string_view>
 #endif
+*/
+
 
 namespace ulib
 {
-    template <class CharT, class AllocatorT = DefaultAllocator>
+    /*
+        template <class CharT, class AllocatorT = DefaultAllocator>
     class BasicString : public Resource<AllocatorT>
     {
     public:
@@ -517,6 +521,8 @@ namespace ulib
             };
         };
     };
+    
+    */
 
     /*
     using String = BasicString<char, DefaultAllocator>;

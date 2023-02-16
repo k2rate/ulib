@@ -1,8 +1,7 @@
 #include <ulib/containers/list.h>
+#include <numeric>
 #include <gtest/gtest.h>
 
-#include <numeric>
-#include <ulib/containers/string.h>
 
 TEST(ListTest, SupportsAddingValues)
 {

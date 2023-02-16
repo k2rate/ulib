@@ -1,48 +1,56 @@
 #pragma once
 
 #include <ulib/config.h>
-#include "stringview.h"
+
+#include "range.h"
+#include "clength.h"
+
+#ifdef ULIB_USE_STD_STRING_VIEW
+#include <string>
+#include <string_view>
+#endif
 
 namespace ulib
 {
     template <class EncodingTy>
-    class EncodedStringView : public BasicStringView<typename EncodingTy::CharT>
+    class EncodedStringView : public Range<const typename EncodingTy::CharT>
     {
     public:
-        using BaseT = BasicStringView<typename EncodingTy::CharT>;
         using EncodingT = EncodingTy;
         using CharT = typename EncodingT::CharT;
+        using BaseT = Range<const CharT>;
+        
         using value_type = CharT;
 
         EncodedStringView()
-            : BasicStringView<CharT>()
+            : BaseT()
         {
         }
 
         EncodedStringView(const CharT *str)
-            : BasicStringView<CharT>(str)
+            : BaseT(str, CStringLengthHack(str))
         {
         }
 
         EncodedStringView(const CharT *b, const CharT *e)
-            : BasicStringView<CharT>(b, e)
+            : BaseT(b, e)
         {
         }
 
         EncodedStringView(const CharT *str, size_t size)
-            : BasicStringView<CharT>(str, size)
+            : BaseT(str, size)
         {
         }
 
-        EncodedStringView(const EncodedStringView<EncodingT> &str)
-            : BasicStringView<CharT>(str)
+        EncodedStringView(const EncodedStringView<EncodingT> &source)
+            : BaseT(source)
         {
         }
 
         template <class StringT, class SCharT = typename StringT::value_type,
                   std::enable_if_t<std::is_same_v<SCharT, CharT>, bool> = true>
         EncodedStringView(const StringT &str)
-            : BasicStringView<SCharT>(str)
+            : BaseT(str)
         {
         }
 

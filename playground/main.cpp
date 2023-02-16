@@ -341,10 +341,6 @@ int main()
 
             std::string sstr2 = u8str;
             // std::string sstr3 = u16str; // error
-
-            ulib::BasicString<char> bstr = sstr;
-            ulib::string tstr = sstr;
-            tstr = sstr;
         }
 
         // ulib::StrSplit("test", "s");
