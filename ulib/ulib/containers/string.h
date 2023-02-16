@@ -317,6 +317,11 @@ namespace ulib
         inline bool operator==(const CharT *right) const { return Equal(right); }
         inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
+        inline bool operator<(const CharT *right) const
+        {
+            return LowerThan(right, CStringLengthHack(right));
+        }
+
         inline BasicString<CharT, AllocatorT> &operator=(const BasicString<CharT, AllocatorT> &source)
         {
             Assign(source);
@@ -384,6 +389,19 @@ namespace ulib
         }
 
     protected:
+        inline bool LowerThan(const CharT *right, const CharT *rightEnd)
+        {
+            auto it = mBegin;
+            auto rit = right;
+            for (; *it == *rit; it++, rit++)
+            {
+                if (it == mLast || rit == rightEnd)
+                    return false;
+            }
+
+            return *(unsigned CharT *)it < *(unsigned CharT *)rit;
+        }
+
         inline void Assign(const CharT *str, size_t sizeInBytes)
         {
             size_t allocSize = sizeInBytes;
