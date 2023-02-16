@@ -125,6 +125,7 @@ namespace regar
 using MainAllocator = ulib::StaticAllocator<ulib::FastMemAllocator<ulib::MallocAllocator>>;
 using StaticFastMemAllocator = MainAllocator;
 
+/*
 void *operator new(size_t size)
 {
     return MainAllocator::Alloc(size);
@@ -135,6 +136,8 @@ void operator delete(void *ptr)
     if (ptr)
         MainAllocator::Free(ptr);
 }
+*/
+
 
 __declspec(noinline) void testvec()
 {

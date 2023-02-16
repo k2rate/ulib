@@ -405,11 +405,13 @@ namespace ulib
             size_t reqSize = sizeInBytes + rightSizeInBytes;
             if (Capacity() < reqSize)
             {
-                ReallocateMemory(sizeInBytes, reqSize);
+                ReallocateMemoryWithRight(sizeInBytes, reqSize, right, rightSizeInBytes);
             }
-
-            memcpy(mLast, right, rightSizeInBytes);
-            mLast = mBegin + reqSize;
+            else
+            {
+                memcpy(mLast, right, rightSizeInBytes);
+                mLast = mBegin + reqSize;
+            }
         }
 
         inline BasicString<CharT, AllocatorT> Sum(const CharT *right, size_t rightSizeInBytes) const
@@ -444,6 +446,26 @@ namespace ulib
             mLastB += oldSizeInBytes;
 
             ::memcpy(mBegin, oldBegin, oldSizeInBytes);
+            AllocatorT::Free(oldBegin);
+        }
+
+        inline void ReallocateMemoryWithRight(size_t currentSizeInBytes, size_t additionalSizeInBytes, const CharT *right, size_t rightSizeInBytes)
+        {
+            size_t oldSizeInBytes = currentSizeInBytes;
+            size_t allocSizeInBytes = oldSizeInBytes + additionalSizeInBytes;
+            CharT *oldBegin = mBegin;
+
+            mEndB = (mLastB = mBeginB = (rawptr_t)AllocatorT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
+
+            assert(mBegin && "Out of memory in List<T>::ReallocateMemory");
+
+            mLastB += oldSizeInBytes;
+
+            ::memcpy(mBeginB, oldBegin, oldSizeInBytes);
+            ::memcpy(mLastB, right, rightSizeInBytes);
+
+            mLastB += rightSizeInBytes;
+
             AllocatorT::Free(oldBegin);
         }
 

@@ -12,12 +12,42 @@
 #include <ulib/charcase.h>
 
 #include <locale>
+#include <map>
 
-
+namespace ewin
+{
+    int messagebox(ulib::u8string_view message = u8"default text", ulib::u8string_view title = u8"message", int type = MB_OK, void *hwnd = nullptr)
+    {
+        return MessageBoxW(0, ulib::wstr(message).c_str(), ulib::wstr(title).c_str(), MB_OK);
+    }
+};
 
 int main()
 {
     std::setlocale(LC_ALL, ".utf8");
+
+    ewin::messagebox(u8"ky");
+
+    {
+        ulib::string str = "pizdec ";
+
+        str += str;
+        str += str;
+        str += str;
+        str += str;
+        str += str;
+        str += str;
+        //
+    }
+
+    /*
+        {
+        std::map<ulib::u8string, ulib::u8string> map;
+        map[u8"re"] = u8"meta";
+
+        ulib::u8string str = map[u8"re"];
+    }
+    */
 
     try
     {
@@ -65,7 +95,6 @@ int main()
             s5 = ulib::upper(su8view);
             s6 = ulib::upper(su16view);
             s7 = ulib::upper(su32view);
-
 
             s0 = ulib::lower(wview);
             s1 = ulib::lower(u8view);
