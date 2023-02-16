@@ -93,7 +93,7 @@ namespace ulib
 
         operator std::basic_string_view<CharT>() const
         {
-            return std::basic_string_view<CharT>(this->mBegin, this->mLast);
+            return std::basic_string_view<CharT>(this->mBegin, this->Size());
         }
 
         operator std::basic_string<CharT>() const
@@ -105,7 +105,7 @@ namespace ulib
         // template <class CurrentCharT = typename EncodingT::CharStd, std::enable_if_t<std::is_same_v<ParentEncodingT, MultibyteEncoding>, bool> = true>
         operator std::basic_string_view<typename EncodingT::CharStd>() const
         {
-            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, (typename EncodingT::CharStd *)this->mLast);
+            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, this->Size());
         }
 
         operator std::basic_string<typename EncodingT::CharStd>() const
