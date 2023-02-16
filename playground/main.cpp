@@ -30,6 +30,8 @@ int main()
 
     {
         ulib::string str = "pizdec ";
+        std::string sstr = ulib::string_view("sdfafdafsda");
+
 
         str += str;
         str += str;

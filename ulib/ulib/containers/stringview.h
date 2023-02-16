@@ -4,6 +4,7 @@
 #include "clength.h"
 
 #ifdef ULIB_USE_STD_STRING_VIEW
+#include <string>
 #include <string_view>
 #endif
 
@@ -49,7 +50,12 @@ namespace ulib
 #ifdef ULIB_USE_STD_STRING_VIEW
         operator std::basic_string_view<CharT>() const
         {
-            return std::basic_string_view<CharT>(this->mBegin, this->Size());
+            return std::basic_string_view<CharT>(this->mBegin, this->mLast);
+        }
+
+        operator std::basic_string<CharT>() const
+        {
+            return std::basic_string<CharT>(this->mBegin, this->mLast);
         }
 #endif
         /*
@@ -58,8 +64,7 @@ namespace ulib
             return BaseT::Equal(right);
         }
         */
-        
-    };
+        };
 
     /*
         using StringView = BasicStringView<char>;

@@ -93,7 +93,7 @@ namespace ulib
 
         operator std::basic_string_view<CharT>() const
         {
-            return std::basic_string_view<CharT>(this->mBegin, Size());
+            return std::basic_string_view<CharT>(this->mBegin, this->mLast);
         }
 
         operator std::basic_string<CharT>() const
@@ -105,7 +105,7 @@ namespace ulib
         // template <class CurrentCharT = typename EncodingT::CharStd, std::enable_if_t<std::is_same_v<ParentEncodingT, MultibyteEncoding>, bool> = true>
         operator std::basic_string_view<typename EncodingT::CharStd>() const
         {
-            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, Size());
+            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, (typename EncodingT::CharStd *)this->mLast);
         }
 
         operator std::basic_string<typename EncodingT::CharStd>() const
@@ -199,7 +199,7 @@ namespace ulib
             return BaseT::LowerThan(right);
         }
 
-        template<class LAllocatorT>
+        template <class LAllocatorT>
         inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const
         {
             return BaseT::LowerThan(right.mBegin, right.mLast);
@@ -218,7 +218,7 @@ namespace ulib
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
-                    std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
 #endif
         inline bool operator==(const StringT &right) const
         {
