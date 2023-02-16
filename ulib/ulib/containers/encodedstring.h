@@ -194,6 +194,17 @@ namespace ulib
             return *this;
         }
 
+        inline bool operator<(const CharT *right) const
+        {
+            return BaseT::LowerThan(right);
+        }
+
+        template<class LAllocatorT>
+        inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const
+        {
+            return BaseT::LowerThan(right.mBegin, right.mLast);
+        }
+
         /*
                 template <class LAllocatorT>
         inline bool operator==(const EncodedString<EncodingT, LAllocatorT> &right) const { return BaseT::Equal(right); }

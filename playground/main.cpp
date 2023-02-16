@@ -26,8 +26,6 @@ int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
-    ewin::messagebox(u8"ky");
-
     {
         ulib::string str = "pizdec ";
 
@@ -40,14 +38,11 @@ int main()
         //
     }
 
-    /*
-        {
+    {
         std::map<ulib::u8string, ulib::u8string> map;
         map[u8"re"] = u8"meta";
-
-        ulib::u8string str = map[u8"re"];
+        ewin::messagebox(map[u8"re"]);
     }
-    */
 
     try
     {

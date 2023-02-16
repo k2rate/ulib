@@ -319,7 +319,13 @@ namespace ulib
 
         inline bool operator<(const CharT *right) const
         {
-            return LowerThan(right, CStringLengthHack(right));
+            return LowerThan(right);
+        }
+
+        template<class LAllocatorT>
+        inline bool operator<(const BasicString<CharT, LAllocatorT> &right) const
+        {
+            return LowerThan(right.mBegin, right.mLast);
         }
 
         inline BasicString<CharT, AllocatorT> &operator=(const BasicString<CharT, AllocatorT> &source)
@@ -389,7 +395,7 @@ namespace ulib
         }
 
     protected:
-        inline bool LowerThan(const CharT *right, const CharT *rightEnd)
+        inline bool LowerThan(const CharT *right, const CharT *rightEnd) const
         {
             auto it = mBegin;
             auto rit = right;
@@ -399,7 +405,14 @@ namespace ulib
                     return false;
             }
 
-            return *(unsigned CharT *)it < *(unsigned CharT *)rit;
+            using UnsignedT = std::make_unsigned_t<CharT>;
+
+            return *(UnsignedT *)it < *(UnsignedT *)rit;
+        }
+
+        inline bool LowerThan(const CharT *right) const
+        {
+            return LowerThan(right, right + CStringLengthHack(right));
         }
 
         inline void Assign(const CharT *str, size_t sizeInBytes)
