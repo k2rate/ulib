@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <iterator>
+#include <cstring>
 
 #include <ulib/types.h>
 #include "iterators/randomaccessiterator.h"
