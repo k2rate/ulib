@@ -44,6 +44,7 @@ namespace ulib
         using EncodingT = EncodingTy;
         using AllocatorT = AllocatorTy;
         using SelfT = EncodedString<EncodingT, AllocatorT>;
+        using SelfRefT = SelfT &;
         using BaseT = Resource<AllocatorT>;
 
         using CharT = typename EncodingT::CharT;
@@ -61,6 +62,8 @@ namespace ulib
         using reference = value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
+
+        using RangeT = Range<const CharT>;
 
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
@@ -133,48 +136,42 @@ namespace ulib
         // operators overloads
 
         template <class LAllocatorT>
-        inline SelfT operator+(const EncodedString<EncodingT, LAllocatorT> &right) const { return Sum(right.mBegin, right.SizeInBytes()); }
-        inline SelfT operator+(const CharT *right) const { return Sum(right, CStringLengthHack(right) * sizeof(CharT)); }
+        inline SelfT operator+(const EncodedString<EncodingT, LAllocatorT> &right) const { return AdditionImpl(right.mBegin, right.SizeInBytes()); }
+        inline SelfT operator+(const CharT *right) const { return AdditionImpl(right); }
+
+        template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline SelfT operator+(const StringT &right) const
+        {
+            return AdditionImpl(right.data(), right.size());
+        }
 
         template <class LAllocatorT>
-        inline SelfT &operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
-        {
-            Append(right); return *this;         
-        }
-
-        inline SelfT &operator+=(const EncodedStringView<EncodingT> &right)
-        {
-            Append(right.data(), right.size());
-            return *this;
-        }
-
-        inline SelfT &operator+=(const CharT *right)
+        inline SelfRefT operator+=(const EncodedString<EncodingT, LAllocatorT> &right)
         {
             Append(right);
             return *this;
         }
 
-        inline bool operator<(const CharT *right) const
+        inline SelfRefT operator+=(const EncodedStringView<EncodingT> &right)
         {
-            return LowerThan(right);
+            Append(right.data(), right.size());
+            return *this;
+        }
+
+        inline SelfRefT operator+=(const CharT *right)
+        {
+            Append(right);
+            return *this;
         }
 
         template <class LAllocatorT>
-        inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const
-        {
-            return LowerThan(right.mBegin, right.mLast);
-        }
-
-        /*
-                template <class LAllocatorT>
-        inline bool operator==(const EncodedString<EncodingT, LAllocatorT> &right) const { return Equal(right); }
-        template <class LAllocatorT>
-        inline bool operator!=(const EncodedString<EncodingT, LAllocatorT> &right) const { return !Equal(right); }
-
-        */
+        inline bool operator<(const EncodedString<EncodingT, LAllocatorT> &right) const { return LowerThanImpl(right.mBegin, right.mLast); }
+        inline bool operator<(const CharT *right) const { return LowerThanImpl(right); }
 
         inline bool operator==(const CharT *right) const { return Equal(right); }
-        inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -185,19 +182,9 @@ namespace ulib
             return Equal(right);
         }
 
-        template <class StringT, class SCharT = typename StringT::value_type,
-#ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
-#endif
-        inline SelfT operator+(const StringT &right) const
-        {
-            return Sum(right.data(), right.size());
-        }
+        inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
-        operator ParentEncodedStringT() const
-        {
-            return ParentEncodedStringT((ParentEncodingCharT *)this->mBegin, (ParentEncodingCharT *)this->mLast);
-        }
+        operator ParentEncodedStringT() const { return ParentEncodedStringT((ParentEncodingCharT *)this->mBegin, (ParentEncodingCharT *)this->mLast); }
 
 #ifdef ULIB_USE_STD_STRING_VIEW
 
@@ -225,28 +212,7 @@ namespace ulib
 #endif
 #endif
 
-        inline CharT *Data()
-        {
-            return mBegin;
-        }
-        inline CharT *Data() const { return mBegin; }
-        inline iterator Begin() { return mBegin; }
-        inline iterator End() { return mLast; }
-        inline const_iterator Begin() const { return mBegin; }
-        inline const_iterator End() const { return mLast; }
-        inline iterator ReverseBegin() { return mLast - 1; }
-        inline iterator ReverseEnd() { return mBegin - 1; }
-        inline const_iterator ReverseBegin() const { return mLast - 1; }
-        inline const_iterator ReverseEnd() const { return mBegin - 1; }
-        inline bool Empty() const { return mBegin == mLast; }
-
-        inline size_t Size() const { return mLast - mBegin; }
-        inline size_t Capacity() const { return mEnd - mBegin; }
-        inline size_t Available() const { return mEnd - mLast; }
-        inline size_t SizeInBytes() const { return mLastB - mBeginB; }
-        inline size_t CapacityInBytes() const { return mEndB - mBeginB; }
-        inline size_t AvailableInBytes() const { return mEnd - mLast; }
-        inline void SetSize(size_t newSize) { mLast = mBegin + newSize; }
+        // lowercase aliases
 
         inline iterator begin() { return mBegin; }
         inline iterator end() { return mLast; }
@@ -262,156 +228,57 @@ namespace ulib
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
         inline void reserve(size_t s) { Reserve(s); }
-
-        inline void PushBack(CharT ch)
-        {
-            if (mLast == mEnd)
-            {
-                size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, sizeInBytes);
-            }
-
-            *mLast = ch;
-            mLast++;
-        }
-
-        inline void Reserve(size_t s)
-        {
-            if (Capacity() >= s)
-                return;
-
-            uchar *newMem = (uchar *)AllocatorT::Alloc(s);
-            assert(newMem && "Out of memory in List<T>::Reserve");
-
-            CharT *oldBegin = mBegin;
-            size_t oldSizeInBytes = SizeInBytes();
-
-            mEndB = (mLastB = mBeginB = newMem) + s;
-            mLastB += oldSizeInBytes;
-
-            ::memcpy(mBegin, oldBegin, oldSizeInBytes);
-            AllocatorT::Free(oldBegin);
-        }
-
-        inline void Erase(iterator it)
-        {
-            assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::Erase");
-            assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::Erase");
-
-            CharT *from = it.ptr + 1;
-            ::memcpy(it.ptr, from, mLastB - (uchar *)from);
-            mLast--;
-        }
-
-        inline void Erase(size_t i) { Erase(mBegin + i); }
-        inline int Index(const_iterator it) const { return int(it.ptr - mBegin); }
-        inline int Index(iterator it) const { return int(it.ptr - mBegin); }
-
-        inline void FastErase(iterator it)
-        {
-            assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::FastErase");
-            assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::FastErase");
-
-            CharT *pBack = mLast - 1;
-            if (it.ptr != pBack)
-            {
-                // c++ fan version
-                // new (it.ptr) T(std::move(*pBack));
-
-                // right version
-                memcpy(it.ptr, pBack, sizeof(CharT));
-            }
-
-            mLast--;
-        }
-
-        inline void PopBack()
-        {
-            assert(Size() && "Attempt pop element in empty list in List<T>::Pop");
-            mLast--;
-        }
-
-        inline void Pop() { PopBack(); }
-
-        void MarkZeroEnd()
-        {
-            if (mLast == mEnd)
-            {
-                size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, 1);
-            }
-
-            *mLast = 0;
-        }
-
         inline CharT *c_str()
         {
             MarkZeroEnd();
             return Data();
         }
 
-        inline void Assign(SelfT &&source)
-        {
-            AllocatorT::Free(mBeginB);
+        // function definitions
 
-            Resource<AllocatorT> &rs = *this;
-            rs = std::move(source);
+        inline CharT *Data() { return mBegin; }
+        inline CharT *Data() const { return mBegin; }
+        inline iterator Begin() { return mBegin; }
+        inline iterator End() { return mLast; }
+        inline const_iterator Begin() const { return mBegin; }
+        inline const_iterator End() const { return mLast; }
+        inline iterator ReverseBegin() { return mLast - 1; }
+        inline iterator ReverseEnd() { return mBegin - 1; }
+        inline const_iterator ReverseBegin() const { return mLast - 1; }
+        inline const_iterator ReverseEnd() const { return mBegin - 1; }
+        inline bool Empty() const { return mBegin == mLast; }
+        inline size_t Size() const { return mLast - mBegin; }
+        inline size_t Capacity() const { return mEnd - mBegin; }
+        inline size_t Available() const { return mEnd - mLast; }
+        inline size_t SizeInBytes() const { return mLastB - mBeginB; }
+        inline size_t CapacityInBytes() const { return mEndB - mBeginB; }
+        inline size_t AvailableInBytes() const { return mEnd - mLast; }
+        inline void SetSize(size_t newSize) { mLast = mBegin + newSize; }
 
-            mBegin = source.mBegin;
-            mLast = source.mLast;
-            mEnd = source.mEnd;
-
-            source.mBegin = nullptr;
-        }
-
-        inline bool Equal(const CharT *cstr) const
-        {
-            size_t sizeInBytes = CStringLengthHack(cstr) * sizeof(CharT);
-            if (sizeInBytes != SizeInBytes())
-                return false;
-
-            return memcmp(mBeginB, cstr, sizeInBytes) == 0;
-        }
-
-        inline bool Equal(ulib::Range<const CharT> right) const
-        {
-            size_t sizeInBytes = right.SizeInBytes();
-            if (sizeInBytes != SizeInBytes())
-                return false;
-
-            return memcmp(mBeginB, right.Data(), sizeInBytes) == 0;
-        }
-
-        template <class LAllocatorT>
-        inline bool Equal(const EncodedString<EncodingT, LAllocatorT> &right) const
-        {
-            size_t sizeInBytes = right.SizeInBytes();
-            if (sizeInBytes != SizeInBytes())
-                return false;
-
-            return memcmp(mBeginB, right.mBeginB, sizeInBytes) == 0;
-        }
+        inline void PushBack(CharT ch) { PushBackImpl(ch); }
+        inline void Reserve(size_t s) { ReserveImpl(s); }
+        inline void Erase(iterator it) { EraseImpl(it); }
+        inline void Erase(size_t i) { EraseImpl(mBegin + i); }
+        inline int Index(const_iterator it) const { return int(it.ptr - mBegin); }
+        inline int Index(iterator it) const { return int(it.ptr - mBegin); }
+        inline void FastErase(iterator it) { FastEraseImpl(it); }
+        inline void PopBack() { PopBackImpl(); }
+        inline void Pop() { PopBack(); }
+        inline void MarkZeroEnd() { MarkZeroEndImpl(); }
 
         template <class LAllocatorT>
         inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source) { Assign(source.mBegin, source.SizeInBytes()); }
+        inline void Assign(SelfT &&source) { return AssignImpl(std::move(source)); }
 
         template <class LAllocatorT>
-        inline void Append(const EncodedString<EncodingT, LAllocatorT> &right) { Append(right.data(), right.size()); }
-        inline void Append(const CharT *right) { Append(right, CStringLengthHack(right)); }
-        inline void Append(const CharT *right, size_t rightSizeInBytes)
-        {
-            size_t sizeInBytes = SizeInBytes();
-            size_t reqSize = sizeInBytes + rightSizeInBytes;
-            if (Capacity() < reqSize)
-            {
-                ReallocateMemoryWithRight(sizeInBytes, reqSize, right, rightSizeInBytes);
-            }
-            else
-            {
-                memcpy(mLast, right, rightSizeInBytes);
-                mLast = mBegin + reqSize;
-            }
-        }
+        inline bool Equal(const EncodedString<EncodingT, LAllocatorT> &right) const { return EqualImpl(RangeT(right.data(), right.size())); }
+        inline bool Equal(const CharT *cstr) const { return EqualImpl(RangeT(cstr, CStringLengthHack(cstr))); }
+        inline bool Equal(RangeT right) const { return EqualImpl(right); }
+
+        template <class LAllocatorT>
+        inline void Append(const EncodedString<EncodingT, LAllocatorT> &right) { AppendImpl(right.data(), right.size()); }
+        inline void Append(const CharT *right) { AppendImpl(right, CStringLengthHack(right)); }
+        inline void Append(const CharT *right, size_t rightSizeInBytes) { return AppendImpl(right, rightSizeInBytes); }
 
         // inline bool operator!=(ulib::Range<const CharT> right) const { return !Equal(right); }
         // inline bool operator==(ulib::Range<CharT> right) const { return Equal(right); }
@@ -432,27 +299,49 @@ namespace ulib
         */
 
     protected:
-        inline bool LowerThan(const CharT *right, const CharT *rightEnd) const
+        inline bool EqualImpl(RangeT right) const
         {
-            auto it = mBegin;
-            auto rit = right;
-            for (; *it == *rit; it++, rit++)
+            size_t sizeInBytes = right.SizeInBytes();
+            if (sizeInBytes != SizeInBytes())
+                return false;
+
+            return memcmp(mBeginB, right.Data(), sizeInBytes) == 0;
+        }
+
+        inline void AssignImpl(SelfT &&source)
+        {
+            AllocatorT::Free(mBeginB);
+
+            Resource<AllocatorT> &rs = *this;
+            rs = std::move(source);
+
+            mBegin = source.mBegin;
+            mLast = source.mLast;
+            mEnd = source.mEnd;
+
+            source.mBegin = nullptr;
+        }
+        inline void AppendImpl(const CharT *right, size_t rightSizeInBytes)
+        {
+            size_t sizeInBytes = SizeInBytes();
+            size_t reqSize = sizeInBytes + rightSizeInBytes;
+            if (Capacity() < reqSize)
             {
-                if (it == mLast || rit == rightEnd)
-                    return false;
+                ReallocateMemoryWithRight(sizeInBytes, reqSize, right, rightSizeInBytes);
             }
-
-            using UnsignedT = std::make_unsigned_t<CharT>;
-
-            return *(UnsignedT *)it < *(UnsignedT *)rit;
+            else
+            {
+                memcpy(mLast, right, rightSizeInBytes);
+                mLast = mBegin + reqSize;
+            }
         }
 
-        inline bool LowerThan(const CharT *right) const
+        inline void AppendImpl(const CharT *right)
         {
-            return LowerThan(right, right + CStringLengthHack(right));
+            AppendImpl(right, CStringLengthHack(right));
         }
 
-        inline void Assign(const CharT *str, size_t sizeInBytes)
+        inline void AssignImpl(const CharT *str, size_t sizeInBytes)
         {
             size_t allocSize = sizeInBytes;
             size_t requiredSize = sizeInBytes;
@@ -467,7 +356,7 @@ namespace ulib
             memcpy(mBegin, mLast, requiredSize);
         }
 
-        inline SelfT Sum(const CharT *right, size_t rightSizeInBytes) const
+        inline SelfT AdditionImpl(const CharT *right, size_t rightSizeInBytes) const
         {
             size_t sizeInBytes = SizeInBytes();
             size_t reqSize = sizeInBytes + rightSizeInBytes;
@@ -476,6 +365,106 @@ namespace ulib
             result.InitSummary(this->mBegin, sizeInBytes, right, rightSizeInBytes, reqSize);
 
             return result;
+        }
+
+        inline SelfT AdditionImpl(const CharT *right) const
+        {
+            return AdditionImpl(right, CStringLengthHack(right));
+        }
+
+        void MarkZeroEndImpl()
+        {
+            if (mLast == mEnd)
+            {
+                size_t sizeInBytes = SizeInBytes();
+                ReallocateMemory(sizeInBytes, 1);
+            }
+
+            *mLast = 0;
+        }
+
+        inline void PopBackImpl()
+        {
+            assert(Size() && "Attempt pop element in empty list in List<T>::Pop");
+            mLast--;
+        }
+
+        inline void FastEraseImpl(iterator it)
+        {
+            assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::FastErase");
+            assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::FastErase");
+
+            CharT *pBack = mLast - 1;
+            if (it.ptr != pBack)
+            {
+                // c++ fan version
+                // new (it.ptr) T(std::move(*pBack));
+
+                // right version
+                memcpy(it.ptr, pBack, sizeof(CharT));
+            }
+
+            mLast--;
+        }
+
+        inline void EraseImpl(iterator it)
+        {
+            assert(it.ptr >= mBegin && "Attempt erase out of range element in Container<T>::Erase");
+            assert(it.ptr < mLast && "Attempt erase out of range element in Container<T>::Erase");
+
+            CharT *from = it.ptr + 1;
+            ::memcpy(it.ptr, from, mLastB - (uchar *)from);
+            mLast--;
+        }
+
+        inline void ReserveImpl(size_t s)
+        {
+            if (Capacity() >= s)
+                return;
+
+            uchar *newMem = (uchar *)AllocatorT::Alloc(s);
+            assert(newMem && "Out of memory in List<T>::Reserve");
+
+            CharT *oldBegin = mBegin;
+            size_t oldSizeInBytes = SizeInBytes();
+
+            mEndB = (mLastB = mBeginB = newMem) + s;
+            mLastB += oldSizeInBytes;
+
+            ::memcpy(mBegin, oldBegin, oldSizeInBytes);
+            AllocatorT::Free(oldBegin);
+        }
+
+        inline void PushBackImpl(CharT ch)
+        {
+            if (mLast == mEnd)
+            {
+                size_t sizeInBytes = SizeInBytes();
+                ReallocateMemory(sizeInBytes, sizeInBytes);
+            }
+
+            *mLast = ch;
+            mLast++;
+        }
+
+        inline bool LowerThanImpl(const CharT *right, const CharT *rightEnd) const
+        {
+            auto it = mBegin;
+            auto rit = right;
+            for (; *it == *rit; it++, rit++)
+            {
+                if (it == mLast || rit == rightEnd)
+                    return false;
+            }
+
+            using UnsignedT = std::make_unsigned_t<CharT>;
+
+            return *(UnsignedT *)it < *(UnsignedT *)rit;
+        }
+
+        inline bool LowerThanImpl(const CharT *right) const
+        {
+            return LowerThanImpl(right, right + CStringLengthHack(right));
         }
 
         inline void InitSummary(const CharT *first, size_t firstSizeInBytes, const CharT *second, size_t secondSizeInBytes, size_t summarySizeInBytes)
