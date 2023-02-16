@@ -14,6 +14,8 @@
 #include <locale>
 #include <map>
 
+#include <ulib/sstr.h>
+
 namespace ewin
 {
     int messagebox(ulib::u8string_view message = u8"default text", ulib::u8string_view title = u8"message", int type = MB_OK, void *hwnd = nullptr)
@@ -36,6 +38,69 @@ int main()
         str += str;
         str += str;
         //
+        {
+            std::string s0 = ulib::sstr(ulib::u8string(u8"ky"));
+            std::string s1 = ulib::sstr(ulib::u16string(u"ky"));
+            std::string s2 = ulib::sstr(ulib::u32string(U"ky"));
+            std::string s3 = ulib::sstr(ulib::string("ky"));
+            std::string s4 = ulib::sstr(ulib::wstring(L"ky"));
+
+            std::string s5 = ulib::sstr(ulib::u8string_view(u8"ky"));
+            std::string s6 = ulib::sstr(ulib::u16string_view(u"ky"));
+            std::string s7 = ulib::sstr(ulib::u32string_view(U"ky"));
+            std::string s8 = ulib::sstr(ulib::string_view("ky"));
+            std::string s9 = ulib::sstr(ulib::wstring_view(L"ky"));
+
+            std::string s10 = ulib::sstr(u8"ky");
+            std::string s11 = ulib::sstr(u"ky");
+            std::string s12 = ulib::sstr(U"ky");
+            std::string s13 = ulib::sstr("ky");
+            std::string s14 = ulib::sstr(L"ky");
+
+            std::string s15 = ulib::sstr(std::u8string(u8"ky"));
+            std::string s16 = ulib::sstr(std::u16string(u"ky"));
+            std::string s17 = ulib::sstr(std::u32string(U"ky"));
+            std::string s18 = ulib::sstr(std::string("ky"));
+            std::string s19 = ulib::sstr(std::wstring(L"ky"));
+
+            std::string s20 = ulib::sstr(std::u8string_view(u8"ky"));
+            std::string s21 = ulib::sstr(std::u16string_view(u"ky"));
+            std::string s22 = ulib::sstr(std::u32string_view(U"ky"));
+            std::string s23 = ulib::sstr(std::string_view("ky"));
+            std::string s24 = ulib::sstr(std::wstring_view(L"ky"));
+        }
+
+        {
+            std::wstring s0 = ulib::swstr(ulib::u8string(u8"ky"));
+            std::wstring s1 = ulib::swstr(ulib::u16string(u"ky"));
+            std::wstring s2 = ulib::swstr(ulib::u32string(U"ky"));
+            std::wstring s3 = ulib::swstr(ulib::string("ky"));
+            std::wstring s4 = ulib::swstr(ulib::wstring(L"ky"));
+
+            std::wstring s5 = ulib::swstr(ulib::u8string_view(u8"ky"));
+            std::wstring s6 = ulib::swstr(ulib::u16string_view(u"ky"));
+            std::wstring s7 = ulib::swstr(ulib::u32string_view(U"ky"));
+            std::wstring s8 = ulib::swstr(ulib::string_view("ky"));
+            std::wstring s9 = ulib::swstr(ulib::wstring_view(L"ky"));
+
+            std::wstring s10 = ulib::swstr(u8"ky");
+            std::wstring s11 = ulib::swstr(u"ky");
+            std::wstring s12 = ulib::swstr(U"ky");
+            std::wstring s13 = ulib::swstr("ky");
+            std::wstring s14 = ulib::swstr(L"ky");
+
+            std::wstring s15 = ulib::swstr(std::u8string(u8"ky"));
+            std::wstring s16 = ulib::swstr(std::u16string(u"ky"));
+            std::wstring s17 = ulib::swstr(std::u32string(U"ky"));
+            std::wstring s18 = ulib::swstr(std::string("ky"));
+            std::wstring s19 = ulib::swstr(std::wstring(L"ky"));
+
+            std::wstring s20 = ulib::swstr(std::u8string_view(u8"ky"));
+            std::wstring s21 = ulib::swstr(std::u16string_view(u"ky"));
+            std::wstring s22 = ulib::swstr(std::u32string_view(U"ky"));
+            std::wstring s23 = ulib::swstr(std::string_view("ky"));
+            std::wstring s24 = ulib::swstr(std::wstring_view(L"ky"));
+        }
     }
 
     {
