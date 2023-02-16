@@ -136,6 +136,8 @@ namespace ulib
         inline size_t CapacityInBytes() const { return this->mEndB - this->mBeginB; }
         inline size_t AvailableInBytes() const { return this->mEnd - this->mLast; }
         inline void SetSize(size_t newSize) { this->mLast = this->mBegin + newSize; }
+        inline void PushBack(const CharT &o) { BaseT::PushBack(o); }
+        inline void PushBack(CharT &&o) { BaseT::PushBack(std::move(o)); }
         inline iterator begin() { return this->mBegin; }
         inline iterator end() { return this->mLast; }
         inline const_iterator begin() const { return this->mBegin; }
@@ -145,8 +147,8 @@ namespace ulib
         inline CharT *data() { return Data(); }
         inline const CharT *data() const { return Data(); }
         inline void erase(iterator it) { Erase(it); }
-        inline void push_back(const CharT &o) { PushBack(o); }
-        inline void push_back(CharT &&o) { PushBack(std::move(o)); }
+        inline void push_back(const CharT &o) { BaseT::PushBack(o); }
+        inline void push_back(CharT &&o) { BaseT::PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
         inline void reserve(size_t s) { Reserve(s); }
@@ -188,6 +190,12 @@ namespace ulib
             return *this;
         }
 
+        inline EncodedString<EncodingT, AllocatorT> &operator+=(const EncodedStringView<EncodingT> &right)
+        {
+            Append(right.data(), right.size());
+            return *this;
+        }
+
         inline EncodedString<EncodingT, AllocatorT> &operator+=(const CharT *right)
         {
             Append(right);
@@ -224,6 +232,16 @@ namespace ulib
         {
             return BaseT::Equal(right);
         }
+
+         template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline EncodedString<EncodingT, AllocatorT> operator+(const StringT &right) const
+        {
+            return Sum(right.data(), right.size());
+        }
+
         // inline bool operator!=(ulib::Range<const CharT> right) const { return !BaseT::Equal(right); }
         // inline bool operator==(ulib::Range<CharT> right) const { return BaseT::Equal(right); }
 
@@ -291,6 +309,22 @@ namespace ulib
         }
         */
     };
+}
+
+template<class EncodingT, class AllocatorT>
+inline ulib::EncodedString<EncodingT, AllocatorT> operator+(ulib::EncodedStringView<EncodingT> left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
+{
+    ulib::EncodedString<EncodingT, AllocatorT> result(left);
+    result += right;
+    return result;
+}
+
+template<class EncodingT>
+inline ulib::EncodedString<EncodingT> operator+(ulib::EncodedStringView<EncodingT> left, ulib::EncodedStringView<EncodingT> right)
+{
+    ulib::EncodedString<EncodingT> result(left);
+    result += right;
+    return result;
 }
 
 /*

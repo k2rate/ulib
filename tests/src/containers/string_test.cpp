@@ -96,3 +96,83 @@ TEST(StringTest, ConvertsToStringView)
 
     ASSERT_EQ(str, ulib::String(to.data(), to.size()));
 }
+
+TEST(StringTest, Pushing)
+{
+    ulib::String str = "hello ";
+    str.PushBack('w');
+    str.PushBack('o');
+    str.PushBack('r');
+    str.push_back('l');
+    str.push_back('d');
+
+    ASSERT_EQ(str, "hello world");
+}
+
+TEST(StringTest, Iteration)
+{
+    ulib::string str = "hello";
+    ulib::string str2;
+    for(auto ch : str)
+    {
+        str2.PushBack(ch);
+    }
+
+    ASSERT_EQ(str, str2);
+}
+
+TEST(StringTest, Addition)
+{
+    ulib::string str = "hello";
+    ulib::string str2 = str + " world";
+
+    ASSERT_EQ(str2, "hello world");
+
+    str2 += " world";
+
+    ASSERT_EQ(str2, "hello world world");
+}
+
+TEST(StringTest, Copy)
+{
+    ulib::string str = "hello";
+    ulib::string str2 = str;
+    ulib::string str3 = str;
+
+    ASSERT_EQ(str2, str);
+    ASSERT_EQ(str3, "hello");
+}
+
+TEST(StringTest, CopyFromStringView)
+{
+    ulib::string_view vstr = "hello";
+
+    ulib::string str2 = vstr;
+    ASSERT_EQ(str2, vstr);
+
+    str2 = vstr;
+    ASSERT_EQ(str2, vstr);
+}
+
+TEST(StringTest, AdditionWithStringView)
+{
+    ulib::string str2;
+    ulib::string_view vstr = "hello";
+
+    str2 += vstr;
+    
+    ASSERT_EQ(str2, vstr);
+
+    str2 = vstr;
+    ASSERT_EQ(str2, vstr);
+}
+
+TEST(StringTest, StringViewSum)
+{
+    ulib::string_view vstr = "hello";
+    ulib::string_view vstr2 = " world";
+
+    ulib::string str = vstr + vstr2;
+    
+    ASSERT_EQ(str, "hello world");
+}
