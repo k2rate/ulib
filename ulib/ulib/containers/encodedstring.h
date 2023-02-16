@@ -16,6 +16,8 @@
 #include <type_traits>
 #include <cstring>
 
+#include <stdio.h>
+
 namespace ulib
 {
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -43,6 +45,7 @@ namespace ulib
 
         using EncodingT = EncodingTy;
         using AllocatorT = AllocatorTy;
+        using ResourceT = Resource<AllocatorTy>;
         using SelfT = EncodedString<EncodingT, AllocatorT>;
         using SelfRefT = SelfT &;
         using BaseT = Resource<AllocatorT>;
@@ -73,14 +76,14 @@ namespace ulib
         inline EncodedString(AllocatorParams al = {})
             : BaseT(al)
         {
-            mEndB = (mLastB = mBeginB = rawptr_t(AllocatorT::Alloc(M_STEP))) + M_STEP;
+            mEndB = (mLastB = mBeginB = rawptr_t(ResourceT::Alloc(M_STEP))) + M_STEP;
         }
 
         inline EncodedString(const CharT *str, AllocatorParams al = {})
             : BaseT(al)
         {
             size_t allocSize = CStringLengthHack(str) * sizeof(CharT);
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, str, allocSize);
         }
@@ -89,7 +92,7 @@ namespace ulib
             : BaseT(al)
         {
             size_t allocSize = (e - b) * sizeof(CharT);
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, b, allocSize);
         }
@@ -98,7 +101,7 @@ namespace ulib
             : BaseT(al)
         {
             size_t allocSize = size * sizeof(CharT);
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, str, allocSize);
         }
@@ -111,7 +114,7 @@ namespace ulib
             RangeT str = cont;
 
             size_t allocSize = str.SizeInBytes();
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
             memcpy(mBeginB, str.Data(), allocSize);
         }
@@ -120,7 +123,7 @@ namespace ulib
             : BaseT(al)
         {
             size_t allocSize = sizeof(CharT) * size;
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
             for (auto it = mBegin; it != mEnd; it++)
                 new (it) CharT();
@@ -130,7 +133,53 @@ namespace ulib
             : BaseT(al)
         {
             size_t allocSize = sizeof(CharT) * capacity.cc;
-            mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+            mEndB = (mLastB = mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
+        }
+
+        inline EncodedString(const SelfT &other)
+            : BaseT(std::move(other))
+        {
+            size_t allocSize = other.Size();
+            mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
+
+            memcpy(mBeginB, other.Data(), allocSize);
+        }
+
+
+        inline EncodedString(SelfT &&other)
+            : BaseT(std::move(other))
+        {
+            mBeginB = other.mBeginB;
+            mLastB = other.mLastB;
+            mEndB = other.mEndB;
+
+            other.mBeginB = nullptr;
+        }
+        
+        /*
+                template <class FromEncodingT, std::enable_if_t<IsParentCompatible<FromEncodingT, EncodingT>, bool> = true>
+        inline EncodedString(EncodedString<FromEncodingT, AllocatorT> &&other)
+            : BaseT(std::move(other))
+        {
+
+            printf("move encoding\n");
+
+            mBeginB = (uchar *)other.mBeginB;
+            mLastB = (uchar *)other.mLastB;
+            mEndB = (uchar *)other.mEndB;
+
+            other.mBeginB = nullptr;
+        }
+
+        */
+
+        inline ~EncodedString()
+        {
+            if (mBeginB)
+            {
+                ResourceT::Free(mBeginB);
+                mBeginB = nullptr;
+            }
         }
 
         // operators overloads
@@ -165,6 +214,16 @@ namespace ulib
         {
             Append(right);
             return *this;
+        }
+
+        inline void operator=(const SelfT& right) 
+        { 
+            Assign(right);
+        }
+
+        inline void operator=(SelfT&& right) 
+        { 
+            Assign(std::move(right));
         }
 
         template <class LAllocatorT>
@@ -280,6 +339,14 @@ namespace ulib
         inline void Append(const CharT *right) { AppendImpl(right, CStringLengthHack(right)); }
         inline void Append(const CharT *right, size_t rightSizeInBytes) { return AppendImpl(right, rightSizeInBytes); }
 
+        /*
+        inline void Detach()
+        {
+            mBeginB = nullptr;
+        }
+        */
+        
+
         // inline bool operator!=(ulib::Range<const CharT> right) const { return !Equal(right); }
         // inline bool operator==(ulib::Range<CharT> right) const { return Equal(right); }
 
@@ -310,9 +377,9 @@ namespace ulib
 
         inline void AssignImpl(SelfT &&source)
         {
-            AllocatorT::Free(mBeginB);
+            ResourceT::Free(mBeginB);
 
-            Resource<AllocatorT> &rs = *this;
+            ResourceT &rs = *this;
             rs = std::move(source);
 
             mBegin = source.mBegin;
@@ -348,8 +415,8 @@ namespace ulib
 
             if (CapacityInBytes() < requiredSize)
             {
-                AllocatorT::Free(mBegin);
-                mEndB = (mBeginB = rawptr_t(AllocatorT::Alloc(allocSize))) + allocSize;
+                ResourceT::Free(mBegin);
+                mEndB = (mBeginB = rawptr_t(ResourceT::Alloc(allocSize))) + allocSize;
             }
 
             mLastB = mBeginB + requiredSize;
@@ -377,7 +444,7 @@ namespace ulib
             if (mLast == mEnd)
             {
                 size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, 1);
+                ReallocateMemory(sizeInBytes, sizeof(CharT));
             }
 
             *mLast = 0;
@@ -422,7 +489,7 @@ namespace ulib
             if (Capacity() >= s)
                 return;
 
-            uchar *newMem = (uchar *)AllocatorT::Alloc(s);
+            uchar *newMem = (uchar *)ResourceT::Alloc(s);
             assert(newMem && "Out of memory in List<T>::Reserve");
 
             CharT *oldBegin = mBegin;
@@ -432,7 +499,7 @@ namespace ulib
             mLastB += oldSizeInBytes;
 
             ::memcpy(mBegin, oldBegin, oldSizeInBytes);
-            AllocatorT::Free(oldBegin);
+            ResourceT::Free(oldBegin);
         }
 
         inline void PushBackImpl(CharT ch)
@@ -481,14 +548,14 @@ namespace ulib
             size_t allocSizeInBytes = oldSizeInBytes + additionalSizeInBytes;
             CharT *oldBegin = mBegin;
 
-            mEndB = (mLastB = mBeginB = (rawptr_t)AllocatorT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
+            mEndB = (mLastB = mBeginB = (rawptr_t)ResourceT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
 
             assert(mBegin && "Out of memory in List<T>::ReallocateMemory");
 
             mLastB += oldSizeInBytes;
 
             ::memcpy(mBegin, oldBegin, oldSizeInBytes);
-            AllocatorT::Free(oldBegin);
+            ResourceT::Free(oldBegin);
         }
 
         inline void ReallocateMemoryWithRight(size_t currentSizeInBytes, size_t additionalSizeInBytes, const CharT *right, size_t rightSizeInBytes)
@@ -497,7 +564,7 @@ namespace ulib
             size_t allocSizeInBytes = oldSizeInBytes + additionalSizeInBytes;
             CharT *oldBegin = mBegin;
 
-            mEndB = (mLastB = mBeginB = (rawptr_t)AllocatorT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
+            mEndB = (mLastB = mBeginB = (rawptr_t)ResourceT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
 
             assert(mBegin && "Out of memory in List<T>::ReallocateMemory");
 
@@ -508,7 +575,7 @@ namespace ulib
 
             mLastB += rightSizeInBytes;
 
-            AllocatorT::Free(oldBegin);
+            ResourceT::Free(oldBegin);
         }
 
         union

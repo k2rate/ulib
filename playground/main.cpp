@@ -24,99 +24,138 @@ namespace ewin
     }
 };
 
+__declspec(noinline) void test()
+{
+
+    ulib::u8string str = ulib::Convert<ulib::Utf8>(ulib::u8string(u8"re"));
+    // ulib::Convert<ulib::Utf8>(ulib::u16string(u"re"));
+}
+
 int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
     {
-        ulib::string str = "pizdec ";
-        std::string sstr = ulib::string_view("sdfafdafsda");
-
-        str + sstr;
-        str + ulib::string_view("str");
-        ulib::string_view("str") + str;
-
-        str += str;
-        str += str;
-        str += str;
-        str += str;
-        str += str;
-        str += str;
-
-        //
-        {
-            std::string s0 = ulib::sstr(ulib::u8string(u8"ky"));
-            std::string s1 = ulib::sstr(ulib::u16string(u"ky"));
-            std::string s2 = ulib::sstr(ulib::u32string(U"ky"));
-            std::string s3 = ulib::sstr(ulib::string("ky"));
-            std::string s4 = ulib::sstr(ulib::wstring(L"ky"));
-
-            std::string s5 = ulib::sstr(ulib::u8string_view(u8"ky"));
-            std::string s6 = ulib::sstr(ulib::u16string_view(u"ky"));
-            std::string s7 = ulib::sstr(ulib::u32string_view(U"ky"));
-            std::string s8 = ulib::sstr(ulib::string_view("ky"));
-            std::string s9 = ulib::sstr(ulib::wstring_view(L"ky"));
-
-            std::string s10 = ulib::sstr(u8"ky");
-            std::string s11 = ulib::sstr(u"ky");
-            std::string s12 = ulib::sstr(U"ky");
-            std::string s13 = ulib::sstr("ky");
-            std::string s14 = ulib::sstr(L"ky");
-
-            std::string s15 = ulib::sstr(std::u8string(u8"ky"));
-            std::string s16 = ulib::sstr(std::u16string(u"ky"));
-            std::string s17 = ulib::sstr(std::u32string(U"ky"));
-            std::string s18 = ulib::sstr(std::string("ky"));
-            std::string s19 = ulib::sstr(std::wstring(L"ky"));
-
-            std::string s20 = ulib::sstr(std::u8string_view(u8"ky"));
-            std::string s21 = ulib::sstr(std::u16string_view(u"ky"));
-            std::string s22 = ulib::sstr(std::u32string_view(U"ky"));
-            std::string s23 = ulib::sstr(std::string_view("ky"));
-            std::string s24 = ulib::sstr(std::wstring_view(L"ky"));
-        }
-
-        {
-            std::wstring s0 = ulib::swstr(ulib::u8string(u8"ky"));
-            std::wstring s1 = ulib::swstr(ulib::u16string(u"ky"));
-            std::wstring s2 = ulib::swstr(ulib::u32string(U"ky"));
-            std::wstring s3 = ulib::swstr(ulib::string("ky"));
-            std::wstring s4 = ulib::swstr(ulib::wstring(L"ky"));
-
-            std::wstring s5 = ulib::swstr(ulib::u8string_view(u8"ky"));
-            std::wstring s6 = ulib::swstr(ulib::u16string_view(u"ky"));
-            std::wstring s7 = ulib::swstr(ulib::u32string_view(U"ky"));
-            std::wstring s8 = ulib::swstr(ulib::string_view("ky"));
-            std::wstring s9 = ulib::swstr(ulib::wstring_view(L"ky"));
-
-            std::wstring s10 = ulib::swstr(u8"ky");
-            std::wstring s11 = ulib::swstr(u"ky");
-            std::wstring s12 = ulib::swstr(U"ky");
-            std::wstring s13 = ulib::swstr("ky");
-            std::wstring s14 = ulib::swstr(L"ky");
-
-            std::wstring s15 = ulib::swstr(std::u8string(u8"ky"));
-            std::wstring s16 = ulib::swstr(std::u16string(u"ky"));
-            std::wstring s17 = ulib::swstr(std::u32string(U"ky"));
-            std::wstring s18 = ulib::swstr(std::string("ky"));
-            std::wstring s19 = ulib::swstr(std::wstring(L"ky"));
-
-            std::wstring s20 = ulib::swstr(std::u8string_view(u8"ky"));
-            std::wstring s21 = ulib::swstr(std::u16string_view(u"ky"));
-            std::wstring s22 = ulib::swstr(std::u32string_view(U"ky"));
-            std::wstring s23 = ulib::swstr(std::string_view("ky"));
-            std::wstring s24 = ulib::swstr(std::wstring_view(L"ky"));
-        }
+        ulib::u8string test(u8"re");
+    }
+    
+    {
+        ulib::u8string test(u8"re");
+        auto tt = std::move(test);
     }
 
     {
-        std::map<ulib::u8string, ulib::u8string> map;
-        map[u8"re"] = u8"meta";
-        ewin::messagebox(map[u8"re"]);
+        ulib::u8string test(u8"re");
+        ulib::u8string test2(u8"re");
+        ulib::u8string test3(u8"re");
+
+        auto tt = std::move(test);
+        auto tt1 = std::move(test2);
+        auto tt2 = std::move(test3);
+    }
+
+    {
+        ulib::Convert<ulib::Utf8>(L"pizdec");
+    }
+
+    {
+        ulib::Convert<ulib::Utf8>(ulib::string("re"));
+        ulib::Convert<ulib::Utf8>(ulib::wstring(L"re"));
+        ulib::Convert<ulib::Utf8>(ulib::u8string(u8"re"));
+        ulib::Convert<ulib::Utf8>(ulib::u16string(u"re"));
+        ulib::Convert<ulib::Utf8>(ulib::u32string(U"re"));
     }
 
     try
     {
+
+        {
+            ulib::string str = "pizdec ";
+            std::string sstr = ulib::string_view("sdfafdafsda");
+
+            str + sstr;
+            str + ulib::string_view("str");
+            ulib::string_view("str") + str;
+
+            str += str;
+            str += str;
+            str += str;
+            str += str;
+            str += str;
+            str += str;
+
+            //
+            {
+                std::string s0 = ulib::sstr(ulib::u8string(u8"ky"));
+                std::string s1 = ulib::sstr(ulib::u16string(u"ky"));
+                std::string s2 = ulib::sstr(ulib::u32string(U"ky"));
+                std::string s3 = ulib::sstr(ulib::string("ky"));
+                std::string s4 = ulib::sstr(ulib::wstring(L"ky"));
+
+                std::string s5 = ulib::sstr(ulib::u8string_view(u8"ky"));
+                std::string s6 = ulib::sstr(ulib::u16string_view(u"ky"));
+                std::string s7 = ulib::sstr(ulib::u32string_view(U"ky"));
+                std::string s8 = ulib::sstr(ulib::string_view("ky"));
+                std::string s9 = ulib::sstr(ulib::wstring_view(L"ky"));
+
+                std::string s10 = ulib::sstr(u8"ky");
+                std::string s11 = ulib::sstr(u"ky");
+                std::string s12 = ulib::sstr(U"ky");
+                std::string s13 = ulib::sstr("ky");
+                std::string s14 = ulib::sstr(L"ky");
+
+                std::string s15 = ulib::sstr(std::u8string(u8"ky"));
+                std::string s16 = ulib::sstr(std::u16string(u"ky"));
+                std::string s17 = ulib::sstr(std::u32string(U"ky"));
+                std::string s18 = ulib::sstr(std::string("ky"));
+                std::string s19 = ulib::sstr(std::wstring(L"ky"));
+
+                std::string s20 = ulib::sstr(std::u8string_view(u8"ky"));
+                std::string s21 = ulib::sstr(std::u16string_view(u"ky"));
+                std::string s22 = ulib::sstr(std::u32string_view(U"ky"));
+                std::string s23 = ulib::sstr(std::string_view("ky"));
+                std::string s24 = ulib::sstr(std::wstring_view(L"ky"));
+            }
+
+            {
+                std::wstring s0 = ulib::swstr(ulib::u8string(u8"ky"));
+                std::wstring s1 = ulib::swstr(ulib::u16string(u"ky"));
+                std::wstring s2 = ulib::swstr(ulib::u32string(U"ky"));
+                std::wstring s3 = ulib::swstr(ulib::string("ky"));
+                std::wstring s4 = ulib::swstr(ulib::wstring(L"ky"));
+
+                std::wstring s5 = ulib::swstr(ulib::u8string_view(u8"ky"));
+                std::wstring s6 = ulib::swstr(ulib::u16string_view(u"ky"));
+                std::wstring s7 = ulib::swstr(ulib::u32string_view(U"ky"));
+                std::wstring s8 = ulib::swstr(ulib::string_view("ky"));
+                std::wstring s9 = ulib::swstr(ulib::wstring_view(L"ky"));
+
+                std::wstring s10 = ulib::swstr(u8"ky");
+                std::wstring s11 = ulib::swstr(u"ky");
+                std::wstring s12 = ulib::swstr(U"ky");
+                std::wstring s13 = ulib::swstr("ky");
+                std::wstring s14 = ulib::swstr(L"ky");
+
+                std::wstring s15 = ulib::swstr(std::u8string(u8"ky"));
+                std::wstring s16 = ulib::swstr(std::u16string(u"ky"));
+                std::wstring s17 = ulib::swstr(std::u32string(U"ky"));
+                std::wstring s18 = ulib::swstr(std::string("ky"));
+                std::wstring s19 = ulib::swstr(std::wstring(L"ky"));
+
+                std::wstring s20 = ulib::swstr(std::u8string_view(u8"ky"));
+                std::wstring s21 = ulib::swstr(std::u16string_view(u"ky"));
+                std::wstring s22 = ulib::swstr(std::u32string_view(U"ky"));
+                std::wstring s23 = ulib::swstr(std::string_view("ky"));
+                std::wstring s24 = ulib::swstr(std::wstring_view(L"ky"));
+            }
+        }
+
+        {
+            std::map<ulib::u8string, ulib::u8string> map;
+            map[u8"re"] = u8"meta";
+            ewin::messagebox(u8"meta");
+        }
+
         {
             ulib::wstring wstr = L"пиздец";
 
