@@ -45,9 +45,11 @@ namespace ulib
             return (CharT *)ulib::SystemWideEncoding::Decode((detail::WideChar *)begin, (detail::WideChar *)end, out);
         }
 
+#ifdef _WIN32
         inline static const CharT *NextChar(const CharT *begin, const CharT *end)
         {
             return (CharT *)ulib::SystemWideEncoding::NextChar((detail::WideChar *)begin, (detail::WideChar *)end);
         }
+#endif
     };
 }
