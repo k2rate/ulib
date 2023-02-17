@@ -5,7 +5,7 @@
 namespace ulib
 {
     template <class EncodingT>
-    typename size_t CalcStringLength(const typename EncodingT::CharT *begin, const typename EncodingT::CharT *end)
+    size_t CalcStringLength(const typename EncodingT::CharT *begin, const typename EncodingT::CharT *end)
     {
         if constexpr (EncodingT::kCharType == EncodingCharType::SingleByte)
         {
