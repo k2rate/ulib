@@ -19,6 +19,7 @@ namespace ulib
 #endif
 
         constexpr static EncodingType kType = EncodingType::Concrete;
+        constexpr static EncodingCharType kCharType = EncodingCharType::MultiByte;
 
         inline static CharT *Encode(uint codepoint, CharT *out)
         {
@@ -132,6 +133,75 @@ namespace ulib
                     }
 
                     out = (uint(it[0] & 0x7) << 18) + ((it[1] & 0x3F) << 12) + ((it[2] & 0x3F) << 6) + (it[3] & 0x3F); // 21 bit
+
+                    return (CharT *)&it[4];
+                }
+                else
+                {
+                    // error invalid first utf8 octet
+                    // utf8 character length (> 4 bytes) is not supported
+
+                    throw UnsupportedEncodingException{};
+                }
+            }
+        }
+
+        inline static const CharT* NextChar(const CharT *begin, const CharT *end)
+        {
+            auto it = (uchar *)begin;
+
+            // uint32 codepoint;
+            if (*it < 0x80) // 10000000
+            {
+                // 0-7F max
+                // 1 byte
+
+                return (CharT *)&it[1];
+            }
+            else if (*it < 0xE0) // 11100000
+            {
+                // 7F-7FF
+                // 2 byte
+
+                if (it + 1 == (uchar *)end)
+                {
+                    // error invalid utf8 character
+                    // character is out of range
+
+                    throw CharacterOutOfRangeException{};
+                }
+
+                return (CharT *)&it[2];
+            }
+            else if (*it < 0xF0) // 11110000
+            {
+                // 7FF-FFFF
+                // 3 byte
+
+                if (it + 2 >= (uchar *)end)
+                {
+                    // error invalid utf8 character
+                    // character is out of range
+
+                    throw CharacterOutOfRangeException{};
+                }
+
+                return (CharT *)&it[3];
+            }
+            else
+            {
+                if (*it < 0xF8)
+                {
+                    // 10000-10FFFF
+                    // 4 byte
+
+                    if (it + 3 >= (uchar *)end)
+                    {
+                        // error invalid utf8 character
+                        // character is out of range
+
+                        throw CharacterOutOfRangeException{};
+                    }
 
                     return (CharT *)&it[4];
                 }

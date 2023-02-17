@@ -10,6 +10,12 @@ namespace ulib
         Concrete = 1,
     };
 
+    enum class EncodingCharType
+    {
+        SingleByte = 0,
+        MultiByte = 1,
+    };
+
     template <class SourceEncodingT, class EncodingT>
     inline constexpr bool IsParentCompatible =
         std::is_same_v<SourceEncodingT, typename EncodingT::ParentEncodingT> ||

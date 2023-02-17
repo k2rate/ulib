@@ -35,10 +35,24 @@ int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
+    u8"g";
+
+    {
+        ulib::u8string nig = u8"негры блять";
+        nig += u8" ку";
+
+        printf("[u8] string: %s size: %llu length: %llu\n",
+               nig.c_str(), nig.size(), nig.length());
+
+        ulib::u16string nigr = u"негры блять";
+        printf("[u16] string: %s size: %llu length: %llu\n",
+               ulib::u8(nigr).c_str(), nigr.size(), nigr.length());
+    }
+
     {
         ulib::u8string test(u8"re");
     }
-    
+
     {
         ulib::u8string test(u8"re");
         auto tt = std::move(test);

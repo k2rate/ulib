@@ -5,6 +5,7 @@
 
 #include <ulib/allocators/defaultallocator.h>
 #include <ulib/resources/resource.h>
+#include <ulib/encodings/length.h>
 
 #include "encodedstringview.h"
 #include "clength.h"
@@ -15,7 +16,6 @@
 
 #include <type_traits>
 #include <cstring>
-
 #include <stdio.h>
 
 #ifdef min
@@ -149,7 +149,6 @@ namespace ulib
             memcpy(mBeginB, other.Data(), allocSize);
         }
 
-
         inline EncodedString(SelfT &&other)
             : BaseT(std::move(other))
         {
@@ -159,7 +158,7 @@ namespace ulib
 
             other.mBeginB = nullptr;
         }
-        
+
         /*
                 template <class FromEncodingT, std::enable_if_t<IsParentCompatible<FromEncodingT, EncodingT>, bool> = true>
         inline EncodedString(EncodedString<FromEncodingT, AllocatorT> &&other)
@@ -220,13 +219,13 @@ namespace ulib
             return *this;
         }
 
-        inline void operator=(const SelfT& right) 
-        { 
+        inline void operator=(const SelfT &right)
+        {
             Assign(right);
         }
 
-        inline void operator=(SelfT&& right) 
-        { 
+        inline void operator=(SelfT &&right)
+        {
             Assign(std::move(right));
         }
 
@@ -296,6 +295,7 @@ namespace ulib
             MarkZeroEnd();
             return Data();
         }
+        inline size_t length() const { return Length(); }
 
         // function definitions
 
@@ -343,13 +343,14 @@ namespace ulib
         inline void Append(const CharT *right) { AppendImpl(right, CStringLengthHack(right)); }
         inline void Append(const CharT *right, size_t rightSizeInBytes) { return AppendImpl(right, rightSizeInBytes); }
 
+        inline size_t Length() const { return CalcStringLength<EncodingT>(mBegin, mLast); }
+
         /*
         inline void Detach()
         {
             mBeginB = nullptr;
         }
         */
-        
 
         // inline bool operator!=(ulib::Range<const CharT> right) const { return !Equal(right); }
         // inline bool operator==(ulib::Range<CharT> right) const { return Equal(right); }
@@ -523,7 +524,7 @@ namespace ulib
             assert(right);
             assert(right < rightEnd);
 
-            return memcmp(mBegin, right, std::min(SizeInBytes(), size_t((uchar*)rightEnd - (uchar*)right))) < 0;
+            return memcmp(mBegin, right, std::min(SizeInBytes(), size_t((uchar *)rightEnd - (uchar *)right))) < 0;
         }
 
         inline bool LowerThanImpl(const CharT *right) const

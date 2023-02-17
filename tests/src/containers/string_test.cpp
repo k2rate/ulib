@@ -306,3 +306,37 @@ TEST(StringTest, Compare)
     ASSERT_EQ(u16str == u16str, true);
     ASSERT_EQ(u32str == u32str, true);
 }
+
+TEST(StringTest, Length)
+{
+    char kStr[] = "fullest ky";
+    wchar_t kWstr[] = L"fullest ky";
+    char8_t kU8str[] = u8"полный ку";
+    char16_t kU16str[] = u"полный ку";
+    char32_t kU32str[] = U"полный ку";
+
+    ulib::string str = kStr;
+    ulib::wstring wstr = kWstr;
+    ulib::u8string u8str = kU8str;
+    ulib::u16string u16str = kU16str;
+    ulib::u32string u32str = kU32str;
+
+#define arrsize(x) (sizeof(x) / sizeof(x[0]))
+#define cstrsize(x) (arrsize(x) - 1)
+
+    ASSERT_EQ(str.size(), cstrsize(kStr));
+    ASSERT_EQ(wstr.size(), cstrsize(kWstr));
+    ASSERT_EQ(u8str.size(), cstrsize(kU8str));
+    ASSERT_EQ(u16str.size(), cstrsize(kU16str));
+    ASSERT_EQ(u32str.size(), cstrsize(kU32str));
+
+    ASSERT_EQ(str.length(), 10);
+    ASSERT_EQ(wstr.length(), 10);
+    ASSERT_EQ(u8str.length(), 9);
+    ASSERT_EQ(u16str.length(), 9);
+    ASSERT_EQ(u32str.length(), 9);
+
+#undef cstrsize
+#undef arrsize
+ 
+}

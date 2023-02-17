@@ -1,6 +1,11 @@
 type: executable
 name: .tests
 
+cxxenv.msvc:
+  cxx-build-flags:
+    compiler:
+      - "/utf-8"
+
 deps:
   - ulib
   - github:google/googletest ^1.12.1 [gtest]:

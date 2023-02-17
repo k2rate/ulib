@@ -29,7 +29,9 @@ namespace ulib
     {
         using CharT = wchar_t;
         using ParentEncodingT = ulib::NullEncoding<CharT>;
-        constexpr static EncodingType kType = EncodingType::Concrete;
+        constexpr static EncodingType kType = ulib::SystemWideEncoding::kType;
+        constexpr static EncodingCharType kCharType = ulib::SystemWideEncoding::kCharType;
+
 #ifdef __cpp_char8_t
         using CharStd = int;
 #endif
@@ -41,6 +43,11 @@ namespace ulib
         inline static const CharT *Decode(const CharT *begin, const CharT *end, uint &out)
         {
             return (CharT *)ulib::SystemWideEncoding::Decode((detail::WideChar *)begin, (detail::WideChar *)end, out);
+        }
+
+        inline static const CharT *NextChar(const CharT *begin, const CharT *end)
+        {
+            return (CharT *)ulib::SystemWideEncoding::NextChar((detail::WideChar *)begin, (detail::WideChar *)end);
         }
     };
 }
