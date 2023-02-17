@@ -18,6 +18,10 @@
 
 #include <stdio.h>
 
+#ifdef min
+#undef min
+#endif
+
 namespace ulib
 {
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -516,22 +520,17 @@ namespace ulib
 
         inline bool LowerThanImpl(const CharT *right, const CharT *rightEnd) const
         {
-            auto it = mBegin;
-            auto rit = right;
-            for (; *it == *rit; it++, rit++)
-            {
-                if (it == mLast || rit == rightEnd)
-                    return false;
-            }
+            assert(right);
+            assert(right < rightEnd);
 
-            using UnsignedT = std::make_unsigned_t<CharT>;
-
-            return *(UnsignedT *)it < *(UnsignedT *)rit;
+            return memcmp(mBegin, right, std::min(SizeInBytes(), size_t((uchar*)rightEnd - (uchar*)right))) < 0;
         }
 
         inline bool LowerThanImpl(const CharT *right) const
         {
-            return LowerThanImpl(right, right + CStringLengthHack(right));
+            assert(right);
+
+            return memcmp(mBegin, right, std::min(SizeInBytes(), CStringLengthHack(right))) < 0;
         }
 
         inline void InitSummary(const CharT *first, size_t firstSizeInBytes, const CharT *second, size_t secondSizeInBytes, size_t summarySizeInBytes)
