@@ -7,7 +7,7 @@ cxxenv.msvc:
   cxx-link-deps:
     - "user32.lib"
 
-cxx-standard: 20
+cxx-standard: latest
 
 actions:
 - run:
