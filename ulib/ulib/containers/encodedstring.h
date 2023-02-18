@@ -525,14 +525,21 @@ namespace ulib
             assert(right);
             assert(right < rightEnd);
 
-            return memcmp(mBegin, right, std::min(SizeInBytes(), size_t((uchar *)rightEnd - (uchar *)right))) < 0;
+            size_t rightSizeInBytes = size_t((uchar *)rightEnd - (uchar *)right);
+            size_t minSize = std::min(SizeInBytes(), rightSizeInBytes);
+
+            int result = memcmp(mBegin, right, minSize);
+            if (result == 0)
+                return minSize != rightSizeInBytes;
+            
+            return result < 0;
         }
 
         inline bool LowerThanImpl(const CharT *right) const
         {
             assert(right);
 
-            return memcmp(mBegin, right, std::min(SizeInBytes(), CStringLengthHack(right))) < 0;
+            return LowerThanImpl(right, right + CStringLengthHack(right));
         }
 
         inline void InitSummary(const CharT *first, size_t firstSizeInBytes, const CharT *second, size_t secondSizeInBytes, size_t summarySizeInBytes)

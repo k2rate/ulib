@@ -1,9 +1,9 @@
+#include <map>
 #include <ulib/string.h>
-#include <ulib/wchar.h>
-#include <ulib/u8.h>
 #include <ulib/u16.h>
 #include <ulib/u32.h>
-#include <map>
+#include <ulib/u8.h>
+#include <ulib/wchar.h>
 
 #include <gtest/gtest.h>
 
@@ -14,7 +14,7 @@ TEST(StdMapStringTest, Constructs)
     std::map<ulib::u8string, ulib::u8string> map3;
     std::map<ulib::u16string, ulib::u16string> map4;
     std::map<ulib::u32string, ulib::u32string> map5;
-    
+
     std::map<ulib::string, std::string> map11;
     std::map<ulib::wstring, std::wstring> map12;
     std::map<ulib::u8string, std::u8string> map13;
@@ -71,4 +71,50 @@ TEST(StdMapStringTest, Store)
     ASSERT_EQ(map3[u8"k3"], u8"re6");
     ASSERT_EQ(map4[u"k3"], u"re6");
     ASSERT_EQ(map5[U"k3"], U"re6");
+}
+
+TEST(StdMapStringTest, MultipleSelection)
+{
+    std::map<ulib::u8string, int> map;
+
+    map[u8"one"] = 0;
+    map[u8"two"] = 1;
+    map[u8"three"] = 2;
+    map[u8"four"] = 3;
+    map[u8"five"] = 4;
+    map[u8"six"] = 5;
+    map[u8"seven"] = 6;
+    map[u8"eight"] = 7;
+    map[u8"nine"] = 8;
+    map[u8"ten"] = 9;
+
+    ASSERT_EQ(map.size(), 10);
+    ASSERT_EQ(map[u8"one"], 0);
+    ASSERT_EQ(map[u8"two"], 1);
+    ASSERT_EQ(map[u8"three"], 2);
+    ASSERT_EQ(map[u8"four"], 3);
+    ASSERT_EQ(map[u8"five"], 4);
+    ASSERT_EQ(map[u8"six"], 5);
+    ASSERT_EQ(map[u8"seven"], 6);
+    ASSERT_EQ(map[u8"eight"], 7);
+    ASSERT_EQ(map[u8"nine"], 8);
+    ASSERT_EQ(map[u8"ten"], 9);
+
+    map[u8"far"] = 10;
+    map[u8"farfar"] = 11;
+    map[u8"freeze"] = 12;
+    map[u8"unfreeze"] = 13;
+    map[u8"reclear"] = 14;
+    map[u8"clear"] = 15;
+    map[u8"freezes"] = 16;
+    map[u8"freezefarfarclear"] = 17;
+
+    ASSERT_EQ(map[u8"far"], 10);
+    ASSERT_EQ(map[u8"farfar"], 11);
+    ASSERT_EQ(map[u8"freeze"], 12);
+    ASSERT_EQ(map[u8"unfreeze"], 13);
+    ASSERT_EQ(map[u8"reclear"], 14);
+    ASSERT_EQ(map[u8"clear"], 15);
+    ASSERT_EQ(map[u8"freezes"], 16);
+    ASSERT_EQ(map[u8"freezefarfarclear"], 17);
 }
