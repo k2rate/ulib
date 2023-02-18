@@ -32,8 +32,11 @@
 
 .vscode
 .re-cache
+.cache
+compile_commands.json
 out
 re.user.yml
+
 *.id0
 *.id1
 *.id2

@@ -1,8 +1,11 @@
+#include "ulib/containers/list.h"
+#include "ulib/encodings/utf8/string.h"
 #include <ulib/string.h>
-#include <ulib/wchar.h>
-#include <ulib/u8.h>
 #include <ulib/u16.h>
 #include <ulib/u32.h>
+#include <ulib/u8.h>
+#include <ulib/wchar.h>
+#include <ulib/split.h>
 
 #include <gtest/gtest.h>
 
@@ -111,7 +114,7 @@ TEST(StringTest, Iteration)
 {
     ulib::string str = "hello";
     ulib::string str2;
-    for(auto ch : str)
+    for (auto ch : str)
     {
         str2.PushBack(ch);
     }
@@ -158,7 +161,7 @@ TEST(StringTest, AdditionWithStringView)
     ulib::string_view vstr = "hello";
 
     str2 += vstr;
-    
+
     ASSERT_EQ(str2, vstr);
 
     str2 = vstr;
@@ -171,7 +174,7 @@ TEST(StringTest, StringViewSum)
     ulib::string_view vstr2 = " world";
 
     ulib::string str = vstr + vstr2;
-    
+
     ASSERT_EQ(str, "hello world");
 }
 
@@ -182,7 +185,7 @@ TEST(StringTest, Assignment)
     ulib::u8string_view vu8str = u8"hello";
     ulib::u16string_view vu16str = u"hello";
     ulib::u32string_view vu32str = U"hello";
-    
+
     ulib::string str = vstr;
     ulib::wstring wstr = vwstr;
     ulib::u8string u8str = vu8str;
@@ -263,7 +266,7 @@ TEST(StringTest, Compare)
     ulib::u8string_view vu8str = u8"hello";
     ulib::u16string_view vu16str = u"hello";
     ulib::u32string_view vu32str = U"hello";
-    
+
     ulib::string str = vstr;
     ulib::wstring wstr = vwstr;
     ulib::u8string u8str = vu8str;
@@ -338,5 +341,5 @@ TEST(StringTest, Length)
 
 #undef cstrsize
 #undef arrsize
- 
 }
+

@@ -1,6 +1,16 @@
 type: project
 name: ulib-project
 
+inherit-caller-in-deps: true
+
 cxxenv.msvc:
   cxx-link-deps:
     - "user32.lib"
+
+cxx-standard: 20
+
+actions:
+- run:
+    on: pre-configure
+    command: python
+    args: ["re-compile-commands-gen.py", "${root-dir}/.re-cache/meta/full.json", "${root-dir}/compile_commands.json"]

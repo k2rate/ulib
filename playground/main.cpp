@@ -1,28 +1,37 @@
+#include "ulib/containers/encodedstringview.h"
+#include "ulib/containers/iterators/baseiterator.h"
+#include "ulib/encodings/utf8/string.h"
+#include "ulib/encodings/utf8/stringview.h"
+#include <string>
 #include <ulib/string.h>
-#include <ulib/wchar.h>
-#include <ulib/u8.h>
 #include <ulib/u16.h>
 #include <ulib/u32.h>
+#include <ulib/u8.h>
+#include <ulib/wchar.h>
 
 #include <ulib/list.h>
 
 #include <vector>
 
-#include <windows.h>
 #include <ulib/charcase.h>
+#include <windows.h>
 
 #include <locale>
 #include <map>
 
+#include <ranges>
+#include <ulib/split.h>
 #include <ulib/sstr.h>
+
 
 namespace ewin
 {
-    int messagebox(ulib::u8string_view message = u8"default text", ulib::u8string_view title = u8"message", int type = MB_OK, void *hwnd = nullptr)
+    int messagebox(ulib::u8string_view message = u8"default text", ulib::u8string_view title = u8"message",
+                   int type = MB_OK, void *hwnd = nullptr)
     {
         return MessageBoxW(0, ulib::wstr(message).c_str(), ulib::wstr(title).c_str(), MB_OK);
     }
-};
+}; // namespace ewin
 
 __declspec(noinline) void test()
 {
@@ -35,18 +44,14 @@ int main()
 {
     std::setlocale(LC_ALL, ".utf8");
 
-    u8"g";
-
     {
         ulib::u8string nig = u8"негры блять";
         nig += u8" ку";
 
-        printf("[u8] string: %s size: %llu length: %llu\n",
-               nig.c_str(), nig.size(), nig.length());
+        printf("[u8] string: %s size: %llu length: %llu\n", nig.c_str(), nig.size(), nig.length());
 
         ulib::u16string nigr = u"негры блять";
-        printf("[u16] string: %s size: %llu length: %llu\n",
-               ulib::u8(nigr).c_str(), nigr.size(), nigr.length());
+        printf("[u16] string: %s size: %llu length: %llu\n", ulib::u8(nigr).c_str(), nigr.size(), nigr.length());
     }
 
     {
@@ -225,17 +230,11 @@ int main()
             s6 = ulib::lower(su16view);
             s7 = ulib::lower(su32view);
 
-            wstr = ulib::wstr(ulib::u8(s0) + ulib::u8(s1) + ulib::u8(s2) + ulib::u8(s3) +
-                              ulib::u8(s4) + ulib::u8(s5) + ulib::u8(s6) + ulib::u8(s7));
+            wstr = ulib::wstr(ulib::u8(s0) + ulib::u8(s1) + ulib::u8(s2) + ulib::u8(s3) + ulib::u8(s4) + ulib::u8(s5) +
+                              ulib::u8(s6) + ulib::u8(s7));
 
             MessageBoxW(0, wstr.c_str(), L"re", MB_OK);
             MessageBoxW(0, ulib::ToLower(wstr).c_str(), L"re", MB_OK);
-
-            std::string sstr;
-            ulib::string u8str;
-
-            sstr == u8str;
-            u8str == sstr;
         }
 
         {

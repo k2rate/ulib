@@ -21,7 +21,14 @@ namespace ulib
         using BaseT = Range<const CharT>;
         using SelfT = EncodedStringView<EncodingTy>;
 
+        using Iterator = typename BaseT::Iterator;
+        using ConstIterator = typename BaseT::ConstIterator;
+
         using value_type = CharT;
+        using pointer = value_type *;
+        using reference = value_type &;
+        using iterator = Iterator;
+        using const_iterator = ConstIterator;
 
         EncodedStringView()
             : BaseT()
@@ -35,6 +42,11 @@ namespace ulib
 
         EncodedStringView(const CharT *b, const CharT *e)
             : BaseT(b, e)
+        {
+        }     
+
+        EncodedStringView(ConstIterator b, ConstIterator e)
+            : BaseT(b.ptr, e.ptr)
         {
         }
 
@@ -85,6 +97,14 @@ namespace ulib
 
 #endif
 #endif
+
+        /*
+                inline iterator begin() { return mBegin; }
+        inline iterator end() { return mLast; }
+        inline const_iterator begin() const { return mBegin; }
+        inline const_iterator end() const { return mLast; }
+        */
+
 
         inline bool operator==(const CharT *right) const
         {
