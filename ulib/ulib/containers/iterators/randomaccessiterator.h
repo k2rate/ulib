@@ -31,6 +31,7 @@ namespace ulib
 		inline bool operator<=(SelfT k) const { return ptr <= k.ptr; }
 		inline bool operator>=(SelfT k) const { return ptr >= k.ptr; }
 		inline bool operator==(SelfT k) const { return ptr == k.ptr; }
+        inline bool operator!=(SelfT k) const { return ptr == k.ptr; }
 
 		inline size_t operator-(SelfT k) const { return ptr - k.ptr; }
 		inline T* operator->() const { return ptr; }
