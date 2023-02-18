@@ -136,12 +136,57 @@ TEST(StringTest, Addition)
 
 TEST(StringTest, Copy)
 {
-    ulib::string str = "hello";
-    ulib::string str2 = str;
-    ulib::string str3 = str;
+    char8 kU8Str[] = u8"hello テ";
 
-    ASSERT_EQ(str2, str);
-    ASSERT_EQ(str3, "hello");
+    ulib::u8string str1 = kU8Str;
+    ulib::u8string str2 = str1;
+
+    ASSERT_EQ(str1, kU8Str);
+    ASSERT_EQ(str2, kU8Str);
+    ASSERT_EQ(str1, str2);
+    ASSERT_EQ(str2, str1);
+
+    ulib::u8string str4;
+    str4 = kU8Str;
+
+    ASSERT_EQ(str4, kU8Str);
+    ASSERT_EQ(str4, str1);
+    ASSERT_EQ(str4, str2);
+
+    ulib::u8string str5;
+    str5 = str1;
+
+    ASSERT_EQ(str5, kU8Str);
+    ASSERT_EQ(str5, str1);
+    ASSERT_EQ(str5, str2);
+
+    ulib::u8string str6 = u8"jasdhfkasjh";
+    str6 = kU8Str;
+
+    ASSERT_EQ(str6, kU8Str);
+    ASSERT_EQ(str6, str1);
+    ASSERT_EQ(str6, str2);
+
+    ulib::u8string str7 = u8"fdsgfdswdf";
+    str7 = str1;
+
+    ASSERT_EQ(str7, kU8Str);
+    ASSERT_EQ(str7, str1);
+    ASSERT_EQ(str7, str2);
+
+    ulib::u8string str8 = u8"fdsgfdswdf";
+    str8.Assign(str1);
+
+    ASSERT_EQ(str8, kU8Str);
+    ASSERT_EQ(str8, str1);
+    ASSERT_EQ(str8, str2);
+
+    ulib::u8string str9 = u8"fdsgfdswdf";
+    str9.Assign(kU8Str);
+
+    ASSERT_EQ(str9, kU8Str);
+    ASSERT_EQ(str9, str1);
+    ASSERT_EQ(str9, str2);
 }
 
 TEST(StringTest, CopyFromStringView)

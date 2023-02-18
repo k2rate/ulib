@@ -143,10 +143,10 @@ namespace ulib
         inline EncodedString(const SelfT &other)
             : BaseT(std::move(other))
         {
-            size_t allocSize = other.Size();
+            size_t allocSize = other.SizeInBytes();
             mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
 
-            memcpy(mBeginB, other.Data(), allocSize);
+            memcpy(mBeginB, other.mBeginB, allocSize);
         }
 
         inline EncodedString(SelfT &&other)
@@ -393,6 +393,22 @@ namespace ulib
 
             source.mBegin = nullptr;
         }
+
+        inline void AssignImpl(const CharT *str, size_t sizeInBytes)
+        {
+            size_t allocSize = sizeInBytes;
+            size_t requiredSize = sizeInBytes;
+
+            if (CapacityInBytes() < requiredSize)
+            {
+                ResourceT::Free(mBegin);
+                mEndB = (mBeginB = rawptr_t(ResourceT::Alloc(allocSize))) + allocSize;
+            }
+
+            mLastB = mBeginB + requiredSize;
+            memcpy(mBegin, str, requiredSize);
+        }
+
         inline void AppendImpl(const CharT *right, size_t rightSizeInBytes)
         {
             size_t sizeInBytes = SizeInBytes();
@@ -411,21 +427,6 @@ namespace ulib
         inline void AppendImpl(const CharT *right)
         {
             AppendImpl(right, CStringLengthHack(right));
-        }
-
-        inline void AssignImpl(const CharT *str, size_t sizeInBytes)
-        {
-            size_t allocSize = sizeInBytes;
-            size_t requiredSize = sizeInBytes;
-
-            if (CapacityInBytes() < requiredSize)
-            {
-                ResourceT::Free(mBegin);
-                mEndB = (mBeginB = rawptr_t(ResourceT::Alloc(allocSize))) + allocSize;
-            }
-
-            mLastB = mBeginB + requiredSize;
-            memcpy(mBegin, mLast, requiredSize);
         }
 
         inline SelfT AdditionImpl(const CharT *right, size_t rightSizeInBytes) const
