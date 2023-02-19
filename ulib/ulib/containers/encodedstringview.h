@@ -5,7 +5,6 @@
 #include "clength.h"
 #include "range.h"
 
-
 #ifdef ULIB_USE_STD_STRING_VIEW
 #include <string>
 #include <string_view>
@@ -92,10 +91,16 @@ namespace ulib
 
         inline bool operator!=(SelfT right) const { return !BaseT::Equal(right); }
     };
-
-    template<class EncodingT, class CharT>
-    inline bool operator==(const CharT *left, EncodedStringView<EncodingT> str) { return str == left; }
-
-    template<class EncodingT, class CharT>
-    inline bool operator!=(const CharT *left, EncodedStringView<EncodingT> str) { return str == left; }
 } // namespace ulib
+
+template <class EncodingT, class CharT>
+inline bool operator==(const CharT *left, ulib::EncodedStringView<EncodingT> str)
+{
+    return str == left;
+}
+
+template <class EncodingT, class CharT>
+inline bool operator!=(const CharT *left, ulib::EncodedStringView<EncodingT> str)
+{
+    return str == left;
+}

@@ -245,7 +245,6 @@ namespace ulib
             return !Equal(right);
         }
 
-
         operator ParentEncodedStringT() const
         {
             return ParentEncodedStringT((ParentEncodingCharT *)this->mBegin, (ParentEncodingCharT *)this->mLast);
@@ -621,6 +620,18 @@ namespace ulib
         };
     };
 } // namespace ulib
+
+template <class EncodingT, class CharT = typename EncodingT::CharT, class AllocatorT>
+inline bool operator==(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
+{
+    return right == left;
+}
+
+template <class EncodingT, class CharT = typename EncodingT::CharT, class AllocatorT>
+inline bool operator!=(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
+{
+    return right != left;
+}
 
 template <class EncodingT, class AllocatorT>
 inline ulib::EncodedString<EncodingT, AllocatorT> operator+(ulib::EncodedStringView<EncodingT> left,
