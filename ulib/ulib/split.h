@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ulib/encodings/type.h"
+#include <stdexcept>
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
 #include <ulib/encodings/literalencoding.h>
-
 
 namespace ulib
 {
@@ -59,10 +59,7 @@ namespace ulib
             mSeparator = it.mSeparator;
         }
 
-        inline StringViewT operator*() const
-        {
-            return StringViewT(mWordBegin, mWordEnd);
-        }
+        inline StringViewT operator*() const { return StringViewT(mWordBegin, mWordEnd); }
 
         inline SplitIterator &operator++()
         {
@@ -76,15 +73,9 @@ namespace ulib
             return *this;
         } // Postfix increment operator.
 
-        inline bool operator==(const SplitIterator &right) const
-        {
-            return mWordBegin == right.mWordBegin;
-        }
+        inline bool operator==(const SplitIterator &right) const { return mWordBegin == right.mWordBegin; }
 
-        inline bool operator!=(const SplitIterator &right) const
-        {
-            return mWordBegin != right.mWordBegin;
-        }
+        inline bool operator!=(const SplitIterator &right) const { return mWordBegin != right.mWordBegin; }
 
     private:
         StringViewT FindNextSeparator() const
@@ -169,9 +160,26 @@ namespace ulib
         {
             return SplitIteratorT(mString, mSeparator, typename SplitIteratorT::SetupBegin{});
         }
+
         inline SplitIteratorT end() const
         {
             return SplitIteratorT(mString, mSeparator, typename SplitIteratorT::SetupEnd{});
+        }
+
+        inline StringViewT operator[](size_t index) const
+        {
+            size_t counter = 0;
+            auto e = this->end();
+
+            for (auto it = this->begin(); it != e; it++)
+            {
+                if (counter == index)
+                    return *it;
+
+                counter++;
+            }
+
+            throw std::out_of_range("splitview out of range");
         }
 
     private:
