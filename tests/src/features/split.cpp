@@ -87,6 +87,20 @@ TEST(FeaturesTest, SplitWithLongSeparator)
     ASSERT_EQ(words[1], u8"plak");
 }
 
+TEST(FeaturesTest, SplitSize)
+{
+    ulib::u8string str(u8"123full123plak123");
+
+    auto split = ulib::split(str, u8"123");
+    ASSERT_EQ(split.size(), 2);
+
+    auto split1 = ulib::split(str, u8"full");
+    ASSERT_EQ(split1.size(), 2);
+
+    auto split2 = ulib::split(str, u8"plak");
+    ASSERT_EQ(split2.size(), 2);
+}
+
 TEST(FeaturesTest, SplitByIndex)
 {
     ulib::u8string str(u8"123full123plak123");
