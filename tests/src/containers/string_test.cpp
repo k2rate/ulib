@@ -1,18 +1,20 @@
+#include "ulib/containers/encodedstring.h"
+#include "ulib/containers/encodedstringview.h"
 #include "ulib/containers/list.h"
 #include "ulib/encodings/utf8/string.h"
+#include <type_traits>
+#include <ulib/encodings/literalencoding.h>
+#include <ulib/split.h>
 #include <ulib/string.h>
 #include <ulib/u16.h>
 #include <ulib/u32.h>
 #include <ulib/u8.h>
 #include <ulib/wchar.h>
-#include <ulib/split.h>
+
 
 #include <gtest/gtest.h>
 
-TEST(StringTest, Constructs)
-{
-    ASSERT_NO_THROW(ulib::String{"hi"});
-}
+TEST(StringTest, Constructs) { ASSERT_NO_THROW(ulib::String{"hi"}); }
 
 TEST(StringTest, ConstructsWithPresetSize)
 {
@@ -132,6 +134,66 @@ TEST(StringTest, Addition)
     str2 += " world";
 
     ASSERT_EQ(str2, "hello world world");
+}
+
+TEST(StringTest, Compares)
+{
+    // char8 kf[] = u8"hello";
+    // char8 ks[] = u8"world";
+
+    auto test = [](const auto *kf, const auto *ks) {
+        using EncodingT = ulib::LiteralEncodingT<std::remove_reference_t<decltype(*kf)>>;
+        using StringViewT = ulib::EncodedStringView<EncodingT>;
+        using StringT = ulib::EncodedString<EncodingT>;
+
+        StringT f1 = kf;
+        StringT f2 = kf;
+        StringViewT f3 = kf;
+
+        StringT s1 = ks;
+        StringT s2 = ks;
+        StringViewT s3 = ks;
+
+        ASSERT_EQ(f1, f2);
+        ASSERT_EQ(f2, f1);
+        ASSERT_EQ(f1, kf);
+        ASSERT_EQ(kf, f1);
+        ASSERT_EQ(f1, f3);
+        ASSERT_EQ(f3, f1);
+        ASSERT_EQ(f3, kf);
+        ASSERT_EQ(kf, f3);
+
+        ASSERT_NE(f1, s1);
+        ASSERT_NE(f1, ks);
+        ASSERT_NE(s1, f1);
+        ASSERT_NE(ks, f1);
+        ASSERT_NE(f1, s3);
+        ASSERT_NE(f3, s1);
+        ASSERT_NE(f3, ks);
+        ASSERT_NE(s3, f1);
+        ASSERT_NE(s1, f3);
+        ASSERT_NE(ks, f3);
+    };
+
+    test(u8"helloテ", u8"worldテ");
+    test(u8"hello helloテ", u8"worldテ");
+    test(u8"helloテ", u8"world worldテ");
+
+    test(L"helloテ", L"worldテ");
+    test(L"hello helloテ", L"worldテ");
+    test(L"helloテ", L"world worldテ");
+
+    test(u"helloテ", u"worldテ");
+    test(u"hello helloテ", u"worldテ");
+    test(u"helloテ", u"world worldテ");
+
+    test(U"helloテ", U"worldテ");
+    test(U"hello helloテ", U"worldテ");
+    test(U"helloテ", U"world worldテ");
+
+    test("hello", "world");
+    test("hello hello", "world");
+    test("hello", "world world");
 }
 
 TEST(StringTest, Copy)
@@ -387,4 +449,3 @@ TEST(StringTest, Length)
 #undef cstrsize
 #undef arrsize
 }
-

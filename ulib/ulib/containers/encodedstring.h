@@ -215,7 +215,6 @@ namespace ulib
         }
 
         inline void operator=(const SelfT &right) { Assign(right); }
-
         inline void operator=(SelfT &&right) { Assign(std::move(right)); }
 
         template <class LAllocatorT>
@@ -226,6 +225,7 @@ namespace ulib
         inline bool operator<(const CharT *right) const { return LowerThanImpl(right); }
 
         inline bool operator==(const CharT *right) const { return Equal(right); }
+        inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -236,7 +236,15 @@ namespace ulib
             return Equal(right);
         }
 
-        inline bool operator!=(const CharT *right) const { return !Equal(right); }
+        template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline bool operator!=(const StringT &right) const
+        {
+            return !Equal(right);
+        }
+
 
         operator ParentEncodedStringT() const
         {
