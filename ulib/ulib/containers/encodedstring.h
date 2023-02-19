@@ -14,6 +14,7 @@
 
 #include "iterators/randomaccessiterator.h"
 #include "ulib/containers/clength.h"
+#include "ulib/encodings/literalencoding.h"
 
 #include <cstring>
 #include <stdio.h>
@@ -621,13 +622,13 @@ namespace ulib
     };
 } // namespace ulib
 
-template <class EncodingT, class CharT = typename EncodingT::CharT, class AllocatorT>
+template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
 inline bool operator==(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
 {
     return right == left;
 }
 
-template <class EncodingT, class CharT = typename EncodingT::CharT, class AllocatorT>
+template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
 inline bool operator!=(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
 {
     return right != left;
