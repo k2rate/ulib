@@ -623,13 +623,13 @@ namespace ulib
 } // namespace ulib
 
 template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
-inline bool operator==(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
+inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
 {
     return right == left;
 }
 
 template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
-inline bool operator!=(const CharT *left, const ulib::EncodedString<EncodingT, AllocatorT>& right)
+inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
 {
     return right != left;
 }

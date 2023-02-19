@@ -54,6 +54,10 @@ int main()
         printf("[u16] string: %s size: %llu length: %llu\n", ulib::u8(nigr).c_str(), nigr.size(), nigr.length());
     }
 
+    std::string str;
+
+    bool tt = "ky" == str;
+
     {
         ulib::u8string test(u8"re");
     }
