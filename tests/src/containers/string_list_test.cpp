@@ -1,5 +1,3 @@
-#pragma once
-
 #include "ulib/encodings/utf8/stringview.h"
 #include <gtest/gtest.h>
 #include <numeric>
