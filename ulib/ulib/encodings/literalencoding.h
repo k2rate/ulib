@@ -13,6 +13,7 @@ namespace ulib
     template <class CharT>
     struct EncodingFromValueType
     {
+        static_assert("NEGR NEGR NEGR NEGR NEGR NEGR NEGR NEGR NEGR NEGR NEGR NEGR");
         using EncodingT = void;
     };
 

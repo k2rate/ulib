@@ -2,6 +2,7 @@
 #include "ulib/containers/iterators/baseiterator.h"
 #include "ulib/encodings/utf8/string.h"
 #include "ulib/encodings/utf8/stringview.h"
+#include <random>
 #include <string>
 #include <ulib/string.h>
 #include <ulib/u16.h>
@@ -14,15 +15,18 @@
 #include <vector>
 
 #include <ulib/charcase.h>
-#include <windows.h>
+
 
 #include <locale>
 #include <map>
 
-#include <ranges>
+// #include <ranges>
 #include <ulib/split.h>
 #include <ulib/sstr.h>
 
+#ifdef _WIN32
+
+#include <windows.h>
 
 namespace ewin
 {
@@ -33,7 +37,10 @@ namespace ewin
     }
 }; // namespace ewin
 
-__declspec(noinline) void test()
+
+#endif
+
+void test()
 {
 
     ulib::u8string str = ulib::Convert<ulib::Utf8>(ulib::u8string(u8"re"));
@@ -42,16 +49,20 @@ __declspec(noinline) void test()
 
 int main()
 {
+    // void AllocatorsMain();
+    // AllocatorsMain();
+    // return 0;
+
     std::setlocale(LC_ALL, ".utf8");
 
     {
         ulib::u8string nig = u8"негры блять";
         nig += u8" ку";
 
-        printf("[u8] string: %s size: %llu length: %llu\n", nig.c_str(), nig.size(), nig.length());
+        printf("[u8] string: %s size: %llu length: %llu\n", (char*)nig.c_str(), (uint64)nig.size(), (uint64)nig.length());
 
         ulib::u16string nigr = u"негры блять";
-        printf("[u16] string: %s size: %llu length: %llu\n", ulib::u8(nigr).c_str(), nigr.size(), nigr.length());
+        printf("[u16] string: %s size: %llu length: %llu\n", (char*)ulib::u8(nigr).c_str(), (uint64)nigr.size(), (uint64)nigr.length());
     }
 
     std::string str;
@@ -176,7 +187,7 @@ int main()
         {
             std::map<ulib::u8string, ulib::u8string> map;
             map[u8"re"] = u8"meta";
-            ewin::messagebox(u8"meta");
+            // ewin::messagebox(u8"meta");
         }
 
         {
@@ -237,8 +248,8 @@ int main()
             wstr = ulib::wstr(ulib::u8(s0) + ulib::u8(s1) + ulib::u8(s2) + ulib::u8(s3) + ulib::u8(s4) + ulib::u8(s5) +
                               ulib::u8(s6) + ulib::u8(s7));
 
-            MessageBoxW(0, wstr.c_str(), L"re", MB_OK);
-            MessageBoxW(0, ulib::ToLower(wstr).c_str(), L"re", MB_OK);
+            // MessageBoxW(0, wstr.c_str(), L"re", MB_OK);
+            // MessageBoxW(0, ulib::ToLower(wstr).c_str(), L"re", MB_OK);
         }
 
         {
@@ -346,7 +357,7 @@ int main()
             auto tttt = ulib::u8(ulib::u16(ulib::u32(ulib::u8(ulib::str(ulib::u8(ulib::wstr(u8"полный ку")))))));
 
             auto ww = ulib::wstr(tttt);
-            MessageBoxW(0, (wchar_t *)ww.c_str(), L"Check", MB_OK);
+            // MessageBoxW(0, (wchar_t *)ww.c_str(), L"Check", MB_OK);
         }
 
         {

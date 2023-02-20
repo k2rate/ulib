@@ -95,14 +95,14 @@ void TestAllocator(const std::string &name, AllocatorT &alloc)
 }
 
 template <class AllocatorT>
-__declspec(noinline) void RepeatTestAllocator(const std::string &name, AllocatorT &alloc, size_t repeatCount)
+void RepeatTestAllocator(const std::string &name, AllocatorT &alloc, size_t repeatCount)
 {
     for (size_t i = 0; i != repeatCount; i++)
         TestAllocator<AllocatorT>(name, alloc);
 }
 
 template <class LinearAllocatorT>
-__declspec(noinline) void RepeatTestLinearAllocator(const std::string &name, LinearAllocatorT &alloc, size_t repeatCount)
+void RepeatTestLinearAllocator(const std::string &name, LinearAllocatorT &alloc, size_t repeatCount)
 {
     for (size_t i = 0; i != repeatCount; i++)
     {
@@ -157,20 +157,20 @@ void AllocatorsMain()
     RepeatTestAllocator("ulib.slot2", slot2Allocator, 2000);
     */
 
-    // ulib::MallocAllocator mallocAllocator;
-    //RepeatTestAllocator("std.malloc", mallocAllocator, 2000);
+    ulib::MallocAllocator mallocAllocator;
+    RepeatTestAllocator("std.malloc", mallocAllocator, 2000);
 
     ulib::FastMemAllocator<ulib::MallocAllocator> fastmem;
     RepeatTestAllocator("ulib.fastmem", fastmem, 2000);
 
-     ulib::TempAllocatorT tempalloc;
+    ulib::TempAllocatorT tempalloc;
     RepeatTestAllocator("ulib.tempalloc", tempalloc, 2000);
 
     // ulib::GrowLinearAllocator<ulib::MallocAllocator> grow;
     //RepeatTestLinearAllocator("ulib.grow", grow, 2000);
 
-    //PerfDump("std.malloc.alloc");
-    //PerfDump("std.malloc.free");
+    PerfDump("std.malloc.alloc");
+    PerfDump("std.malloc.free");
 
     PerfDump("ulib.fastmem.alloc");
     PerfDump("ulib.fastmem.free");

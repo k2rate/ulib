@@ -1,17 +1,15 @@
 type: executable
 name: .playground
 
-platform.!windows:
-  enabled: false
-
 deps:
   - ulib
 
-cxx-build-flags:
-  compiler:
-    - "/utf-8"
-  linker:
-    - "/DEBUG /PDB:\"${path}/../playground.pdb\""
+cxxenv.msvc:
+  cxx-build-flags:
+    compiler:
+      - "/utf-8"
+    linker:
+      - "/DEBUG /PDB:\"${path}/../playground.pdb\""
 
-cxx-link-deps:
-  - "user32.lib"
+  cxx-link-deps:
+    - "user32.lib"

@@ -91,16 +91,16 @@ namespace ulib
 
         inline bool operator!=(SelfT right) const { return !BaseT::Equal(right); }
     };
+
+    template <class EncodingT, class CharT>
+    inline bool operator==(const CharT *left, ulib::EncodedStringView<EncodingT> str)
+    {
+        return str == left;
+    }
+
+    template <class EncodingT, class CharT>
+    inline bool operator!=(const CharT *left, ulib::EncodedStringView<EncodingT> str)
+    {
+        return str != left;
+    }
 } // namespace ulib
-
-template <class EncodingT, class CharT>
-inline bool operator==(const CharT *left, ulib::EncodedStringView<EncodingT> str)
-{
-    return str == left;
-}
-
-template <class EncodingT, class CharT>
-inline bool operator!=(const CharT *left, ulib::EncodedStringView<EncodingT> str)
-{
-    return str == left;
-}

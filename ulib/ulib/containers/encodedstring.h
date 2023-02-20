@@ -620,19 +620,20 @@ namespace ulib
             };
         };
     };
+
+    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
+    {
+        return right == left;
+    }
+
+    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
+    {
+        return right != left;
+    }
+
 } // namespace ulib
-
-template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
-inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
-{
-    return right == left;
-}
-
-template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
-inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
-{
-    return right != left;
-}
 
 template <class EncodingT, class AllocatorT>
 inline ulib::EncodedString<EncodingT, AllocatorT> operator+(ulib::EncodedStringView<EncodingT> left,
