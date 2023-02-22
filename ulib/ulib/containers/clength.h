@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ulib/types.h>
+
 namespace ulib
 {
     template <class CharT>

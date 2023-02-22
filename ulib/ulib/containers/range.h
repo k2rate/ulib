@@ -120,6 +120,11 @@ namespace ulib
             return Equal(right);
         }
 
+        inline bool operator!=(Range<T> right) const
+        {
+            return !Equal(right);
+        }
+
     protected:
         T *mBegin;
         T *mLast;

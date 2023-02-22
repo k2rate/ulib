@@ -7,10 +7,6 @@ platform.!windows:
 load-context.!standalone:
   enabled: false
 
-cxxenv.msvc:
-  cxx-link-deps:
-    - "user32.lib"
-
 deps:
   - ulib
 

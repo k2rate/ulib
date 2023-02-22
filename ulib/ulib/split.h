@@ -156,17 +156,31 @@ namespace ulib
             assert(!sep.empty() && "Separator for SplitView can not be empty");
         }
 
-        inline SplitIteratorT begin() const
+        inline SplitIteratorT begin() const { return Begin(); }
+        inline SplitIteratorT end() const { return End(); }
+        inline size_t size() const { return Size(); }
+        inline StringViewT at(size_t index) const { return At(index); }
+
+        inline SplitIteratorT Begin() const
         {
             return SplitIteratorT(mString, mSeparator, typename SplitIteratorT::SetupBegin{});
         }
 
-        inline SplitIteratorT end() const
+        inline SplitIteratorT End() const
         {
             return SplitIteratorT(mString, mSeparator, typename SplitIteratorT::SetupEnd{});
         }
 
-        inline StringViewT operator[](size_t index) const
+        inline size_t Size() const
+        {
+            size_t counter = 0;
+            for (auto obj : *this)
+                ++counter;
+
+            return counter;
+        }
+
+        inline StringViewT At(size_t index) const
         {
             size_t counter = 0;
             auto e = this->end();
@@ -176,11 +190,13 @@ namespace ulib
                 if (counter == index)
                     return *it;
 
-                counter++;
+                ++counter;
             }
 
             throw std::out_of_range("splitview out of range");
         }
+
+        inline StringViewT operator[](size_t index) const { return At(index); }
 
     private:
         StringViewT mString;

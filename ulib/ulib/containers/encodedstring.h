@@ -14,6 +14,7 @@
 
 #include "iterators/randomaccessiterator.h"
 #include "ulib/containers/clength.h"
+#include "ulib/encodings/literalencoding.h"
 
 #include <cstring>
 #include <stdio.h>
@@ -215,7 +216,6 @@ namespace ulib
         }
 
         inline void operator=(const SelfT &right) { Assign(right); }
-
         inline void operator=(SelfT &&right) { Assign(std::move(right)); }
 
         template <class LAllocatorT>
@@ -226,6 +226,7 @@ namespace ulib
         inline bool operator<(const CharT *right) const { return LowerThanImpl(right); }
 
         inline bool operator==(const CharT *right) const { return Equal(right); }
+        inline bool operator!=(const CharT *right) const { return !Equal(right); }
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
@@ -236,7 +237,14 @@ namespace ulib
             return Equal(right);
         }
 
-        inline bool operator!=(const CharT *right) const { return !Equal(right); }
+        template <class StringT, class SCharT = typename StringT::value_type,
+#ifdef ULIB_USE_STD_STRING_VIEW
+                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+#endif
+        inline bool operator!=(const StringT &right) const
+        {
+            return !Equal(right);
+        }
 
         operator ParentEncodedStringT() const
         {
@@ -612,6 +620,19 @@ namespace ulib
             };
         };
     };
+
+    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
+    {
+        return right == left;
+    }
+
+    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
+    {
+        return right != left;
+    }
+
 } // namespace ulib
 
 template <class EncodingT, class AllocatorT>
