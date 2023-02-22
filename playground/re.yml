@@ -4,6 +4,13 @@ name: .playground
 platform.!windows:
   enabled: false
 
+load-context.!standalone:
+  enabled: false
+
+cxxenv.msvc:
+  cxx-link-deps:
+    - "user32.lib"
+
 deps:
   - ulib
 
@@ -11,7 +18,7 @@ cxx-build-flags:
   compiler:
     - "/utf-8"
   linker:
-    - "/DEBUG /PDB:\"${path}/../playground.pdb\""
+    - '/DEBUG /PDB:"${path}/../playground.pdb"'
 
 cxx-link-deps:
   - "user32.lib"

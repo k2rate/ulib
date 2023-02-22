@@ -6,6 +6,9 @@ cxxenv.msvc:
     compiler:
       - "/utf-8"
 
+load-context.!standalone:
+  enabled: false
+
 deps:
   - ulib
   - github:google/googletest ^1.12.1 [gtest]:
