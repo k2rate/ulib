@@ -2,6 +2,7 @@
 #include "ulib/containers/iterators/baseiterator.h"
 #include "ulib/encodings/utf8/string.h"
 #include "ulib/encodings/utf8/stringview.h"
+#include <initializer_list>
 #include <random>
 #include <string>
 #include <ulib/string.h>
@@ -15,7 +16,6 @@
 #include <vector>
 
 #include <ulib/charcase.h>
-
 
 #include <locale>
 #include <map>
@@ -37,7 +37,6 @@ namespace ewin
     }
 }; // namespace ewin
 
-
 #endif
 
 void test()
@@ -47,11 +46,38 @@ void test()
     // ulib::Convert<ulib::Utf8>(ulib::u16string(u"re"));
 }
 
+enum class TargetType
+{
+    Project,
+    Executable,
+    StaticLibrary,
+    SharedLibrary,
+    Custom
+};
+
+/*
+
+
+
+return TargetType::Project;
+        else if (type == "executable")
+            return TargetType::Executable;
+        else if (type == "static-library")
+            return TargetType::StaticLibrary;
+        else if (type == "shared-library")
+            return TargetType::SharedLibrary;
+        else if (type == "custom")
+            return TargetType::Custom;
+
+*/
+
 int main()
 {
-    // void AllocatorsMain();
-    // AllocatorsMain();
-    // return 0;
+    constexpr auto kk = u'к';
+
+    void AllocatorsMain();
+    AllocatorsMain();
+    return 0;
 
     std::setlocale(LC_ALL, ".utf8");
 
@@ -59,10 +85,12 @@ int main()
         ulib::u8string nig = u8"негры блять";
         nig += u8" ку";
 
-        printf("[u8] string: %s size: %llu length: %llu\n", (char*)nig.c_str(), (uint64)nig.size(), (uint64)nig.length());
+        printf("[u8] string: %s size: %llu length: %llu\n", (char *)nig.c_str(), (uint64)nig.size(),
+               (uint64)nig.length());
 
         ulib::u16string nigr = u"негры блять";
-        printf("[u16] string: %s size: %llu length: %llu\n", (char*)ulib::u8(nigr).c_str(), (uint64)nigr.size(), (uint64)nigr.length());
+        printf("[u16] string: %s size: %llu length: %llu\n", (char *)ulib::u8(nigr).c_str(), (uint64)nigr.size(),
+               (uint64)nigr.length());
     }
 
     std::string str;

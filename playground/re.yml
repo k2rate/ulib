@@ -9,6 +9,7 @@ load-context.!standalone:
 
 deps:
   - ulib
+# - conan:mimalloc@2.0.9
 
 cxx-build-flags:
   compiler:
@@ -18,3 +19,4 @@ cxx-build-flags:
 
 cxx-link-deps:
   - "user32.lib"
+  - "Advapi32.lib"

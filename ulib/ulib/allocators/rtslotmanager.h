@@ -5,6 +5,11 @@
 
 namespace ulib
 {
+    struct BaseHeader
+    {
+        
+    };
+
 	class RtSlotManager
 	{
 	public:
@@ -16,10 +21,21 @@ namespace ulib
 			rawptr_t end;
 		};
 
-		struct Block
-		{
-			// next free
+        struct Block;
+        struct BaseBlock
+        {
+            // next free
 			Block *next;
+        };
+
+        struct Extension
+        {
+
+        };
+
+		struct Block : public BaseBlock, public BaseHeader
+		{
+
 		};
 
 		static constexpr inline size_t kPageHeaderSize = sizeof(Page);
@@ -50,9 +66,15 @@ namespace ulib
 			rawptr_t b = rawptr_t(begin);
 			rawptr_t e = rawptr_t(end);
 
+            size_t pageSize = size_t(e) - size_t(b);
+
 			assert(e > b);
-			assert((size_t(e) - size_t(b)) >= kPageHeaderSize);
-			assert((size_t(e) - size_t(b)) >= mSlotSize);
+			assert(pageSize >= kPageHeaderSize);
+			assert(pageSize >= mSlotSize);
+
+            size_t slotCount = pageSize / mSlotSize;
+
+            assert((pageSize / slotCount) == mSlotSize && "Bad slot alignment");
 
 			Page *page = (Page *)b;
 

@@ -62,7 +62,7 @@ namespace ulib
             memcpy(mBeginB, rn.Data(), allocSize);
         }
 
-        inline List(size_t size, AllocatorParams al = {}) : Resource<AllocatorT>(al)
+        inline explicit List(size_t size, AllocatorParams al = {}) : Resource<AllocatorT>(al)
         {
             size_t allocSize = sizeof(T) * size;
             mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -73,7 +73,7 @@ namespace ulib
                 new (it) T();
         }
 
-        inline List(args::Capacity capacity, AllocatorParams al = {}) : Resource<AllocatorT>(al)
+        inline explicit List(args::Capacity capacity, AllocatorParams al = {}) : Resource<AllocatorT>(al)
         {
             size_t allocSize = sizeof(T) * capacity.cc;
             mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
@@ -332,8 +332,8 @@ namespace ulib
         }
 
         inline void Erase(size_t i) { Erase(mBegin + i); }
-        inline int Index(const_iterator it) const { return int(it.ptr - mBegin); }
-        inline int Index(iterator it) const { return int(it.ptr - mBegin); }
+        inline size_t Index(const_iterator it) const { return size_t(it.ptr - mBegin); }
+        inline size_t Index(iterator it) const { return size_t(it.ptr - mBegin); }
 
         inline void FastErase(iterator it)
         {
@@ -365,8 +365,8 @@ namespace ulib
             mLast = mBegin;
         }
 
-        inline T &operator[](int i) { return At(i); }
-        inline const T &operator[](int i) const { return At(i); }
+        inline T &operator[](size_t i) { return At(i); }
+        inline const T &operator[](size_t i) const { return At(i); }
 
         inline void PopBack()
         {

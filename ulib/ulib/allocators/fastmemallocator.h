@@ -1,7 +1,8 @@
 #pragma once
 
-#include <ulib/resources/resource.h>
 #include <ulib/allocators/defaultallocator.h>
+#include <ulib/resources/resource.h>
+
 
 #include "pagemanager.h"
 #include "rtslotmanager.h"
@@ -78,15 +79,9 @@ namespace ulib
 
         using PagerT = BasicPageManager<pages::DefaultPage, MinimumNewPageDataLength>;
 
-        static inline constexpr size_t GetPoolIndex(size_t allocSize)
-        {
-            return ((allocSize - 1) / PoolStep);
-        }
+        static inline constexpr size_t GetPoolIndex(size_t allocSize) { return ((allocSize - 1) / PoolStep); }
 
-        static inline constexpr size_t GetPoolSize(size_t index)
-        {
-            return (index + 1) * PoolStep;
-        }
+        static inline constexpr size_t GetPoolSlotSize(size_t index) { return (index + 1) * PoolStep; }
 
         struct Block
         {
@@ -95,21 +90,14 @@ namespace ulib
 
         struct Params
         {
-            inline Params()
-            {
-                
-            }
+            inline Params() {}
 
-            inline Params(typename AllocatorT::Params params)
-            {
-                allocatorParams = params;
-            }
+            inline Params(typename AllocatorT::Params params) { allocatorParams = params; }
 
             typename AllocatorT::Params allocatorParams;
         };
 
-        FastMemAllocator(Params params = {})
-            : Resource<AllocatorT>(params.allocatorParams)
+        FastMemAllocator(Params params = {}) : Resource<AllocatorT>(params.allocatorParams)
         {
             mNextBlock = nullptr;
 
@@ -119,7 +107,7 @@ namespace ulib
             {
                 mSlotSteps[i] = GetPoolStartupAllocSize(i);
                 // mSlotManagers[i] = &data[i];
-                new (&mSlotManagers[i]) RtSlotManager(GetPoolSize(i));
+                new (&mSlotManagers[i]) RtSlotManager(GetPoolSlotSize(i));
             }
 
             mPagerStep = GetPoolStartupAllocSize(kMaxPoolIndex) * 32;
@@ -141,9 +129,23 @@ namespace ulib
             }
         }
 
+        static constexpr size_t GetPoolStartupSlotsCount(size_t idx) { return 0; }
+
         static constexpr size_t GetPoolStartupAllocSize(size_t idx)
         {
-            return max(GetPoolSize(kMaxPoolIndex - idx), GetPoolSize(idx));
+            size_t reverseSlotSize = GetPoolSlotSize(kMaxPoolIndex - idx);
+            size_t slotSize = GetPoolSlotSize(idx);
+
+            if (reverseSlotSize > slotSize)
+            {
+                size_t slotCount = reverseSlotSize / slotSize;
+                return slotCount * slotSize;
+            }
+            else
+            {
+                return slotSize;
+            }
+            // auto req = max(GetPoolSlotSize(kMaxPoolIndex - idx), GetPoolSlotSize(idx));
         }
 
         static constexpr size_t GetPoolsStartupAllocSize()
@@ -198,7 +200,7 @@ namespace ulib
             if (void *ptr = slotmgr.Alloc())
                 return ptr;
 
-            size_t allocSize = mSlotSteps[index] * 2;
+            size_t allocSize = mSlotSteps[index] * 4;
             void *newmem = AllocNewBlock(allocSize);
 
             slotmgr.AddFreePage(newmem, allocSize);
@@ -254,11 +256,16 @@ namespace ulib
         size_t mPagerStep;
         Block *mNextBlock;
     };
+} // namespace ulib
+
+template <class AllocatorT, size_t x, size_t y, size_t z>
+inline void *operator new(size_t size, ulib::FastMemAllocator<AllocatorT, x, y, z> &al)
+{
+    return al.Alloc(size);
 }
 
 template <class AllocatorT, size_t x, size_t y, size_t z>
-inline void *operator new(size_t size, ulib::FastMemAllocator<AllocatorT, x, y, z> &al) { return al.Alloc(size); }
-
-template <class AllocatorT, size_t x, size_t y, size_t z>
-inline void operator delete(void *ptr, ulib::FastMemAllocator<AllocatorT, x, y, z> &al) { return al.Free(ptr); }
-
+inline void operator delete(void *ptr, ulib::FastMemAllocator<AllocatorT, x, y, z> &al)
+{
+    return al.Free(ptr);
+}
