@@ -77,10 +77,12 @@ int main()
 {
     constexpr auto kk = u'к';
 
-    bool r1 = ulib::starts_with(u8"позор", u8"поз");
-    bool r2 = ulib::starts_with(u8"позор", u8"ор");
+    bool r1 = ulib::ends_with(u8"позор", u8"поз");
+    bool r2 = ulib::ends_with(u8"позор", u8"ор");
 
-    bool r3 = ulib::starts_with(ulib::u8string(u8"ахуеть"), u8"аху");
+    bool r3 = ulib::ends_with(ulib::u8string(u8"ахуеть"), u8"аху");
+
+
 
     printf("r1: %d, r2: %d r3: %d\n", (int)r1, (int)r2, (int)r3);
 
