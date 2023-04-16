@@ -75,16 +75,17 @@ return TargetType::Project;
 
 int main()
 {
-    constexpr auto kk = u'к';
+    auto spl = ulib::split(u8"Квартира № 8", u8"Квартира № ");
+    printf("spl: size: %d spl[0]: %s\n", (int)spl.size(), ulib::u8(spl[0]).c_str());
 
     bool r1 = ulib::ends_with(u8"позор", u8"поз");
     bool r2 = ulib::ends_with(u8"позор", u8"ор");
-
     bool r3 = ulib::ends_with(ulib::u8string(u8"ахуеть"), u8"аху");
 
+    auto r4 = ulib::find_first(u8"пиздец сука нахуй", u8"сука");
+    ulib::find_first(ulib::u8string(u8"ахуеть"), u8"аху");
 
-
-    printf("r1: %d, r2: %d r3: %d\n", (int)r1, (int)r2, (int)r3);
+    printf("r1: %d, r2: %d r3: %d r4: %s\n", (int)r1, (int)r2, (int)r3, r4);
 
 
     void AllocatorsMain();
