@@ -85,8 +85,21 @@ int main()
     auto r4 = ulib::find_first(u8"пиздец сука нахуй", u8"сука");
     ulib::find_first(ulib::u8string(u8"ахуеть"), u8"аху");
 
-    printf("r1: %d, r2: %d r3: %d r4: %s\n", (int)r1, (int)r2, (int)r3, r4);
+    {
+        ulib::u8string str;
+        const ulib::u8string str0;
 
+        str.Begin() == str.Begin();
+        str0.Begin() == str0.Begin();
+
+        auto ky = str0.Begin();
+        auto par = str.Begin();
+
+        str.Begin() == str0.Begin();
+        str0.Begin() == str.Begin();
+    }
+
+    printf("r1: %d, r2: %d r3: %d r4: %s\n", (int)r1, (int)r2, (int)r3, r4);
 
     void AllocatorsMain();
     // AllocatorsMain();

@@ -9,6 +9,8 @@ namespace ulib
 	struct RandomAccessIterator : public BaseIterator<T, std::random_access_iterator_tag>
 	{
         using SelfT = RandomAccessIterator<T>;
+        using SelfNoConstT = RandomAccessIterator<std::remove_cv_t<T>>;
+        using SelfConstT = RandomAccessIterator<const std::remove_cv_t<T>>;
 
 		inline RandomAccessIterator() {}
 		inline RandomAccessIterator(T* p) : ptr(p) {}
@@ -26,16 +28,26 @@ namespace ulib
 		inline SelfT operator+=(size_t k) { return ptr += k; }
 		inline SelfT operator-=(size_t k) { return ptr -= k; }
 
-		inline bool operator>(SelfT k) const { return ptr > k.ptr; }
-		inline bool operator<(SelfT k) const { return ptr < k.ptr; }
-		inline bool operator<=(SelfT k) const { return ptr <= k.ptr; }
-		inline bool operator>=(SelfT k) const { return ptr >= k.ptr; }
-		inline bool operator==(SelfT k) const { return ptr == k.ptr; }
-        inline bool operator!=(SelfT k) const { return ptr != k.ptr; }
+		inline bool operator>(SelfNoConstT k) const { return ptr > k.ptr; }
+		inline bool operator<(SelfNoConstT k) const { return ptr < k.ptr; }
+		inline bool operator<=(SelfNoConstT k) const { return ptr <= k.ptr; }
+		inline bool operator>=(SelfNoConstT k) const { return ptr >= k.ptr; }
+		inline bool operator==(SelfNoConstT k) const { return ptr == k.ptr; }
+        inline bool operator!=(SelfNoConstT k) const { return ptr != k.ptr; }
+		inline size_t operator-(SelfNoConstT k) const { return ptr - k.ptr; }
 
-		inline size_t operator-(SelfT k) const { return ptr - k.ptr; }
+        inline bool operator>(SelfConstT k) const { return ptr > k.ptr; }
+		inline bool operator<(SelfConstT k) const { return ptr < k.ptr; }
+		inline bool operator<=(SelfConstT k) const { return ptr <= k.ptr; }
+		inline bool operator>=(SelfConstT k) const { return ptr >= k.ptr; }
+		inline bool operator==(SelfConstT k) const { return ptr == k.ptr; }
+        inline bool operator!=(SelfConstT k) const { return ptr != k.ptr; }
+		inline size_t operator-(SelfConstT k) const { return ptr - k.ptr; }
+
 		inline T* operator->() const { return ptr; }
+
 		inline T* Raw() { return ptr; }
+        inline T* raw() { return ptr; }
 
 		T* ptr;
 	};
