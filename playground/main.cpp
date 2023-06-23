@@ -30,6 +30,9 @@
 
 #include <ulib/strutility.h>
 
+#include <ulib/typetraits/string.h>
+#include <ulib/typetraits/container.h>
+
 namespace ewin
 {
     int messagebox(ulib::u8string_view message = u8"default text", ulib::u8string_view title = u8"message",
@@ -75,6 +78,13 @@ return TargetType::Project;
 
 int main()
 {
+    {
+        // std::string str;
+        // ulib::split(str, " ");
+    }
+    
+
+
     auto spl = ulib::split(u8"Квартира № 8", u8"Квартира № ");
     printf("spl: size: %d spl[0]: %s\n", (int)spl.size(), ulib::u8(spl[0]).c_str());
 
@@ -86,7 +96,8 @@ int main()
     ulib::find_first(ulib::u8string(u8"ахуеть"), u8"аху");
 
     {
-        ulib::u8string str;
+        /*
+                ulib::u8string str;
         const ulib::u8string str0;
 
         str.Begin() == str.Begin();
@@ -95,8 +106,12 @@ int main()
         auto ky = str0.Begin();
         auto par = str.Begin();
 
+        ky = str.Begin();
+
         str.Begin() == str0.Begin();
         str0.Begin() == str.Begin();
+        */
+
     }
 
     printf("r1: %d, r2: %d r3: %d r4: %s\n", (int)r1, (int)r2, (int)r3, r4);

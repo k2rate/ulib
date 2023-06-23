@@ -16,9 +16,13 @@
 #include "ulib/containers/clength.h"
 #include "ulib/encodings/literalencoding.h"
 
+#include "kind.h"
+
 #include <cstring>
 #include <stdio.h>
 #include <type_traits>
+
+
 
 #ifdef min
 #undef min
@@ -73,6 +77,8 @@ namespace ulib
         using const_iterator = ConstIterator;
 
         using RangeT = Range<const CharT>;
+
+        constexpr static ContainerKind Kind = ContainerKind::String;
 
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;

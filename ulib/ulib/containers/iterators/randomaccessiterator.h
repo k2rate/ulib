@@ -2,6 +2,7 @@
 
 #include "baseiterator.h"
 #include <iterator>
+#include <type_traits>
 
 namespace ulib
 {
@@ -14,7 +15,16 @@ namespace ulib
 
 		inline RandomAccessIterator() {}
 		inline RandomAccessIterator(T* p) : ptr(p) {}
-		inline RandomAccessIterator(const SelfT& it) : ptr(it.ptr) {}
+
+        /*
+        template<std::enable_if_t<std::is_const_v<T>, bool> = true>
+		inline RandomAccessIterator(const SelfNoConstT& it) : ptr(it.ptr) {}
+        */
+        
+
+        inline RandomAccessIterator(const SelfConstT& it) : ptr(it.ptr) {}
+        inline RandomAccessIterator(const SelfNoConstT& it) : ptr(it.ptr) {}
+
 
 		inline T& operator*() const { return *ptr; }
 		inline SelfT& operator++() { ++ptr; return *this; }       // Prefix increment operator.
