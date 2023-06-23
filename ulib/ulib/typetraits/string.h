@@ -1,8 +1,10 @@
+#pragma once
+
 #include <string>
 #include <type_traits>
 #include <iterator>
 
-#include <ulib/containers/kind.h>
+#include <ulib/containers/tags.h>
 
 #include "container.h"
 
@@ -46,7 +48,7 @@ namespace ulib
     // -----------
 
     template <class T>
-    inline constexpr bool is_ulib_string_v = is_ulib_container_kind_v<T, ContainerKind::String>;
+    inline constexpr bool is_ulib_string_v = is_ulib_container_tag_v<T, string_container_tag>;
 
     // -----------
 

@@ -16,12 +16,13 @@
 #include "ulib/containers/clength.h"
 #include "ulib/encodings/literalencoding.h"
 
-#include "kind.h"
+#include "tags.h"
 
 #include <cstring>
 #include <stdio.h>
 #include <type_traits>
 
+#include <ulib/typetraits/string.h>
 
 
 #ifdef min
@@ -30,23 +31,6 @@
 
 namespace ulib
 {
-#ifdef ULIB_USE_STD_STRING_VIEW
-    template <class T>
-    struct CheckStdStringView
-    {
-        constexpr static bool kTrue = false;
-    };
-
-    template <class CharT>
-    struct CheckStdStringView<std::basic_string_view<CharT>>
-    {
-        constexpr static bool kTrue = true;
-    };
-
-    template <class T>
-    inline constexpr bool IsStdStringView = CheckStdStringView<T>::kTrue;
-#endif
-
     template <class EncodingTy, class AllocatorTy = DefaultAllocator>
     class EncodedString : public Resource<AllocatorTy>
     {
@@ -78,7 +62,7 @@ namespace ulib
 
         using RangeT = Range<const CharT>;
 
-        constexpr static ContainerKind Kind = ContainerKind::String;
+        using ContainerTagT = string_container_tag;
 
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
@@ -195,7 +179,7 @@ namespace ulib
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+                  std::enable_if_t<!is_std_basic_string_view_v<StringT>, bool> = true>
 #endif
         inline SelfT operator+(const StringT &right) const
         {
@@ -236,7 +220,7 @@ namespace ulib
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+                  std::enable_if_t<!is_std_basic_string_view_v<StringT>, bool> = true>
 #endif
         inline bool operator==(const StringT &right) const
         {
@@ -245,7 +229,7 @@ namespace ulib
 
         template <class StringT, class SCharT = typename StringT::value_type,
 #ifdef ULIB_USE_STD_STRING_VIEW
-                  std::enable_if_t<!IsStdStringView<StringT>, bool> = true>
+                  std::enable_if_t<!is_std_basic_string_view_v<StringT>, bool> = true>
 #endif
         inline bool operator!=(const StringT &right) const
         {

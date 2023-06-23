@@ -2,64 +2,28 @@
 
 #include <type_traits>
 #include <iterator>
+#include <ulib/containers/tags.h>
 
-#include <ulib/containers/kind.h>
+#include "iterator.h"
+#include "cxxarray.h"
 
 namespace ulib
 {
     // -----------
 
-    template <class T, ContainerKind Kind, class = void>
-    struct is_ulib_container_kind : std::false_type
+    template <class T, class Tag, class = void>
+    struct is_ulib_container_tag : std::false_type
     {
     };
 
-    template <class T, ContainerKind Kind>
-    struct is_ulib_container_kind<T, Kind, std::void_t<decltype(T::Kind)>>
-        : std::bool_constant<std::is_same_v<std::decay_t<decltype(T::Kind)>, ContainerKind> && T::Kind == Kind>
+    template <class T, class Tag>
+    struct is_ulib_container_tag<T, Tag, std::void_t<typename T::ContainerTagT>>
+        : std::bool_constant<std::is_same_v<typename T::ContainerTagT, Tag>>
     {
     };
 
-    template <class T, ContainerKind Kind>
-    inline constexpr bool is_ulib_container_kind_v = is_ulib_container_kind<T, Kind>::value;
-
-    // -----------
-
-    template <typename T, size_t N>
-    constexpr bool IsCxxArray(const T (&arr)[N])
-    {
-        return true;
-    }
-
-    template <typename T>
-    constexpr bool IsCxxArray(const T &)
-    {
-        return false;
-    }
-
-    template <class T>
-    struct is_cxx_array : std::bool_constant<IsCxxArray(*(T *)0)>
-    {
-    };
-
-    template <class T>
-    inline constexpr bool is_cxx_array_v = is_cxx_array<T>::value;
-
-    // -----------
-
-    template <class T, class = void>
-    struct is_container_random_accessible : std::false_type
-    {
-    };
-
-    template <class T>
-    struct is_container_random_accessible<T, std::void_t<typename T::iterator>>
-        : std::bool_constant<std::is_same_v<typename T::iterator::iterator_category, std::random_access_iterator_tag>>
-    {
-    };
-
-    template <class T>
-    inline constexpr bool is_container_random_accessible_v = is_container_random_accessible<T>::value;
+    template <class T, class Tag>
+    inline constexpr bool is_ulib_container_tag_v = is_ulib_container_tag<T, Tag>::value;
 
     // -----------
 
@@ -84,17 +48,17 @@ namespace ulib
     // -----------
 
     template <class T, class = void>
-    struct has_container_kind : std::false_type
+    struct has_container_tag : std::false_type
     {
     };
 
     template <class T>
-    struct has_container_kind<T, std::void_t<typename T::ContainerKind>> : std::true_type
+    struct has_container_tag<T, std::void_t<typename T::ContainerTag>> : std::true_type
     {
     };
 
     template <class T>
-    inline constexpr bool has_container_kind_v = has_container_kind<T>::value;
+    inline constexpr bool has_container_tag_v = has_container_tag<T>::value;
 
     // -----------
 
@@ -104,8 +68,7 @@ namespace ulib
     };
 
     template <class T>
-    struct is_ulib_container<T, std::void_t<decltype(T::Kind)>>
-        : std::bool_constant<std::is_same_v<std::decay_t<decltype(T::Kind)>, ContainerKind>>
+    struct is_ulib_container<T, std::void_t<typename T::ContainerTagT>> : std::true_type
     {
     };
 
