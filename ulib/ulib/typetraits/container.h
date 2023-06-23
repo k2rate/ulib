@@ -5,7 +5,7 @@
 #include <ulib/containers/tags.h>
 
 #include "iterator.h"
-#include "cxxarray.h"
+#include "carray.h"
 
 namespace ulib
 {
@@ -28,7 +28,7 @@ namespace ulib
     // -----------
 
     template <class T>
-    inline constexpr bool is_random_accessible_v = is_cxx_array_v<T> || is_container_random_accessible_v<T>;
+    inline constexpr bool is_random_accessible_v = is_c_array_v<T> || is_container_random_accessible_v<T>;
 
     // -----------
 
