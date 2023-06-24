@@ -11,6 +11,7 @@
 #include "args.h"
 #include "iterators/randomaccessiterator.h"
 #include "range.h"
+#include "tags.h"
 
 #include <assert.h>
 
@@ -38,6 +39,8 @@ namespace ulib
         using reference = value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
+
+        using ContainerTagT = list_container_tag;
 
         using AllocatorParams = typename AllocatorT::Params;
         constexpr static bool kTrivally = std::is_trivially_copyable_v<T>;

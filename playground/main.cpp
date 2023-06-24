@@ -30,9 +30,10 @@
 
 #include <ulib/strutility.h>
 
-#include <ulib/typetraits/string.h>
 #include <ulib/typetraits/container.h>
 #include <ulib/typetraits/encoding.h>
+#include <ulib/typetraits/string.h>
+
 
 namespace ewin
 {
@@ -66,8 +67,6 @@ enum class TargetType
 /*
 
 
-
-
 return TargetType::Project;
         else if (type == "executable")
             return TargetType::Executable;
@@ -82,12 +81,6 @@ return TargetType::Project;
 
 int main()
 {
-    {
-        // std::string str;
-        // ulib::split(str, " ");
-    }
-
-
     auto spl = ulib::split(u8"Квартира № 8", u8"Квартира № ");
     printf("spl: size: %d spl[0]: %s\n", (int)spl.size(), ulib::u8(spl[0]).c_str());
 
@@ -97,6 +90,23 @@ int main()
 
     auto r4 = ulib::find_first(u8"пиздец сука нахуй", u8"сука");
     ulib::find_first(ulib::u8string(u8"ахуеть"), u8"аху");
+
+    std::string teapot_str = "teapot";
+    ulib::EncodedStringView<ulib::MultibyteEncoding> sv = teapot_str;
+
+    printf("str: %s, data: %p, sv data: %p\n", teapot_str.c_str(), teapot_str.data(), sv.data());
+
+    for (auto word : ulib::split(teapot_str, "ap"))
+    {
+        printf("word: %s data: %p\n", ulib::str(word).c_str(), word.data());
+    }
+
+    printf("str: %s, data: %p\n", teapot_str.c_str(), teapot_str.data());
+
+    for (auto word : ulib::split(teapot_str, "ap"))
+    {
+        printf("word: %s data: %p\n", ulib::str(word).c_str(), word.data());
+    }
 
     {
         /*
@@ -114,7 +124,6 @@ int main()
         str.Begin() == str0.Begin();
         str0.Begin() == str.Begin();
         */
-
     }
 
     printf("r1: %d, r2: %d r3: %d r4: %s\n", (int)r1, (int)r2, (int)r3, r4);

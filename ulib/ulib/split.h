@@ -5,6 +5,7 @@
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
 #include <ulib/encodings/literalencoding.h>
+#include <ulib/typetraits/encoding.h>
 
 namespace ulib
 {
@@ -203,57 +204,18 @@ namespace ulib
         StringViewT mSeparator;
     };
 
-    /*
-        template<class EncodingT>
-    inline SplitView<EncodingT> split(EncodedStringView<EncodingT> str, EncodedStringView<EncodingT> sep)
+    template <class EncodingT>
+    inline SplitView<EncodingT> split_impl(EncodedStringView<EncodingT> str, EncodedStringView<EncodingT> sep)
     {
         return SplitView<EncodingT>(str, sep);
     }
-    */
 
-    template <class String1T, class String2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline SplitView<Encoding1T> split(const String1T &str, const String2T &sep)
+    template <class StringT, class SeparatorStringT, class EncodingT = argument_encoding_t<StringT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, void> &&
+                               std::is_same_v<EncodingT, argument_encoding_t<SeparatorStringT>>, bool> = true>
+    inline SplitView<EncodingT> split(const StringT& str, const SeparatorStringT& sep)
     {
-        using VT = EncodedStringView<Encoding1T>;
-        using VC = typename VT::CharT *;
-
-        return SplitView<Encoding1T>(VT((VC)str.data(), VC(str.data() + str.size())),
-                                     VT((VC)sep.data(), VC(sep.data() + sep.size())));
-    }
-
-    template <class Char1T, class Char2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline SplitView<Encoding1T> split(const Char1T *str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using VC = typename VT::CharT *;
-
-        return SplitView<Encoding1T>(VT(VC(str)), VT(VC(sep)));
-    }
-
-    template <class String1T, class Char2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline SplitView<Encoding1T> split(const String1T &str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using VC = typename VT::CharT *;
-
-        return SplitView<Encoding1T>(VT((VC)str.data(), VC(str.data() + str.size())), VT(VC(sep)));
-    }
-
-    template <class Char1T, class String2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline SplitView<Encoding1T> split(const Char1T *str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using VC = typename VT::CharT *;
-
-        return SplitView<Encoding1T>(VT(VC(str)), VT((VC)sep.data(), VC(sep.data() + sep.size())));
+        return split_impl(ulib::EncodedStringView<EncodingT>(str), ulib::EncodedStringView<EncodingT>(sep));
     }
 
 } // namespace ulib
