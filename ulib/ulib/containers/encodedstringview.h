@@ -10,6 +10,8 @@
 #include <string_view>
 #endif
 
+#include <ulib/typetraits/string.h>
+
 namespace ulib
 {
     template <class EncodingTy>
@@ -29,6 +31,8 @@ namespace ulib
         using reference = value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
+
+        using ContainerTagT = string_container_tag;
 
         EncodedStringView() : BaseT() {}
 
