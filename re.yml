@@ -5,14 +5,3 @@ inherit-caller-in-deps: true
 
 cxxenv.msvc:
   cxx-standard: latest
-
-actions:
-  - run:
-      on: pre-configure
-      command: python
-      args:
-        [
-          "re-compile-commands-gen.py",
-          "${root-dir}/.re-cache/meta/full.json",
-          "${root-dir}/compile_commands.json",
-        ]

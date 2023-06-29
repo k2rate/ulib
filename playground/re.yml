@@ -15,7 +15,7 @@ cxx-build-flags:
   compiler:
     - "/utf-8"
   linker:
-    - '/DEBUG /PDB:"${path}/../playground.pdb"'
+    - "/DEBUG"
 
 cxx-link-deps:
   - "user32.lib"
