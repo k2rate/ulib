@@ -143,22 +143,6 @@ namespace ulib
             other.mBeginB = nullptr;
         }
 
-        /*
-                template <class FromEncodingT, std::enable_if_t<IsParentCompatible<FromEncodingT, EncodingT>, bool> =
-        true> inline EncodedString(EncodedString<FromEncodingT, AllocatorT> &&other) : BaseT(std::move(other))
-        {
-
-            printf("move encoding\n");
-
-            mBeginB = (uchar *)other.mBeginB;
-            mLastB = (uchar *)other.mLastB;
-            mEndB = (uchar *)other.mEndB;
-
-            other.mBeginB = nullptr;
-        }
-
-        */
-
         inline ~EncodedString()
         {
             if (mBeginB)
@@ -275,6 +259,8 @@ namespace ulib
         inline const_iterator end() const { return mLast; }
         inline size_t size() const { return Size(); }
         inline size_t capacity() const { return Capacity(); }
+        inline CharT *raw_data() { return RawData(); }
+        inline const CharT *raw_data() const { return RawData(); }
         inline CharT *data() { return Data(); }
         inline const CharT *data() const { return Data(); }
         inline void erase(iterator it) { Erase(it); }
@@ -283,9 +269,8 @@ namespace ulib
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
         inline void reserve(size_t s) { Reserve(s); }
-        inline CharT *c_str()
+        inline CharT *c_str() const
         {
-            MarkZeroEnd();
             return Data();
         }
         inline size_t length() const { return Length(); }
@@ -301,8 +286,11 @@ namespace ulib
 
         // function definitions
 
-        inline CharT *Data() { return mBegin; }
-        inline CharT *Data() const { return mBegin; }
+
+        inline CharT *RawData() { return mBegin; }
+        inline CharT *RawData() const { return mBegin; }
+        inline CharT *Data() { MarkZeroEndConst(); return mBegin; }
+        inline CharT *Data() const { MarkZeroEndConst(); return mBegin; }
         inline iterator Begin() { return mBegin; }
         inline iterator End() { return mLast; }
         inline const_iterator Begin() const { return mBegin; }
@@ -461,6 +449,12 @@ namespace ulib
 
             *mLast = 0;
         }
+
+        inline void MarkZeroEndConst() const
+        {
+            ((SelfT*)this)->MarkZeroEndImpl();
+        }
+
 
         inline void PopBackImpl()
         {
