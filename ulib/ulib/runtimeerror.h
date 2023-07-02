@@ -15,7 +15,7 @@ namespace ulib
     };
 } // namespace ulib
 
-#define ULIB_RUNTIMEERROR(ClassName)                                                                                   \
+#define ULIB_RUNTIME_ERROR(ClassName)                                                                                   \
     class ClassName : public ulib::RuntimeError                                                                        \
     {                                                                                                                  \
     public:                                                                                                            \
