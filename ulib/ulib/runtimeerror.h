@@ -9,7 +9,6 @@ namespace ulib
     {
     public:
         RuntimeError(ulib::string_view view) : std::runtime_error((const char *)ulib::string(view).c_str()) {}
-        RuntimeError(ulib::u8string_view view) : std::runtime_error((const char *)ulib::u8string(view).c_str()) {}
 
     private:
     };
@@ -20,9 +19,6 @@ namespace ulib
     {                                                                                                                  \
     public:                                                                                                            \
         ClassName(ulib::string_view str) : ulib::RuntimeError(str)                                                     \
-        {                                                                                                              \
-        }                                                                                                              \
-        ClassName(ulib::u8string_view str) : ulib::RuntimeError(str)                                                   \
         {                                                                                                              \
         }                                                                                                              \
     };
