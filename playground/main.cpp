@@ -81,6 +81,25 @@ return TargetType::Project;
 
 int main()
 {
+    {
+        // const char* str = "plak";
+        // // ulib::split(str, 'k');
+        // std::string ssss;
+        // ssss.resize(20);
+
+        // const char16_t* str16 = u"dsaf";
+        // ulib::split(str16, u"d");
+
+        // // const int* strI = nullptr;
+        // // ulib::split(strI, strI);
+
+        // constexpr bool test = ulib::is_argument_encodeable_v<decltype(strI)>;
+        // using Encoding = ulib::argument_encoding_t<char16_t*>;
+
+        // ulib::split("ky", "k");
+    }
+
+
     auto spl = ulib::split(u8"Квартира № 8", u8"Квартира № ");
     printf("spl: size: %d spl[0]: %s\n", (int)spl.size(), ulib::u8(spl[0]).c_str());
 

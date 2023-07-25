@@ -11,7 +11,6 @@
 #include <ulib/u8.h>
 #include <ulib/wchar.h>
 
-
 #include <gtest/gtest.h>
 
 TEST(StringTest, Constructs) { ASSERT_NO_THROW(ulib::String{"hi"}); }
@@ -448,4 +447,57 @@ TEST(StringTest, Length)
 
 #undef cstrsize
 #undef arrsize
+}
+
+TEST(StringTest, Resize)
+{
+    ulib::u8string u8str;
+    u8str.resize(20);
+    ASSERT_EQ(u8str.size(), 20);
+
+    ulib::u16string u16str;
+    u16str.resize(20);
+    ASSERT_EQ(u16str.size(), 20);
+
+    u8str.resize(10);
+    u16str.resize(10);
+
+    ASSERT_EQ(u8str.size(), 10);
+    ASSERT_EQ(u16str.size(), 10);
+
+    u8str.resize(0);
+    u16str.resize(0);
+
+    ASSERT_EQ(u8str.size(), 0);
+    ASSERT_EQ(u16str.size(), 0);
+
+    u8str.resize(15, u8'0');
+    u16str.resize(15, u'1');
+
+    ASSERT_EQ(u8str.size(), 15);
+    ASSERT_EQ(u16str.size(), 15);
+
+    ASSERT_EQ(u8str, u8"000000000000000");
+    ASSERT_EQ(u16str, u"111111111111111");
+}
+
+TEST(StringTest, Reserve)
+{
+    ulib::u8string u8str;
+    ulib::u16string u16str;
+
+    // TODO: Concretize starting capacity
+
+
+    auto test = [&](size_t size) {
+        u8str.reserve(size);
+        u16str.reserve(size);
+
+        ASSERT_TRUE(u8str.capacity() >= size);
+        ASSERT_TRUE(u16str.capacity() >= size);
+    };
+
+    test(30);
+    test(4000);
+    test(10);
 }

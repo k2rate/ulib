@@ -44,4 +44,8 @@ namespace ulib
 
     template <class T>
     using argument_encoding_t = typename argument_encoding<T>::Type;
+
+    template <class T>
+    inline constexpr bool is_argument_encodeable_v = !std::is_same_v<argument_encoding_t<T>, void>;
+
 } // namespace ulib

@@ -24,8 +24,8 @@ namespace ulib
         Default = Flex
     };
 
-    template <class T, class AllocatorT = DefaultAllocator>
-    class List : public Resource<AllocatorT>
+    template <class T, class AllocatorTy = DefaultAllocator>
+    class List : public Resource<AllocatorTy>
     {
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(T) * C_STEP;
@@ -34,15 +34,16 @@ namespace ulib
         using Iterator = RandomAccessIterator<T>;
         using ConstIterator = RandomAccessIterator<const T>;
 
+        using ContainerTagT = list_container_tag;
+        using AllocatorT = AllocatorTy;
+        using AllocatorParams = typename AllocatorT::Params;
+
         using value_type = T;
         using pointer = value_type *;
         using reference = value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
 
-        using ContainerTagT = list_container_tag;
-
-        using AllocatorParams = typename AllocatorT::Params;
         constexpr static bool kTrivally = std::is_trivially_copyable_v<T>;
 
         inline List(AllocatorParams al = {}) : Resource<AllocatorT>(al)

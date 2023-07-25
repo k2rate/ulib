@@ -24,7 +24,6 @@
 
 #include <ulib/typetraits/string.h>
 
-
 #ifdef min
 #undef min
 #endif
@@ -269,10 +268,9 @@ namespace ulib
         inline void pop_back() { PopBack(); }
         inline bool empty() const { return Empty(); }
         inline void reserve(size_t s) { Reserve(s); }
-        inline CharT *c_str() const
-        {
-            return Data();
-        }
+        inline void resize(size_t s) { Resize(s); }
+        inline void resize(size_t s, CharT ch) { Resize(s, ch); }
+        inline CharT *c_str() const { return Data(); }
         inline size_t length() const { return Length(); }
         inline void clear() { Clear(); }
 
@@ -286,11 +284,18 @@ namespace ulib
 
         // function definitions
 
-
         inline CharT *RawData() { return mBegin; }
         inline CharT *RawData() const { return mBegin; }
-        inline CharT *Data() { MarkZeroEndConst(); return mBegin; }
-        inline CharT *Data() const { MarkZeroEndConst(); return mBegin; }
+        inline CharT *Data()
+        {
+            MarkZeroEndConst();
+            return mBegin;
+        }
+        inline CharT *Data() const
+        {
+            MarkZeroEndConst();
+            return mBegin;
+        }
         inline iterator Begin() { return mBegin; }
         inline iterator End() { return mLast; }
         inline const_iterator Begin() const { return mBegin; }
@@ -308,7 +313,9 @@ namespace ulib
         inline size_t AvailableInBytes() const { return mEnd - mLast; }
         inline void SetSize(size_t newSize) { mLast = mBegin + newSize; }
         inline void PushBack(CharT ch) { PushBackImpl(ch); }
-        inline void Reserve(size_t s) { ReserveImpl(s); }
+        inline void Reserve(size_t s) { ReserveImpl(s * sizeof(CharT)); }
+        inline void Resize(size_t s) { ResizeImpl(s, 0); }
+        inline void Resize(size_t s, CharT ch) { ResizeImpl(s, ch); }
         inline void Erase(iterator it) { EraseImpl(it); }
         inline void Erase(size_t i) { EraseImpl(mBegin + i); }
         inline int Index(const_iterator it) const { return int(it.ptr - mBegin); }
@@ -450,11 +457,7 @@ namespace ulib
             *mLast = 0;
         }
 
-        inline void MarkZeroEndConst() const
-        {
-            ((SelfT*)this)->MarkZeroEndImpl();
-        }
-
+        inline void MarkZeroEndConst() const { ((SelfT *)this)->MarkZeroEndImpl(); }
 
         inline void PopBackImpl()
         {
@@ -496,7 +499,6 @@ namespace ulib
                 return;
 
             uchar *newMem = (uchar *)ResourceT::Alloc(s);
-            assert(newMem && "Out of memory in List<T>::Reserve");
 
             CharT *oldBegin = mBegin;
             size_t oldSizeInBytes = SizeInBytes();
@@ -506,6 +508,34 @@ namespace ulib
 
             ::memcpy(mBegin, oldBegin, oldSizeInBytes);
             ResourceT::Free(oldBegin);
+        }
+
+        inline void ResizeImpl(size_t s, CharT ch)
+        {
+            size_t argSizeInBytes = s * sizeof(CharT);
+            size_t currentSizeInBytes = SizeInBytes();
+
+            if (currentSizeInBytes > argSizeInBytes)
+            {
+                mLastB = mBeginB + argSizeInBytes;
+            }
+            else if (currentSizeInBytes < argSizeInBytes)
+            {
+                ReserveImpl(argSizeInBytes);
+
+                auto it = mLast;
+                for (; it != (CharT *)(mBeginB + argSizeInBytes); it++)
+                {
+                    *it = ch;
+                }
+
+                mLast = it;
+            }
+            else
+            {
+                // nothing to do
+                return;
+            }
         }
 
         inline void PushBackImpl(CharT ch)
