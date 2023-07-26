@@ -1,7 +1,6 @@
 #pragma once
 
 #include <assert.h>
-#include <typeinfo>
 #include <cstddef>
 
 namespace ulib
@@ -12,10 +11,10 @@ namespace ulib
     public:
         using value_type = T;
 
-        template <class T>
+        template <class RebindT>
         struct rebind
         {
-            using other = StandardAllocator<T, AllocatorT>;
+            using other = StandardAllocator<RebindT, AllocatorT>;
         };
 
         StandardAllocator(typename AllocatorT::Params params = {})
@@ -25,7 +24,7 @@ namespace ulib
 
         template <class U>
         StandardAllocator(const StandardAllocator<U, AllocatorT> &other)
-            : AllocatorT({})
+            : AllocatorT(typename AllocatorT::Params{})
         {
             /*
             if (!std::is_same<T, U>::value)
