@@ -414,7 +414,7 @@ namespace ulib
         inline void push_back(const T &o) { PushBack(o); }
         inline void push_back(T &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }
-        inline bool empty() { return Empty(); }
+        inline bool empty() const { return Empty(); }
         inline T &front() { return Front(); }
         inline const T &front() const { return Front(); }
         inline T &back() { return Back(); }
@@ -480,6 +480,9 @@ namespace ulib
             };
         };
     };
+
+    template<class T, class AllocatorTy = DefaultAllocator>
+    using list = List<T, AllocatorTy>;
 
     // use for Cont<T*> where T* allocated as new T
     template <class ContT>
