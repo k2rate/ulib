@@ -19,3 +19,7 @@ platform.windows:
 platform.!windows:
   deps:
     - vcpkg:gtest
+
+platform.linux|osx:
+  cxx-global-link-deps:
+    - pthread
