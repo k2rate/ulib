@@ -282,6 +282,14 @@ namespace ulib
         inline void assign(SelfT &&source) { return Assign(std::move(source)); };
         inline void assign(const CharT *source) { Assign(source); }
 
+        template <class LAllocatorT>
+        inline void append(const EncodedString<EncodingT, LAllocatorT> &right)
+        {
+            Append<LAllocatorT>(right);
+        }
+        inline void append(const CharT *right) { Append(right); }
+        inline void append(const CharT *right, size_t rightSizeInBytes) { return Append(right, rightSizeInBytes); }
+
         // function definitions
 
         inline CharT *RawData() { return mBegin; }
