@@ -54,7 +54,8 @@ namespace ulib
         size_t ss = ev - bv;
         while (b != e)
         {
-            if (e - b >= ss)
+            assert(e >= b);
+            if (size_t(e - b) >= ss)
             {
                 auto bb = b;
                 auto it = bv;
