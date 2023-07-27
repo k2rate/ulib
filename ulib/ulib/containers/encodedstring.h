@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <type_traits>
 
+#include <stdexcept>
 #include <ulib/typetraits/string.h>
 
 #ifdef min
@@ -56,6 +57,7 @@ namespace ulib
         using value_type = CharT;
         using pointer = value_type *;
         using reference = value_type &;
+        using const_reference = const value_type &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
 
@@ -152,6 +154,9 @@ namespace ulib
         }
 
         // operators overloads
+
+        inline reference operator[](size_t i) { return mBegin[i]; }
+        inline const_reference operator[](size_t i) const { return mBegin[i]; }
 
         template <class LAllocatorT>
         inline SelfT operator+(const EncodedString<EncodingT, LAllocatorT> &right) const
@@ -273,6 +278,12 @@ namespace ulib
         inline CharT *c_str() const { return Data(); }
         inline size_t length() const { return Length(); }
         inline void clear() { Clear(); }
+        inline reference at(size_t i) { return At(i); };
+        inline const_reference at(size_t i) const { return At(i); };
+        inline reference front() { return *mBegin; }
+        inline const_reference front() const { return *mBegin; }
+        inline reference back() { return *(mLast - 1); }
+        inline const_reference back() const { return *(mLast - 1); }
 
         template <class LAllocatorT>
         inline void assign(const EncodedString<EncodingT, LAllocatorT> &source)
@@ -333,6 +344,24 @@ namespace ulib
         inline void Pop() { PopBack(); }
         inline void MarkZeroEnd() { MarkZeroEndImpl(); }
         inline void Clear() { mLast = mBegin; }
+        inline reference At(size_t i)
+        {
+            if (i >= Size())
+                throw std::out_of_range("string out of range");
+            return mBegin[i];
+        }
+
+        inline const_reference At(size_t i) const
+        {
+            if (i >= Size())
+                throw std::out_of_range("string out of range");
+            return mBegin[i];
+        }
+
+        inline reference Front() { return *mBegin; }
+        inline const_reference Front() const { return *mBegin; }
+        inline reference Back() { return *(mLast - 1); }
+        inline const_reference Back() const { return *(mLast - 1); }
 
         template <class LAllocatorT>
         inline void Assign(const EncodedString<EncodingT, LAllocatorT> &source)

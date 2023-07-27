@@ -499,3 +499,22 @@ TEST(StringTest, Reserve)
     test(4000);
     test(10);
 }
+
+TEST(StringTest, FrontAndBack)
+{
+    ulib::string str = "ABCDEF";
+
+    ASSERT_EQ(str.front(), 'A');
+    ASSERT_EQ(str.back(), 'F');
+}
+
+TEST(StringTest, At)
+{
+    ulib::string str = "ABCDEF";
+
+    ASSERT_EQ(str.at(0), 'A');
+    ASSERT_EQ(str.at(5), 'F');
+    ASSERT_EQ(str.at(4), 'E');
+
+    ASSERT_THROW(str.at(6), std::out_of_range);
+}
