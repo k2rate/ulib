@@ -1,8 +1,5 @@
-#include "ulib/containers/encodedstring.h"
-#include "ulib/containers/encodedstringview.h"
-#include "ulib/containers/list.h"
-#include "ulib/encodings/utf8/string.h"
 #include <type_traits>
+
 #include <ulib/encodings/literalencoding.h>
 #include <ulib/split.h>
 #include <ulib/string.h>
@@ -10,6 +7,7 @@
 #include <ulib/u32.h>
 #include <ulib/u8.h>
 #include <ulib/wchar.h>
+#include <ulib/list.h>
 
 #include <gtest/gtest.h>
 

@@ -675,6 +675,25 @@ inline ulib::EncodedString<EncodingT> operator+(ulib::EncodedStringView<Encoding
     return result;
 }
 
+namespace std
+{
+    template <class EncodingT, class AllocatorT, class AllocT>
+    inline bool operator==(
+        const std::basic_string<typename EncodingT::CharT, std::char_traits<typename EncodingT::CharT>, AllocT> &str,
+        const ulib::EncodedString<EncodingT, AllocatorT> &str1)
+    {
+        return str1.Equal(str);
+    }
+
+    template <class EncodingT, class AllocatorT, class AllocT>
+    inline bool operator!=(
+        const std::basic_string<typename EncodingT::CharT, std::char_traits<typename EncodingT::CharT>, AllocT> &str,
+        const ulib::EncodedString<EncodingT, AllocatorT> &str1)
+    {
+        return !str1.Equal(str);
+    }
+} // namespace std
+
 /*
 #ifdef ULIB_USE_STD_STRING_VIEW
 template<class EncodingT, class AllocatorT>
