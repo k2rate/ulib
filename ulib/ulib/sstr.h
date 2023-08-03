@@ -6,7 +6,7 @@
 namespace ulib
 {
 
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 
     template <class StringT, class EncodingT = typename StringT::EncodingT>
     inline std::string sstr(const StringT &str)

@@ -1,19 +1,20 @@
 #pragma once
 
-#include <initializer_list>
-#include <new>      // overloaded new / delete
-#include <string.h> // memcpy
-
 #include <ulib/allocators/defaultallocator.h>
+#include <ulib/containers/args.h>
+#include <ulib/containers/iterators/randomaccessiterator.h>
+#include <ulib/containers/span.h>
+#include <ulib/containers/tags.h>
 #include <ulib/resources/resource.h>
 #include <ulib/types.h>
 
-#include "args.h"
-#include "iterators/randomaccessiterator.h"
-#include "range.h"
-#include "tags.h"
+#include <initializer_list>
+#include <new> // overloaded new / delete
 
 #include <assert.h>
+#include <string.h> // memcpy
+
+#include <ulib/typetraits/rawmove.h>
 
 namespace ulib
 {
@@ -27,78 +28,57 @@ namespace ulib
     template <class T, class AllocatorTy = DefaultAllocator>
     class List : public Resource<AllocatorTy>
     {
+    public:
+        ULIB_RAW_MOVEABLE();
+
+        using SelfT = List<T, AllocatorTy>;
+        using BufferT = List<uchar, AllocatorTy>;
+
+        using value_type = T;
+        using Iterator = RandomAccessIterator<value_type>;
+        using ConstIterator = RandomAccessIterator<const value_type>;
+        using ReverseIterator = ReverseRandomAccessIterator<value_type>;
+        using ConstReverseIterator = ReverseRandomAccessIterator<const value_type>;
+        using ReverseT = ReversedSpan<const value_type>;
+        using ContainerTagT = list_container_tag;
+        using AllocatorT = AllocatorTy;
+        using ResourceT = Resource<AllocatorT>;
+        using AllocatorParams = typename AllocatorT::Params;
+        using InitializerListT = std::initializer_list<T>;
+
+
+        using pointer = value_type *;
+        using const_pointer = const value_type *;
+        using reference = value_type &;
+        using const_reference = const value_type &;
+        using iterator = Iterator;
+        using const_iterator = ConstIterator;
+        using reverse_iterator = ReverseIterator;
+        using const_reverse_iterator = ConstReverseIterator;
+        using size_type = size_t;
+        using SpanT = Span<T>;
+        using SplitViewT = SplitView<SpanT>;
+
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(T) * C_STEP;
 
-    public:
-        using Iterator = RandomAccessIterator<T>;
-        using ConstIterator = RandomAccessIterator<const T>;
+        constexpr static bool kTrivial = std::is_trivially_copyable_v<T>;
+        constexpr static bool kRawMoveable = is_explicit_raw_moveable_flag_v<T, std::true_type> || kTrivial;
 
-        using ContainerTagT = list_container_tag;
-        using AllocatorT = AllocatorTy;
-        using AllocatorParams = typename AllocatorT::Params;
-
-        using value_type = T;
-        using pointer = value_type *;
-        using reference = value_type &;
-        using iterator = Iterator;
-        using const_iterator = ConstIterator;
-
-        constexpr static bool kTrivally = std::is_trivially_copyable_v<T>;
-
-        inline List(AllocatorParams al = {}) : Resource<AllocatorT>(al)
+        inline List(AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacityB(M_STEP); }
+        inline List(const_pointer b, const_pointer e, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(b, e); }
+        inline List(const_pointer ptr, size_type count, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(ptr, count); }
+        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        inline List(const K &cont, AllocatorParams al = {}) : ResourceT(al)
         {
-            mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(M_STEP)) + M_STEP;
-
-            assert(mBegin && "Out of memory in List<T>::List()");
+            SpanT rn = cont;
+            SetupWithCopyConstructB(rn.Data(), rn.SizeInBytes());
         }
-
-        template <class ContainerT, class vt = typename ContainerT::value_type,
-                  class RangeT = Range<const typename ContainerT::value_type>,
-                  std::enable_if_t<std::is_same_v<T, std::remove_cv_t<vt>>, bool> = true>
-        inline List(const ContainerT &cont, AllocatorParams al = {}) : Resource<AllocatorT>(al)
-        {
-            RangeT rn = cont;
-
-            size_t allocSize = rn.SizeInBytes();
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
-
-            memcpy(mBeginB, rn.Data(), allocSize);
-        }
-
-        inline explicit List(size_t size, AllocatorParams al = {}) : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = sizeof(T) * size;
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
-
-            assert(mBegin && "Out of memory in List<T>::List(size_t)");
-
-            for (auto it = mBegin; it != mEnd; it++)
-                new (it) T();
-        }
-
-        inline explicit List(args::Capacity capacity, AllocatorParams al = {}) : Resource<AllocatorT>(al)
-        {
-            size_t allocSize = sizeof(T) * capacity.cc;
-            mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
-
-            assert(mBegin && "Out of memory in List<T>::List(size_t)");
-        }
-
-        inline List(std::initializer_list<T> init, AllocatorParams al = {}) : Resource<AllocatorT>(al)
-        {
-            CopyInit(init.begin(), init.size() * sizeof(T));
-        }
-
-        template <class LAllocatorT>
-        inline List(const List<T, LAllocatorT> &source, AllocatorParams al = {}) : Resource<AllocatorT>(al)
-        {
-            CopyInit(source);
-        }
-
-        inline List(const List<T, AllocatorT> &source) : Resource<AllocatorT>(source) { CopyInit(source); }
-
-        inline List(List<T, AllocatorT> &&source) : Resource<AllocatorT>(std::move(source))
+        inline explicit List(size_type size, AllocatorParams al = {}) : ResourceT(al) { SetupViaSizeAndConstruct(size); }
+        inline explicit List(args::Capacity capacity, AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacity(capacity.cc); }
+        inline List(InitializerListT init, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(init.begin(), init.end()); }
+        inline List(const SelfT &other) : ResourceT(other) { SetupWithCopyConstruct(other.mBegin, other.mLast); }
+        inline List(SelfT &&source) : ResourceT(std::move(source))
         {
             mBegin = source.mBegin;
             mLast = source.mLast;
@@ -114,47 +94,60 @@ namespace ulib
                 for (T *ptr = mBegin; ptr != mLast; ptr++)
                     ptr->~T();
 
-                AllocatorT::Free(mBeginB);
+                ResourceT::Free(mBeginB);
             }
         }
 
-        template <class LAllocatorT>
-        inline void Assign(const List<T, LAllocatorT> &source)
+        inline iterator Begin() { return mBegin; }
+        inline iterator End() { return mLast; }
+        inline const_iterator Begin() const { return mBegin; }
+        inline const_iterator End() const { return mLast; }
+        inline reverse_iterator ReverseBegin() { return mLast - 1; }
+        inline reverse_iterator ReverseEnd() { return mBegin - 1; }
+        inline const_reverse_iterator ReverseBegin() const { return mLast - 1; }
+        inline const_reverse_iterator ReverseEnd() const { return mBegin - 1; }
+        inline ReverseT Reverse() const { return ReverseT{ReverseBegin(), ReverseEnd()}; }
+        inline T *Data() { return mBegin; }
+        inline const T *Data() const { return mBegin; }
+        inline size_type Size() const { return mLast - mBegin; }
+        inline size_type Length() const { return Size(); }
+        inline size_type SizeInBytes() const { return mLastB - mBeginB; }
+        inline size_type Capacity() const { return mEnd - mBegin; }
+        inline size_type CapacityInBytes() const { return mEndB - mBeginB; }
+        inline size_type Available() const { return mEnd - mLast; }
+        inline size_type AvailableInBytes() const { return mEndB - mLastB; }
+        inline bool Empty() const { return mLast == mBegin; }
+
+        inline void AssignS(SpanT right)
         {
-            size_t allocSize = source.CapacityInBytes();
-            size_t requiredSize = source.SizeInBytes();
+            size_t allocSize = right.SizeInBytes();
+            size_t requiredSize = allocSize;
 
             for (T *ptr = mBegin; ptr != mLast; ptr++)
                 ptr->~T();
 
             if (CapacityInBytes() < requiredSize)
             {
-                AllocatorT::Free(mBeginB);
-                mEndB = (mBeginB = (uchar *)AllocatorT::Alloc(allocSize)) + allocSize;
+                ResourceT::Free(mBeginB);
+                mEndB = (mBeginB = (uchar *)ResourceT::Alloc(allocSize)) + allocSize;
             }
 
             mLastB = mBeginB + requiredSize;
-
-            if (kTrivally)
-            {
-                memcpy(mBeginB, mLastB, requiredSize);
-            }
-            else
-            {
-                T *ptr = mBegin;
-                const T *ptr2 = source.mBegin;
-
-                for (; ptr != mLast; ptr++, ptr2++)
-                    new (ptr) T(*ptr2);
-            }
+            CopyConstructElementsB(mBegin, right.Data(), requiredSize);
         }
 
-        inline void Assign(List<T, AllocatorT> &&source)
+        template <class K, enable_if_range_compatible_t<SelfT, K>>
+        inline void Assign(const K &right)
+        {
+            AssignS(right);
+        }
+        inline void Assign(const SelfT &right) { AssignS(right); }
+        inline void Assign(SelfT &&source)
         {
             for (T *ptr = mBegin; ptr != mLast; ptr++)
                 ptr->~T();
 
-            AllocatorT::Free(mBeginB);
+            ResourceT::Free(mBeginB);
 
             Resource<AllocatorT> &rs = *this;
             rs = std::move(source);
@@ -166,31 +159,12 @@ namespace ulib
             source.mBegin = nullptr;
         }
 
-        inline List<T, AllocatorT> &operator=(const List<T, AllocatorT> &source)
-        {
-            Assign(source);
-            return *this;
-        }
-
-        template <class LAllocatorT>
-        inline List<T, AllocatorT> &operator=(const List<T, LAllocatorT> &source)
-        {
-            Assign(source);
-            return *this;
-        }
-
-        inline List<T, AllocatorT> &operator=(List<T, AllocatorT> &&source)
-        {
-            Assign(std::move(source));
-            return *this;
-        }
-
         inline void Resize(size_t newSize)
         {
             auto point = mBegin + newSize;
             if (point <= mLast)
             {
-                if constexpr (!kTrivally)
+                if constexpr (!kTrivial)
                 {
                     for (auto it = point; it != mLast; it++)
                         it->~T();
@@ -203,7 +177,11 @@ namespace ulib
             else
             {
                 if (point > mEnd)
-                    ReallocateMemory(SizeInBytes(), point - mEnd);
+                {
+                    ConcreteReallocateMemory(SizeInBytes(), newSize * sizeof(T));
+                    // ReallocateMemory(SizeInBytes(), newSize * sizeof(T));
+                    point = mBegin + newSize;
+                }
 
                 for (auto it = mLast; it != point; it++)
                     new (it) T();
@@ -212,100 +190,250 @@ namespace ulib
             }
         }
 
-        inline size_t Size() const { return mLast - mBegin; }
-        inline size_t Capacity() const { return mEnd - mBegin; }
-        inline size_t SizeInBytes() const { return mLastB - mBeginB; }
-        inline size_t CapacityInBytes() const { return mEndB - mBeginB; }
-        inline bool Empty() const { return mLast == mBegin; }
-
-        inline iterator Begin() { return mBegin; }
-        inline iterator End() { return mLast; }
-        inline const_iterator Begin() const { return mBegin; }
-        inline const_iterator End() const { return mLast; }
-        inline iterator ReverseBegin() { return mLast - 1; }
-        inline iterator ReverseEnd() { return mBegin - 1; }
-        inline const_iterator ReverseBegin() const { return mLast - 1; }
-        inline const_iterator ReverseEnd() const { return mBegin - 1; }
-
-        inline void InsertBack(const T *pElems, size_t count)
+        inline void Resize(size_t newSize, const_reference value)
         {
-            size_t sizeInBytes = SizeInBytes();
-            size_t reqSize = sizeInBytes + count * sizeof(T);
-            if (Capacity() < reqSize)
+            auto point = mBegin + newSize;
+            if (point <= mLast)
             {
-                ReallocateMemory(sizeInBytes, reqSize);
-            }
+                if constexpr (!kTrivial)
+                {
+                    for (auto it = point; it != mLast; it++)
+                        it->~T();
+                }
 
-            auto newLast = mLast + count;
-            for (; mLast != newLast; mLast++, pElems++)
-                new (mLast) T(*pElems);
+                mLast = point;
+
+                return;
+            }
+            else
+            {
+                if (point > mEnd)
+                {
+                    ConcreteReallocateMemory(SizeInBytes(), newSize * sizeof(T));
+                    // ReallocateMemory(SizeInBytes(), newSize * sizeof(T));
+                    point = mBegin + newSize;
+                }
+
+                for (auto it = mLast; it != point; it++)
+                    new (it) T(value);
+
+                mLast = point;
+            }
         }
 
-        inline void Remove(const T &elem)
+        inline iterator Insert(const_iterator pos, const_reference v)
         {
-            for (auto it = mBegin; it != mLast; it++)
+            size_t idx = GetIndex(pos);
+            ReallocIfEnd();
+            pos = mBegin + idx;
+
+            auto it = Unbound(pos).Raw();
+
             {
-                if (*it == elem)
+                size_t count = 1;
+                auto rbeg = mLast - 1;
+                auto idest = rbeg + count;
+                auto isrc = rbeg;
+                auto dest_1 = it + count - 1;
+
+                for (; idest != dest_1; idest--, isrc--)
+                    new (idest) T(std::move(*isrc));
+            }
+
+            // memmove(it + 1, it, (mLast - it) * sizeof(T));
+            ++mLast;
+
+            new (it) T(v);
+            return it;
+        }
+
+        inline iterator Insert(const_iterator pos, T &&v)
+        {
+            size_t idx = GetIndex(pos);
+            ReallocIfEnd();
+            pos = mBegin + idx;
+
+            auto it = Unbound(pos).Raw();
+
+            {
+                size_t count = 1;
+                auto rbeg = mLast - 1;
+                auto idest = rbeg + count;
+                auto isrc = rbeg;
+                auto dest_1 = it + count - 1;
+
+                for (; idest != dest_1; idest--, isrc--)
+                    new (idest) T(std::move(*isrc));
+            }
+
+            // memmove(it + 1, it, (mLast - it) * sizeof(T));
+            ++mLast;
+
+            new (it) T(std::move(v));
+            return it;
+        }
+
+        inline iterator Insert(const_iterator pos, size_type count, const_reference value)
+        {
+            size_t idx = GetIndex(pos);
+            RequestFreeSpace(count);
+            pos = mBegin + idx;
+
+            auto it = Unbound(pos).Raw();
+            {
+                auto rbeg = mLast - 1;
+                auto idest = rbeg + count;
+                auto isrc = rbeg;
+                auto dest_1 = it + count - 1;
+
+                for (; idest != dest_1; idest--, isrc--)
+                    new (idest) T(std::move(*isrc));
+            }
+            // memmove(it + count, it, (mLast - it) * sizeof(T));
+            mLast += count;
+
+            CopyConstructElements(pos, pos + count, value);
+            return it;
+        }
+
+        inline iterator Insert(const_iterator pos, SpanT right) { return Insert(pos, right.Begin(), right.End()); }
+        inline iterator Insert(const_iterator pos, InitializerListT right) { return Insert(pos, right.begin(), right.end()); }
+
+        template <class InputIt>
+        inline iterator Insert(const_iterator pos, InputIt first, InputIt last)
+        {
+            size_t count = last - first;
+
+            size_t idx = GetIndex(pos);
+            RequestFreeSpace(count);
+            pos = mBegin + idx;
+
+            auto it = Unbound(pos).Raw();
+
+            {
+                auto rbeg = mLast - 1;
+                auto idest = rbeg + count;
+                auto isrc = rbeg;
+                auto dest_1 = it + count - 1;
+
+                for (; idest != dest_1; idest--, isrc--)
+                    new (idest) T(std::move(*isrc));
+            }
+
+            // memmove(it + count, it, (mLast - it) * sizeof(T));
+            mLast += count;
+
+            CopyConstructElements(&(*first), &(*first) + count, Unbound(pos).Raw());
+            return it;
+        }
+
+        inline iterator InsertBack(const_reference v) { return Insert(End(), v); }
+        inline iterator InsertBack(T &&v) { return Insert(End(), std::move(v)); }
+        inline iterator InsertBack(size_type count, const_reference value) { return Insert(End(), count, value); }
+        inline iterator InsertBack(SpanT right) { return Insert(End(), right); }
+        inline iterator InsertBack(const_iterator pos, InitializerListT right) { return Insert(End(), right.begin(), right.end()); }
+        template <class InputIt>
+        inline iterator InsertBack(InputIt first, InputIt last)
+        {
+            return Insert(End(), first, last);
+        }
+
+        inline iterator InsertFront(const_reference v) { return Insert(Begin(), v); }
+        inline iterator InsertFront(T &&v) { return Insert(Begin(), std::move(v)); }
+        inline iterator InsertFront(size_type count, const_reference value) { return Insert(Begin(), count, value); }
+        inline iterator InsertFront(SpanT right) { return Insert(Begin(), right); }
+        inline iterator InsertFront(const_iterator pos, InitializerListT right) { return Insert(Begin(), right.begin(), right.end()); }
+        template <class InputIt>
+        inline iterator InsertFront(InputIt first, InputIt last)
+        {
+            return Insert(Begin(), first, last);
+        }
+        template <class... Args>
+        inline iterator Emplace(const_iterator pos, Args &&...args)
+        {
+            size_t count = 1;
+
+            size_t idx = GetIndex(pos);
+            RequestFreeSpace(count);
+            pos = mBegin + idx;
+
+            auto it = Unbound(pos).Raw();
+
+            // printf("\n[Emplace]\nsizeof(T): %d\nindex: %d\nit: %p\nmBegin: %p\nmLast: %p\nmEnd: %p\n"
+            //        "size: %d\nsize_in_bytes: %d\ncapacity: %d\ncapacity_in_bytes: %d\n"
+            //        "available: %d\navailable_in_bytes: %d\n",
+            //        int(sizeof(T)), int(idx), it, mBegin, mLast, mEnd, int(size()), int(size_in_bytes()), int(capacity()), int(capacity_in_bytes()),
+            //        int(available()), int(available_in_bytes()));
+
+            if constexpr (kRawMoveable)
+            {
+                memmove(it + 1, it, (mLast - it) * sizeof(T));
+            }
+            else
+            {
+                size_t moveCount = (mLast - it);
+
+                auto dest = it + 1;
+                auto src = it;
+
+                auto idest = (dest + moveCount) - 1;
+                auto isrc = (src + moveCount) - 1;
+
+                for (; idest != dest - 1; idest--, isrc--)
                 {
-                    Erase(it);
-                    return;
+                    new (idest) T(std::move(*isrc));
                 }
             }
+
+            new (it) T(args...);
+            mLast += 1;
+
+            return it;
+        }
+        template <class... Args>
+        inline reference EmplaceBack(Args &&...args)
+        {
+            return *Emplace(End(), args...);
+        }
+        template <class... Args>
+        inline reference EmplaceFront(Args &&...args)
+        {
+            return *Emplace(Begin(), args...);
         }
 
-        inline void FastRemove(const T &elem)
-        {
-            for (auto it = mBegin; it != mLast; it++)
-            {
-                if (*it == elem)
-                {
-                    FastErase(it);
-                    return;
-                }
-            }
-        }
+        inline SelfT &Append(SpanT right) { return InsertBack(right), *this; }
 
         inline T &Front()
         {
             assert(Size() && "Attempt get out of range element in List<T>::Front");
-            return *Begin();
+            return *mBegin;
         }
         inline const T &Front() const
         {
             assert(Size() && "Attempt get out of range element in List<T>::Front");
-            return *Begin();
+            return *mBegin;
         }
         inline T &Back()
         {
             assert(Size() && "Attempt get out of range element in List<T>::Back");
-            return *ReverseBegin();
+            return *(mLast - 1);
         }
         inline const T &Back() const
         {
             assert(Size() && "Attempt get out of range element in List<T>::Back");
-            return *ReverseBegin();
+            return *(mLast - 1);
         }
 
         inline void PushBack(const T &o)
         {
-            if (mLast == mEnd)
-            {
-                size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, sizeInBytes);
-            }
-
+            ReallocIfEnd();
             new (mLast) T(o);
             mLast++;
         }
 
         inline void PushBack(T &&o)
         {
-            if (mLast == mEnd)
-            {
-                size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, sizeInBytes);
-            }
-
+            ReallocIfEnd();
             new (mLast) T(std::move(o));
             mLast++;
         }
@@ -315,31 +443,44 @@ namespace ulib
 
         inline T &At(size_t i)
         {
-            assert(Size() > i && "Attempt get out of range element in List<T>::At");
+            if (i >= Size())
+                throw std::out_of_range{"Attempt get out of range element in List<T>::At"};
+
             return mBegin[i];
         }
         inline const T &At(size_t i) const
         {
-            assert(Size() > i && "Attempt get out of range element in List<T>::At");
+            if (i >= Size())
+                throw std::out_of_range{"Attempt get out of range element in List<T>::At"};
             return mBegin[i];
         }
 
-        inline void Erase(iterator it)
+        inline iterator Erase(const_iterator it)
         {
             assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::Erase");
             assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::Erase");
 
             it.ptr->~T();
-            T *from = it.ptr + 1;
-            ::memcpy(it.ptr, from, mLastB - (uchar *)from);
+            auto from = it + 1;
+            ::memcpy(pointer(it.raw()), from.raw(), mLastB - (uchar *)from.raw());
             mLast--;
+            return pointer(it.raw());
         }
 
-        inline void Erase(size_t i) { Erase(mBegin + i); }
-        inline size_t Index(const_iterator it) const { return size_t(it.ptr - mBegin); }
-        inline size_t Index(iterator it) const { return size_t(it.ptr - mBegin); }
+        inline iterator Erase(size_type i) { return Erase(mBegin + i); }
+        inline iterator Erase(const_iterator first, const_iterator last)
+        {
+            for (auto it = first; it != last; it++)
+                it->~T();
 
-        inline void FastErase(iterator it)
+            auto from = last;
+            ::memcpy(pointer(first.raw()), last.raw(), mLastB - (uchar *)last.raw());
+
+            mLast -= last - first;
+            return pointer(first.raw());
+        }
+
+        inline iterator FastErase(const_iterator it)
         {
             assert(it.ptr >= mBegin && "Attempt erase out of range element in List<T>::FastErase");
             assert(it.ptr < mLast && "Attempt erase out of range element in List<T>::FastErase");
@@ -353,24 +494,37 @@ namespace ulib
                 // new (it.ptr) T(std::move(*pBack));
 
                 // right version
-                memcpy(it.ptr, pBack, sizeof(T));
+                memcpy(pointer(it.ptr), pBack, sizeof(T));
             }
 
             mLast--;
+            return pointer(it.raw());
         }
 
-        inline void FastErase(size_t i) { FastErase(mBegin + i); }
+        inline iterator FastErase(size_type i) { return FastErase(mBegin + i); }
+
+        inline bool Remove(const_reference elem)
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                if (*it == elem)
+                    return Erase(it), true;
+            return false;
+        }
+
+        inline bool FastRemove(const_reference elem)
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                if (*it == elem)
+                    return FastErase(it), true;
+            return false;
+        }
 
         inline void Clear()
         {
             for (T *ptr = mBegin; ptr != mLast; ptr++)
                 ptr->~T();
-
             mLast = mBegin;
         }
-
-        inline T &operator[](size_t i) { return At(i); }
-        inline const T &operator[](size_t i) const { return At(i); }
 
         inline void PopBack()
         {
@@ -380,89 +534,325 @@ namespace ulib
             mLast->~T();
         }
 
+        inline void PopBack(size_type count)
+        {
+            assert(Size() >= count && "Attempt pop element in empty list in List<T>::Pop");
+
+            for (auto i = 0; i != count; i++)
+            {
+                mLast--;
+                mLast->~T();
+            }
+        }
+
         inline void Pop() { PopBack(); }
 
         inline void Reserve(size_t s)
         {
-            if (Capacity() >= s)
+            size_type curr = CapacityInBytes(), required = s * sizeof(T);
+            if (curr >= required)
                 return;
 
-            uchar *newMem = (uchar *)AllocatorT::Alloc(s);
-            assert(newMem && "Out of memory in List<T>::Reserve");
-
-            T *oldBegin = mBegin;
-            size_t oldSizeInBytes = SizeInBytes();
-
-            mEndB = (mLastB = mBeginB = newMem) + s;
-            mLastB += oldSizeInBytes;
-
-            ::memcpy(mBegin, oldBegin, oldSizeInBytes);
-            AllocatorT::Free(oldBegin);
+            ConcreteReallocateMemory(curr, required);
         }
 
-        inline T *Data() { return mBegin; }
-        inline const T *Data() const { return mBegin; }
-        inline iterator begin() { return mBegin; }
-        inline iterator end() { return mLast; }
-        inline const_iterator begin() const { return mBegin; }
-        inline const_iterator end() const { return mLast; }
-        inline size_t size() const { return Size(); }
-        inline size_t capacity() const { return Capacity(); }
-        inline T *data() { return Data(); }
-        inline const T *data() const { return Data(); }
-        inline void erase(iterator it) { Erase(it); }
+        inline SpanT ToSpan() const { return SpanT{mBegin, mLast}; }
+        inline bool Compare(SpanT right) const { return ToSpan().Compare(right); }
+        inline size_type Find(const_reference v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
+        inline size_type Find(SpanT v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
+        inline size_type ReverseFind(const_reference v, size_type pos = 0) const { return ToSpan().ReverseFind(v, pos); }
+        inline size_type ReverseFind(SpanT v, size_type pos = 0) const { return ToSpan().ReverseFind(v, pos); }
+        inline bool StartsWith(const_reference v) const { return ToSpan().StartsWith(v); }
+        inline bool EndsWith(const_reference v) const { return ToSpan().EndsWith(v); }
+        inline bool Contains(const_reference v) const { return ToSpan().Contains(v); }
+        inline bool StartsWith(SpanT v) const { return ToSpan().StartsWith(v); }
+        inline bool EndsWith(SpanT v) const { return ToSpan().EndsWith(v); }
+        inline bool Contains(SpanT v) const { return ToSpan().Contains(v); }
+        inline SpanT SubSpan(size_type pos, size_type n = npos) const { return ToSpan().SubSpan(pos, n); }
+
+        inline size_type GetIndex(const_iterator it) const { return size_type(it.ptr - mBegin); }
+        inline iterator GetIterator(size_type i) const { return mBegin + i; }
+
+        inline SplitViewT Split(SpanT sep) const { return SplitViewT{*this, sep}; }
+        inline BufferView Raw() const { return BufferView{mBeginB, mLastB}; }
+
+        // operators
+
+        inline SelfT &operator=(SpanT right) { return Assign(right), *this; }
+        inline SelfT &operator=(const SelfT &right) { return Assign(right), *this; }
+        inline SelfT &operator=(SelfT &&source) { return Assign(std::move(source)), *this; }
+
+        inline bool operator==(const SelfT &right) const { return Compare(right); }
+        inline bool operator==(SpanT right) const { return Compare(right); }
+
+        inline bool operator!=(const SelfT &right) const { return !Compare(right); }
+        inline bool operator!=(SpanT right) const { return !Compare(right); }
+
+        inline T &operator[](size_t i) { return mBegin[i]; }
+        inline const T &operator[](size_t i) const { return mBegin[i]; }
+
+        inline SelfT operator+(SpanT right) const { return AdditionImpl(right); }
+        inline SelfT &operator+=(SpanT right) { return Append(right); }
+        // container aliases
+
+        inline void assign(SpanT right) { return Assign(right); }
+        inline void assign(List<T, AllocatorT> &&source) { return Assign(std::move(source)); }
+        inline void resize(size_t newSize) { return Resize(newSize); }
+        inline void resize(size_t newSize, const_reference value) { return Resize(newSize, value); }
+
+        inline iterator insert(const_iterator pos, const_reference v) { return Insert(pos, v); }
+        inline iterator insert(const_iterator pos, T &&v) { return Insert(pos, std::move(v)); }
+        inline iterator insert(const_iterator pos, size_type count, const_reference value) { return Insert(pos, count, value); }
+        inline iterator insert(const_iterator pos, SpanT right) { return Insert(pos, right); }
+        inline iterator insert(const_iterator pos, InitializerListT right) { return Insert(pos, right); }
+        template <class InputIt>
+        inline iterator insert(const_iterator pos, InputIt first, InputIt last)
+        {
+            return Insert(pos, first, last);
+        }
+
+        inline iterator insert_back(const_reference v) { return InsertBack(v); }
+        inline iterator insert_back(T &&v) { return InsertBack(std::move(v)); }
+        inline iterator insert_back(size_type count, const_reference value) { return InsertBack(count, value); }
+        inline iterator insert_back(SpanT right) { return Insert(right); }
+        inline iterator insert_back(InitializerListT right) { return InsertBack(right); }
+        template <class InputIt>
+        inline iterator insert_back(InputIt first, InputIt last)
+        {
+            return Insert(first, last);
+        }
+
+        inline iterator insert_front(const_reference v) { return FrontInsert(v); }
+        inline iterator insert_front(T &&v) { return InsertFront(std::move(v)); }
+        inline iterator insert_front(size_type count, const_reference value) { return InsertFront(count, value); }
+        inline iterator insert_front(SpanT right) { return InsertFront(right); }
+        inline iterator insert_front(InitializerListT right) { return InsertFront(right); }
+        template <class InputIt>
+        inline iterator insert_front(InputIt first, InputIt last)
+        {
+            return Insert(first, last);
+        }
+
+        template <class... Args>
+        inline iterator emplace(const_iterator pos, Args &&...args)
+        {
+            return Emplace(pos, args...);
+        }
+        template <class... Args>
+        inline reference emplace_back(Args &&...args)
+        {
+            return EmplaceBack(args...);
+        }
+        template <class... Args>
+        inline reference emplace_front(Args &&...args)
+        {
+            return EmplaceFront(args...);
+        }
+        inline SelfT &append(SpanT right) { return Append(right); }
+        inline SelfT &append(InitializerListT right) { return Append(right); }
+
+        inline iterator erase(const_iterator it) { return Erase(it); }
+        inline iterator erase(size_type i) { return Erase(i); }
+        inline iterator erase(const_iterator first, const_iterator last) { return Erase(first, last); }
+        inline iterator ferase(const_iterator it) { return FastErase(it); }
+        inline iterator ferase(size_type i) { return FastErase(i); }
+        inline bool remove(const_reference elem) { return Remove(elem); }
+        inline bool fremove(const_reference elem) { return Remove(elem); }
+
+        inline size_type capacity() const { return Capacity(); }
+        inline size_type capacity_in_bytes() const { return CapacityInBytes(); }
+        inline size_type available() const { return Available(); }
+        inline size_type available_in_bytes() const { return AvailableInBytes(); }
         inline void push_back(const T &o) { PushBack(o); }
         inline void push_back(T &&o) { PushBack(std::move(o)); }
+        inline void clear() { return Clear(); };
         inline void pop_back() { PopBack(); }
+        inline void pop_back(size_type count) { PopBack(count); }
+        inline void pop() { Pop(); }
+
+        // general aliases
+
+        inline iterator begin() { return mBegin; }
+        inline iterator end() { return mLast; }
+        inline pointer data() { return Data(); }
+        inline reverse_iterator rbegin() { return mLast - 1; }
+        inline reverse_iterator rend() { return mBegin - 1; }
+        inline reference at(size_type idx) { return At(idx); }
+        inline reference front() { return Front(); }
+        inline reference back() { return Back(); }
+
+        // view aliases
+
+        inline const_pointer data() const { return Data(); }
+        inline const_iterator begin() const { return mBegin; }
+        inline const_iterator end() const { return mLast; }
+        inline const_reverse_iterator rbegin() const { return mLast - 1; }
+        inline const_reverse_iterator rend() const { return mBegin - 1; }
+        inline ReverseT reverse() const { return Reverse(); }
         inline bool empty() const { return Empty(); }
-        inline T &front() { return Front(); }
-        inline const T &front() const { return Front(); }
-        inline T &back() { return Back(); }
-        inline const T &back() const { return Back(); }
-        inline T &at(size_t i) { return At(i); }
-        inline const T &at(size_t i) const { return At(i); }
+        inline size_type size() const { return Size(); }
+        inline size_type size_in_bytes() const { return SizeInBytes(); }
+        inline size_type length() const { return Length(); }
+        inline const_reference at(size_type idx) const { return At(idx); }
+        inline const_reference front() const { return Front(); }
+        inline const_reference back() const { return Back(); }
+        inline SpanT to_span() const { return ToSpan(); }
+        inline bool compare(SpanT right) const { return Compare(right); }
+        inline size_type find(const_reference v, size_type pos = 0) const { return Find(v, pos); }
+        inline size_type find(SpanT v, size_type pos = 0) const { return Find(v, pos); }
+        inline size_type rfind(const_reference v, size_type pos = 0) const { return ReverseFind(v, pos); }
+        inline size_type rfind(SpanT v, size_type pos = 0) const { return ReverseFind(v, pos); }
+        inline bool starts_with(const_reference v) const { return StartsWith(v); }
+        inline bool ends_with(const_reference v) const { return EndsWith(v); }
+        inline bool contains(const_reference v) const { return Contains(v); }
+        inline bool starts_with(SpanT v) const { return StartsWith(v); }
+        inline bool ends_with(SpanT v) const { return EndsWith(v); }
+        inline bool contains(SpanT v) const { return Contains(v); }
+        inline SelfT subspan(size_type pos, size_type n = npos) const { return SubSpan(pos, n); }
+        inline size_type iter_index(const_iterator it) const { return GetIndex(it); }
+        inline const_iterator at_index(size_type i) const { return GetIterator(i); }
+        inline SplitViewT split(InitializerListT sep) const { return SplitViewT{*this, sep}; }
+        inline SplitViewT split(SpanT sep) const { return SplitViewT{*this, sep}; }
+        inline BufferView raw() const { return BufferView{mBegin, mLast}; }
 
     private:
-        inline void ReallocateMemory(size_t currentSizeInBytes, size_t additionalSizeInBytes)
+        inline void ConcreteReallocateMemory(size_t currentSizeInBytes, size_t reqSizeInBytes)
         {
             size_t oldSizeInBytes = currentSizeInBytes;
-            size_t allocSizeInBytes = oldSizeInBytes + additionalSizeInBytes;
-            T *oldBegin = mBegin;
+            size_t allocSizeInBytes = reqSizeInBytes;
+            pointer oldBegin = mBegin;
 
-            mEndB = (mLastB = mBeginB = (uchar *)AllocatorT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
-
-            assert(mBegin && "Out of memory in List<T>::ReallocateMemory");
-
+            mEndB = (mLastB = mBeginB = (uchar *)ResourceT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
             mLastB += oldSizeInBytes;
 
-            ::memcpy(mBegin, oldBegin, oldSizeInBytes);
-            AllocatorT::Free(oldBegin);
-        }
-
-        inline void CopyInit(const T *source, size_t dataSize)
-        {
-            mEndB = mLastB = (mBeginB = (uchar *)AllocatorT::Alloc(dataSize)) + dataSize;
-            assert(mBegin && "Out of memory in List<T>::List(const List&)");
-
-            if constexpr (kTrivally)
+            if constexpr (kRawMoveable)
             {
-                memcpy(mBeginB, source, dataSize);
+                ::memcpy(mBegin, oldBegin, oldSizeInBytes);
             }
             else
             {
-                T *ptr = mBegin;
-                const T *ptr2 = source;
+                pointer srcIt = oldBegin;
+                for (auto it = mBegin; it != mLast; ++it, ++srcIt)
+                    new (it) T(std::move(*srcIt));
+            }
 
-                for (; ptr != mLast; ptr++, ptr2++)
-                    new (ptr) T(*ptr2);
+            ResourceT::Free(oldBegin);
+        }
+
+        inline void ReallocateMemory(size_t currentSizeInBytes, size_t additionalSizeInBytes)
+        {
+            ConcreteReallocateMemory(currentSizeInBytes, currentSizeInBytes + additionalSizeInBytes);
+        }
+
+        inline void ReallocIfEnd()
+        {
+            if (mLast == mEnd)
+            {
+                size_t sizeInBytes = SizeInBytes();
+                ReallocateMemory(sizeInBytes, sizeInBytes);
             }
         }
 
-        template <class ListT>
-        inline void CopyInit(const ListT &source)
+        inline void ReallocIfNeeded(size_t reqSizeInBytes)
         {
-            CopyInit(source.mBegin, source.SizeInBytes());
+            size_t curr = SizeInBytes();
+            if (curr < reqSizeInBytes)
+            {
+                ReallocateMemory(curr, reqSizeInBytes);
+            }
         }
+
+        inline void RequestFreeSpaceB(size_t reqFreeSpace)
+        {
+            size_t curr = mEndB - mLastB;
+            if (curr < reqFreeSpace)
+            {
+                ReallocateMemory(SizeInBytes(), reqFreeSpace);
+            }
+        }
+
+        inline void RequestFreeSpace(size_t reqFreeSpace) { RequestFreeSpaceB(reqFreeSpace * sizeof(T)); }
+
+        inline void CopyConstructElementsB(pointer dest, const_pointer src, size_type bcount)
+        {
+            if (kTrivial)
+            {
+                memcpy(dest, src, bcount);
+            }
+            else
+            {
+                auto e = pointer((uchar *)dest + bcount);
+                auto s = src;
+                for (auto it = dest; it != e; it++, src++)
+                    new (it) T(*src);
+            }
+        }
+        inline void CopyConstructElements(pointer dest, const_pointer src, size_type count)
+        {
+            return CopyConstructElementsB(dest, src, count * sizeof(T));
+        }
+        inline void CopyConstructElements(const_pointer first, const_pointer last, pointer dest)
+        {
+            CopyConstructElements(dest, first, (last - first));
+        }
+
+        inline void SetupViaCapacityB(size_type bcount) { mEndB = (mLastB = mBeginB = (uchar *)ResourceT::Alloc(bcount)) + bcount; }
+        inline void SetupViaSizeB(size_type bcount) { mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(bcount)) + bcount; }
+        inline void SetupViaSizeAndConstructB(size_type bcount)
+        {
+            SetupViaSizeB(bcount);
+            if constexpr (!kTrivial)
+                for (auto it = mBegin; it != mLast; it++)
+                    new (it) T();
+        }
+        inline void SetupWithCopyConstructB(const_pointer src, size_type bcount)
+        {
+            SetupViaSizeB(bcount);
+            CopyConstructElementsB(mBegin, src, bcount);
+        }
+
+        inline void SetupViaCapacity(size_type count) { SetupViaCapacityB(count * sizeof(T)); }
+        inline void SetupWithCopyConstruct(const_pointer src, size_type count) { SetupWithCopyConstructB(src, count * sizeof(T)); }
+        inline void SetupWithCopyConstruct(const_pointer first, const_pointer last) { SetupWithCopyConstructB(first, (last - first) * sizeof(T)); }
+        inline void SetupViaSizeAndConstruct(size_type count) { return SetupViaSizeAndConstructB(count * sizeof(T)); }
+
+        inline SelfT AdditionImpl(SpanT right) const
+        {
+            SelfT result{args::Capacity(Size() + right.Size())};
+
+            result.CopyConstructElements(mBegin, mLast, result.mBegin);
+            result.CopyConstructElements(right.Begin().Raw(), right.End().Raw(), result.mBegin + Size());
+
+            result.mLast = result.mEnd;
+
+            return result;
+        }
+
+        // inline void CopyInit(const_pointer source, size_t dataSize)
+        // {
+        //     mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(dataSize)) + dataSize;
+
+        //     if constexpr (kTrivial)
+        //     {
+        //         memcpy(mBeginB, source, dataSize);
+        //     }
+        //     else
+        //     {
+        //         T *ptr = mBegin;
+        //         const T *ptr2 = source;
+
+        //         for (; ptr != mLast; ptr++, ptr2++)
+        //             new (ptr) T(*ptr2);
+        //     }
+        // }
+
+        inline iterator Unbound(const_iterator it) { return pointer(it.raw()); }
+
+        // template <class ListT>
+        // inline void CopyInit(const ListT &source)
+        // {
+        //     CopyInit(source.mBegin, source.SizeInBytes());
+        // }
 
         union {
             struct
@@ -481,8 +871,13 @@ namespace ulib
         };
     };
 
-    template<class T, class AllocatorTy = DefaultAllocator>
+    template <class T, class AllocatorTy = DefaultAllocator>
     using list = List<T, AllocatorTy>;
+
+    template<class AllocatorT>
+    using BasicBuffer = List<uchar, AllocatorT>;
+    using Buffer = BasicBuffer<DefaultAllocator>;
+    using buffer = Buffer;
 
     // use for Cont<T*> where T* allocated as new T
     template <class ContT>

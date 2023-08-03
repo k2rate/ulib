@@ -9,6 +9,12 @@
 
 TEST(StdMapStringTest, Constructs)
 {
+#ifdef __cpp_char8_t
+    using std_u8string = std::u8string;
+#else
+    using std_u8string = std::string;
+#endif
+
     std::map<ulib::string, ulib::string> map1;
     std::map<ulib::wstring, ulib::wstring> map2;
     std::map<ulib::u8string, ulib::u8string> map3;
@@ -17,7 +23,7 @@ TEST(StdMapStringTest, Constructs)
 
     std::map<ulib::string, std::string> map11;
     std::map<ulib::wstring, std::wstring> map12;
-    std::map<ulib::u8string, std::u8string> map13;
+    std::map<ulib::u8string, std_u8string> map13;
     std::map<ulib::u16string, std::u16string> map14;
     std::map<ulib::u32string, std::u32string> map15;
 
@@ -29,13 +35,13 @@ TEST(StdMapStringTest, Constructs)
 
     std::map<std::string, ulib::string> map31;
     std::map<std::wstring, ulib::wstring> map32;
-    std::map<std::u8string, ulib::u8string> map33;
+    std::map<std_u8string, ulib::u8string> map33;
     std::map<std::u16string, ulib::u16string> map34;
     std::map<std::u32string, ulib::u32string> map35;
 
     std::map<std::string, ulib::string> map41;
     std::map<std::wstring, ulib::u8string> map42;
-    std::map<std::u8string, std::u16string> map43;
+    std::map<std_u8string, std::u16string> map43;
     std::map<std::u16string, ulib::string> map44;
     std::map<std::u32string, ulib::u8string> map45;
 }

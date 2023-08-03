@@ -5,8 +5,7 @@
 #include <iterator>
 
 #include <ulib/containers/tags.h>
-
-#include "container.h"
+#include <ulib/typetraits/ucontainer.h>
 
 namespace ulib
 {

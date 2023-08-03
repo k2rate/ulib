@@ -19,7 +19,7 @@ namespace ulib
         EncodedString<ToEncodingT, AllocatorT> result(str.size() * 4, al);
 
         auto end = ulib::ConvertChars<FromEncodingT, ToEncodingT>(str.data(), str.data() + str.size(), result.data());
-        result.SetSize(end - result.data());
+        result.resize(end - result.data());
 
         return result;
     }
@@ -82,7 +82,7 @@ namespace ulib
         }
     }
 
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 
     template <class EncodingT, class AllocatorT = DefaultAllocator, class CharT, class SourceEncodingT = LiteralEncodingT<CharT>,
               std::enable_if_t<!std::is_same_v<SourceEncodingT, void>, bool> = true>

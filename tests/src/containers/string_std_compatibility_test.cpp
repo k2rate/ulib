@@ -6,10 +6,17 @@
 #include <ulib/u8.h>
 #include <ulib/wchar.h>
 
+#ifdef __cpp_char8_t
+using std_u8string = std::u8string;
+#else
+using std_u8string = std::string;
+#endif
+
 TEST(StringStdCompatibilityTest, Equals)
 {
+
     std::string std_raw_str = "hello";
-    std::u8string std_u8_str = u8"hello";
+    std_u8string std_u8_str = u8"hello";
     std::u16string std_u16_str = u"hello";
     std::u32string std_u32_str = U"hello";
     std::wstring std_w_str = L"hello";
@@ -36,7 +43,7 @@ TEST(StringStdCompatibilityTest, Equals)
 TEST(StringStdCompatibilityTest, NotEquals)
 {
     std::string std_raw_str = "hello";
-    std::u8string std_u8_str = u8"hello";
+    std_u8string std_u8_str = u8"hello";
     std::u16string std_u16_str = u"hello";
     std::u32string std_u32_str = U"hello";
     std::wstring std_w_str = L"hello";

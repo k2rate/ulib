@@ -121,3 +121,14 @@ TEST(FeaturesTest, SplitByIndex)
     ASSERT_THROW(split1[2], std::out_of_range);
     ASSERT_THROW(split2[2], std::out_of_range);
 }
+
+TEST(FeaturesTest, Chars)
+{
+    ulib::List<ulib::string> words;
+    for (auto word : ulib::split("full plak", " "))
+        words.Add(word);
+    
+    ASSERT_EQ(words.Size(), 2);
+    ASSERT_EQ(words[0], "full");
+    ASSERT_EQ(words[1], "plak");
+}

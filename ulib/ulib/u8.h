@@ -7,7 +7,7 @@
 #include <ulib/encodings/literalencoding.h>
 #include <ulib/encodings/convert.h>
 
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 #include <string_view>
 #include <string>
 #endif
@@ -27,7 +27,7 @@ namespace ulib
         return Convert<Utf8>(str);
     }
 
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 
     template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
               std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>

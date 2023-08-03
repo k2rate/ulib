@@ -1,9 +1,6 @@
 type: executable
 name: .playground
 
-platform.!windows:
-  enabled: false
-
 load-context.!standalone:
   enabled: false
 
@@ -11,12 +8,24 @@ deps:
   - ulib
 # - conan:mimalloc@2.0.9
 
-cxx-build-flags:
-  compiler:
-    - "/utf-8"
-  linker:
-    - "/DEBUG"
+cxxenv.msvc:
+  cxx-build-flags:
+        compiler:
+          - "/utf-8"
+        linker:
+          - "/DEBUG"
+  config.release:
+    cxx-build-flags:
+      compiler:
+        - "/GL /O2 /Oi /Gy"
+      linker:
+        - "/LTCG /OPT:REF /OPT:ICF"
 
-cxx-link-deps:
-  - "user32.lib"
-  - "Advapi32.lib"
+  cxx-link-deps:
+    - "user32.lib"
+    - "Advapi32.lib"
+
+# platform.!windows:
+#   enabled: false
+
+enabled: false

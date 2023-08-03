@@ -1,10 +1,6 @@
 #include <gtest/gtest.h>
-#include <ulib/containers/span.h>
 
-#include <span>
-#include <vector>
-#include <ulib/list.h>
-#include <string>
+#include <ulib/span.h>
 
 TEST(SpanTest, Empty)
 {
@@ -80,6 +76,39 @@ TEST(SpanTest, Compare)
 
         ASSERT_TRUE(ints.compare(ints2));
         ASSERT_EQ(ints, ints2);
+    }
+
+    {
+        int buf[5] = {0, 1, 2, 3, 4};
+        ulib::span<int> ints(buf);
+
+        int buf2[5] = {1, 2, 3};
+        ulib::span<int> ints2(buf2);
+
+        ASSERT_FALSE(ints.compare(ints2));
+        ASSERT_NE(ints, ints2);
+    }
+
+    {
+        int buf[5] = {0, 1, 2, 3, 4};
+        ulib::span<int> ints(buf);
+
+        int buf2[5] = {0, 1, 2, 3};
+        ulib::span<int> ints2(buf2);
+
+        ASSERT_FALSE(ints.compare(ints2));
+        ASSERT_NE(ints, ints2);
+    }
+
+    {
+        int buf[5] = {0, 1, 2, 3, 4};
+        ulib::span<int> ints(buf);
+
+        int buf2[5] = {3, 4};
+        ulib::span<int> ints2(buf2);
+
+        ASSERT_FALSE(ints.compare(ints2));
+        ASSERT_NE(ints, ints2);
     }
 }
 
@@ -221,4 +250,54 @@ TEST(SpanTest, At)
     ASSERT_NE(ints.at(4), 2);
 
     ASSERT_THROW(ints.at(7), std::out_of_range);
+}
+
+TEST(SpanTest, ReverseIterator)
+{
+    int buf[5] = {0, 1, 2, 3, 4};
+    ulib::span<int> ints(buf);
+
+    {
+        size_t vv = 4;
+        for (auto it = ints.rbegin(); it != ints.rend(); it++)
+        {
+            ASSERT_EQ(*it, vv);
+            vv--;
+        }
+    }
+
+    {
+        size_t vv = 4;
+        for (auto &obj : ints.reverse())
+        {
+            ASSERT_EQ(obj, vv);
+            vv--;
+        }
+    }
+}
+
+TEST(SpanTest, Assignment)
+{
+    int buf[5] = {0, 1, 2, 3, 4};
+    ulib::span<int> ints(buf);
+    ulib::span<int> ints2;
+
+    ints2 = buf;
+    ASSERT_TRUE(ints2 == buf);
+    ASSERT_TRUE(ints2 == ints);
+
+    ints2 = ints;
+    ASSERT_TRUE(ints2 == buf);
+    ASSERT_TRUE(ints2 == ints);
+}
+
+TEST(SpanTest, SubSpan)
+{
+    int buf[5] = {0, 1, 2, 3, 4};
+    int buf2[3] = {1, 2, 3};
+
+    ulib::span<int> ints(buf);
+    auto ints2 = ints.subspan(1, 3);
+
+    ASSERT_TRUE(ints2 == buf2);
 }

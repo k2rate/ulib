@@ -3,8 +3,16 @@ name: .tests
 
 cxxenv.msvc:
   cxx-build-flags:
-    compiler:
-      - "/utf-8"
+        compiler:
+          - "/utf-8"
+        linker:
+          - "/DEBUG"
+  config.release:
+    cxx-build-flags:
+      compiler:
+        - "/GL /O2 /Oi /Gy"
+      linker:
+        - "/LTCG /OPT:REF /OPT:ICF"
 
 load-context.!standalone:
   enabled: false
@@ -23,3 +31,5 @@ platform.!windows:
 platform.linux|osx:
   cxx-global-link-deps:
     - pthread
+
+# cxx-standard: 2a

@@ -1,13 +1,14 @@
 #include <type_traits>
 
+#include <string>
 #include <ulib/encodings/literalencoding.h>
+#include <ulib/list.h>
 #include <ulib/split.h>
 #include <ulib/string.h>
 #include <ulib/u16.h>
 #include <ulib/u32.h>
 #include <ulib/u8.h>
 #include <ulib/wchar.h>
-#include <ulib/list.h>
 
 #include <gtest/gtest.h>
 
@@ -32,6 +33,8 @@ TEST(StringTest, ConstructsFromStdString)
 
     ASSERT_EQ(str, ulib::String(source.c_str()));
 }
+
+#include <typeinfo>
 
 TEST(StringTest, ConstructsFromStringView)
 {
@@ -135,9 +138,6 @@ TEST(StringTest, Addition)
 
 TEST(StringTest, Compares)
 {
-    // char8 kf[] = u8"hello";
-    // char8 ks[] = u8"world";
-
     auto test = [](const auto *kf, const auto *ks) {
         using EncodingT = ulib::LiteralEncodingT<std::remove_reference_t<decltype(*kf)>>;
         using StringViewT = ulib::EncodedStringView<EncodingT>;
@@ -150,6 +150,7 @@ TEST(StringTest, Compares)
         StringT s1 = ks;
         StringT s2 = ks;
         StringViewT s3 = ks;
+
 
         ASSERT_EQ(f1, f2);
         ASSERT_EQ(f2, f1);
@@ -418,9 +419,9 @@ TEST(StringTest, Length)
 {
     char kStr[] = "fullest ky";
     wchar_t kWstr[] = L"fullest ky";
-    char8_t kU8str[] = u8"полный ку";
-    char16_t kU16str[] = u"полный ку";
-    char32_t kU32str[] = U"полный ку";
+    char8 kU8str[] = u8"полный ку";
+    char16 kU16str[] = u"полный ку";
+    char32 kU32str[] = U"полный ку";
 
     ulib::string str = kStr;
     ulib::wstring wstr = kWstr;
@@ -485,7 +486,6 @@ TEST(StringTest, Reserve)
     ulib::u16string u16str;
 
     // TODO: Concretize starting capacity
-
 
     auto test = [&](size_t size) {
         u8str.reserve(size);

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "ulib/encodings/type.h"
+#include <ulib/encodings/type.h>
 #include <stdexcept>
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
 #include <ulib/encodings/literalencoding.h>
+#include <ulib/cstrlen.h>
 
 namespace ulib
 {
@@ -106,8 +107,8 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
-        size_t s2 = CStringLengthHack(sep);
+        size_t s1 = cstrlen(str);
+        size_t s2 = cstrlen(sep);
 
         return StartsWithImpl<CH>(str, str + s1, VC(sep), VC(sep + s2));
     }
@@ -121,7 +122,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s2 = CStringLengthHack(sep);
+        size_t s2 = cstrlen(sep);
 
         return StartsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
     }
@@ -135,7 +136,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
+        size_t s1 = cstrlen(str);
 
         return StartsWithImpl<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
     }
@@ -161,8 +162,8 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
-        size_t s2 = CStringLengthHack(sep);
+        size_t s1 = cstrlen(str);
+        size_t s2 = cstrlen(sep);
 
         return EndsWithImpl<CH>(str, str + s1, VC(sep), VC(sep + s2));
     }
@@ -176,7 +177,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s2 = CStringLengthHack(sep);
+        size_t s2 = cstrlen(sep);
 
         return EndsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
     }
@@ -190,7 +191,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
+        size_t s1 = cstrlen(str);
 
         return EndsWithImpl<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
     }
@@ -217,8 +218,8 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
-        size_t s2 = CStringLengthHack(sep);
+        size_t s1 = cstrlen(str);
+        size_t s2 = cstrlen(sep);
 
         return FindFirst<CH>(str, str + s1, VC(sep), VC(sep + s2));
     }
@@ -232,7 +233,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s2 = CStringLengthHack(sep);
+        size_t s2 = cstrlen(sep);
 
         return FindFirst<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
     }
@@ -246,7 +247,7 @@ namespace ulib
         using CH = typename VT::CharT;
         using VC = CH *;
 
-        size_t s1 = CStringLengthHack(str);
+        size_t s1 = cstrlen(str);
 
         return FindFirst<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
     }

@@ -3,5 +3,5 @@ name: ulib-project
 
 inherit-caller-in-deps: true
 
-cxxenv.msvc:
-  cxx-standard: latest
+# cxxenv.msvc:
+#   cxx-standard: latest

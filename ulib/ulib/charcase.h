@@ -30,7 +30,7 @@ namespace ulib
 /*
 
 */
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 
     template <class UOutputEncodingT = void, class OutputAllocatorT = DefaultAllocator, class CharT, class EncodingT = LiteralEncodingT<CharT>,
               class OutputEncodingT = SelectTypeT<UOutputEncodingT, EncodingT>,
@@ -76,7 +76,7 @@ namespace ulib
 /*
 
 */
-#ifdef ULIB_USE_STD_STRING_VIEW
+#ifdef ULIB_STD_COMPATIBILITY
 
     template <class UOutputEncodingT = void, class OutputAllocatorT = DefaultAllocator, class CharT, class EncodingT = LiteralEncodingT<CharT>,
               class OutputEncodingT = SelectTypeT<UOutputEncodingT, EncodingT>,
