@@ -46,7 +46,6 @@ namespace ulib
         using AllocatorParams = typename AllocatorT::Params;
         using InitializerListT = std::initializer_list<T>;
 
-
         using pointer = value_type *;
         using const_pointer = const value_type *;
         using reference = value_type &;
@@ -60,12 +59,10 @@ namespace ulib
         using SplitViewT = SplitView<SpanT>;
 
         constexpr static size_t C_STEP = 16;
-        constexpr static size_t M_STEP = sizeof(T) * C_STEP;
+        constexpr static bool IsTrivial() { return std::is_trivially_copyable_v<T>; }
+        constexpr static bool IsRawMovable() { return is_explicit_raw_moveable_flag_v<T, std::true_type> || IsTrivial(); }
 
-        constexpr static bool kTrivial = std::is_trivially_copyable_v<T>;
-        constexpr static bool kRawMoveable = is_explicit_raw_moveable_flag_v<T, std::true_type> || kTrivial;
-
-        inline List(AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacityB(M_STEP); }
+        inline List(AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacityB(C_STEP * sizeof(T)); }
         inline List(const_pointer b, const_pointer e, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(b, e); }
         inline List(const_pointer ptr, size_type count, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(ptr, count); }
         template <class K, enable_if_range_compatible_t<SelfT, K> = true>
@@ -164,7 +161,7 @@ namespace ulib
             auto point = mBegin + newSize;
             if (point <= mLast)
             {
-                if constexpr (!kTrivial)
+                if constexpr (!IsTrivial())
                 {
                     for (auto it = point; it != mLast; it++)
                         it->~T();
@@ -195,7 +192,7 @@ namespace ulib
             auto point = mBegin + newSize;
             if (point <= mLast)
             {
-                if constexpr (!kTrivial)
+                if constexpr (!IsTrivial())
                 {
                     for (auto it = point; it != mLast; it++)
                         it->~T();
@@ -365,7 +362,7 @@ namespace ulib
             //        int(sizeof(T)), int(idx), it, mBegin, mLast, mEnd, int(size()), int(size_in_bytes()), int(capacity()), int(capacity_in_bytes()),
             //        int(available()), int(available_in_bytes()));
 
-            if constexpr (kRawMoveable)
+            if constexpr (IsRawMovable())
             {
                 memmove(it + 1, it, (mLast - it) * sizeof(T));
             }
@@ -725,7 +722,7 @@ namespace ulib
             mEndB = (mLastB = mBeginB = (uchar *)ResourceT::Alloc(allocSizeInBytes)) + allocSizeInBytes;
             mLastB += oldSizeInBytes;
 
-            if constexpr (kRawMoveable)
+            if constexpr (IsRawMovable())
             {
                 ::memcpy(mBegin, oldBegin, oldSizeInBytes);
             }
@@ -775,7 +772,7 @@ namespace ulib
 
         inline void CopyConstructElementsB(pointer dest, const_pointer src, size_type bcount)
         {
-            if (kTrivial)
+            if (IsTrivial())
             {
                 memcpy(dest, src, bcount);
             }
@@ -801,7 +798,7 @@ namespace ulib
         inline void SetupViaSizeAndConstructB(size_type bcount)
         {
             SetupViaSizeB(bcount);
-            if constexpr (!kTrivial)
+            if constexpr (!IsTrivial())
                 for (auto it = mBegin; it != mLast; it++)
                     new (it) T();
         }
@@ -832,7 +829,7 @@ namespace ulib
         // {
         //     mEndB = mLastB = (mBeginB = (uchar *)ResourceT::Alloc(dataSize)) + dataSize;
 
-        //     if constexpr (kTrivial)
+        //     if constexpr (IsTrivial())
         //     {
         //         memcpy(mBeginB, source, dataSize);
         //     }
@@ -874,7 +871,7 @@ namespace ulib
     template <class T, class AllocatorTy = DefaultAllocator>
     using list = List<T, AllocatorTy>;
 
-    template<class AllocatorT>
+    template <class AllocatorT>
     using BasicBuffer = List<uchar, AllocatorT>;
     using Buffer = BasicBuffer<DefaultAllocator>;
     using buffer = Buffer;
