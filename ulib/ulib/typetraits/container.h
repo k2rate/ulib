@@ -16,7 +16,9 @@ namespace ulib
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(container_iterator_tag, typename std::iterator_traits<typename T::iterator>::iterator_category);
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(container_data_method, decltype(std::declval<T>().data()));
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(container_size_method, decltype(std::declval<T>().size()));
+
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(iterator_value_type, typename std::iterator_traits<T>::value_type);
+    ULIB_DEFINE_TYPE_FIELD_CHECK_T(iterator_tag, typename std::iterator_traits<T>::iterator_category);
 
     // -----------
 

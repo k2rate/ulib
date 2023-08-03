@@ -63,7 +63,12 @@ namespace ulib
         constexpr static bool IsRawMovable() { return is_explicit_raw_moveable_flag_v<T, std::true_type> || IsTrivial(); }
 
         inline List(AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacityB(C_STEP * sizeof(T)); }
-        inline List(const_pointer b, const_pointer e, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(b, e); }
+        template <class IterT>
+        inline List(IterT first, IterT last, AllocatorParams al = {}) : ResourceT(al)
+        {
+            SetupWithCopyConstructWithIterators(first, last);
+        }
+
         inline List(const_pointer ptr, size_type count, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(ptr, count); }
         template <class K, enable_if_range_compatible_t<SelfT, K> = true>
         inline List(const K &cont, AllocatorParams al = {}) : ResourceT(al)
@@ -812,6 +817,24 @@ namespace ulib
         inline void SetupWithCopyConstruct(const_pointer src, size_type count) { SetupWithCopyConstructB(src, count * sizeof(T)); }
         inline void SetupWithCopyConstruct(const_pointer first, const_pointer last) { SetupWithCopyConstructB(first, (last - first) * sizeof(T)); }
         inline void SetupViaSizeAndConstruct(size_type count) { return SetupViaSizeAndConstructB(count * sizeof(T)); }
+
+        template <class IterT>
+        inline void SetupWithCopyConstructWithIterators(IterT first, IterT last)
+        {
+            if constexpr (std::is_pointer_v<IterT> || is_iterator_tag_v<IterT, std::random_access_iterator_tag>)
+            {
+                size_t size = last - first;
+                SetupViaSizeB(size * sizeof(T));
+
+                memcpy(mBegin, &(*first), size * sizeof(T));
+            }
+            else
+            {
+                SetupViaCapacity(C_STEP);
+                for (auto it = first; it != last; ++it)
+                    PushBack(*it);
+            }
+        }
 
         inline SelfT AdditionImpl(SpanT right) const
         {

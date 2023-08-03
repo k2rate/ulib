@@ -3,10 +3,10 @@ name: .tests
 
 cxxenv.msvc:
   cxx-build-flags:
-        compiler:
-          - "/utf-8"
-        linker:
-          - "/DEBUG"
+    compiler:
+      - "/utf-8"
+    linker:
+      - "/DEBUG"
   config.release:
     cxx-build-flags:
       compiler:
