@@ -1,10 +1,5 @@
 #include <gtest/gtest.h>
-
 #include <ulib/string.h>
-#include <ulib/u16.h>
-#include <ulib/u32.h>
-#include <ulib/u8.h>
-#include <ulib/wchar.h>
 
 #ifdef __cpp_char8_t
 using std_u8string = std::u8string;

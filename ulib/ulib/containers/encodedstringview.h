@@ -42,7 +42,9 @@ namespace ulib
         using const_reverse_iterator = ConstReverseIterator;
         using size_type = size_t;
 
-        using ContainerTagT = string_container_tag;
+                // ulib fields
+        using ContainerTypeT = string_type_tag;
+        using ContainerOwnershipT = view_ownership_tag;
 
         EncodedStringView() {}
         EncodedStringView(const CharT *str) noexcept : mSpan(str, cstrlen(str)) {}

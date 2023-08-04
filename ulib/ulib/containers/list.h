@@ -32,30 +32,35 @@ namespace ulib
         ULIB_RAW_MOVEABLE();
 
         using SelfT = List<T, AllocatorTy>;
-        using BufferT = List<uchar, AllocatorTy>;
 
+        // standard fields
         using value_type = T;
-        using Iterator = RandomAccessIterator<value_type>;
-        using ConstIterator = RandomAccessIterator<const value_type>;
-        using ReverseIterator = ReverseRandomAccessIterator<value_type>;
-        using ConstReverseIterator = ReverseRandomAccessIterator<const value_type>;
-        using ReverseT = ReversedSpan<const value_type>;
-        using ContainerTagT = list_container_tag;
-        using AllocatorT = AllocatorTy;
-        using ResourceT = Resource<AllocatorT>;
-        using AllocatorParams = typename AllocatorT::Params;
-        using InitializerListT = std::initializer_list<T>;
-
         using pointer = value_type *;
         using const_pointer = const value_type *;
         using reference = value_type &;
         using const_reference = const value_type &;
-        using iterator = Iterator;
-        using const_iterator = ConstIterator;
-        using reverse_iterator = ReverseIterator;
-        using const_reverse_iterator = ConstReverseIterator;
+        using iterator = RandomAccessIterator<value_type>;
+        using const_iterator = RandomAccessIterator<const value_type>;
+        using reverse_iterator = ReverseRandomAccessIterator<value_type>;
+        using const_reverse_iterator = ReverseRandomAccessIterator<const value_type>;
         using size_type = size_t;
-        using SpanT = Span<T>;
+
+
+        // ulib fields
+        using ContainerTypeT = list_type_tag;
+        using ContainerOwnershipT = store_ownership_tag;
+
+        // ulib optional fields
+        using AllocatorT = AllocatorTy;
+        using ReverseT = ReversedSpan<const value_type>;
+        using ViewT = Span<T>;
+
+        // detail fields
+        using BufferT = List<uchar, AllocatorT>;
+        using ResourceT = Resource<AllocatorT>;
+        using AllocatorParams = typename AllocatorT::Params;
+        using InitializerListT = std::initializer_list<T>;
+        using SpanT = ViewT;
         using SplitViewT = SplitView<SpanT>;
 
         constexpr static size_t C_STEP = 16;

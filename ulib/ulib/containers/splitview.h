@@ -5,6 +5,7 @@
 
 #include <ulib/types.h>
 #include <ulib/allocators/defaultallocator.h>
+#include <ulib/containers/tags.h>
 
 namespace ulib
 {
@@ -149,6 +150,9 @@ namespace ulib
         using IteratorT = typename SpanT::ConstIterator;
         using SplitIteratorT = SplitIterator<SpanT>;
         using ValueT = typename SpanT::value_type;
+
+        using ContainerTypeT = list_type_tag;
+        using ContainerOwnershipT = view_ownership_tag;
 
         inline SplitView(SpanT str, SpanT sep) : mString(str), mSeparator(sep)
         {

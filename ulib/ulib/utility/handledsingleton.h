@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tags.h"
+
 #include <new>
 
 #ifdef _DEBUG
@@ -9,7 +9,9 @@
 
 namespace ulib
 {
-    template <class T, class TagT = DefaultTag>
+    struct DefaultHandledSingletonTag {};
+
+    template <class T, class TagT = DefaultHandledSingletonTag>
     struct HandledSingleton
     {
         inline static T *RawData()

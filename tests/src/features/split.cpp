@@ -1,12 +1,7 @@
 #include <stdexcept>
 #include <ulib/string.h>
-#include <ulib/u16.h>
-#include <ulib/u32.h>
-#include <ulib/u8.h>
-#include <ulib/wchar.h>
 #include <ulib/split.h>
 #include <ulib/list.h>
-
 #include <gtest/gtest.h>
 
 TEST(FeaturesTest, Split)
@@ -124,10 +119,12 @@ TEST(FeaturesTest, SplitByIndex)
 
 TEST(FeaturesTest, Chars)
 {
+    using Enc = ulib::argument_encoding_t<const char*>;
+
     ulib::List<ulib::string> words;
     for (auto word : ulib::split("full plak", " "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], "full");
     ASSERT_EQ(words[1], "plak");

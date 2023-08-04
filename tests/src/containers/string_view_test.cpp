@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <ulib/string.h>
-#include <ulib/u8.h>
 
 TEST(StringViewTest, Empty)
 {

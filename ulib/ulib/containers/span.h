@@ -4,10 +4,8 @@
 #include <ulib/containers/splitview.h>
 #include <ulib/containers/tags.h>
 
-
 #include <ulib/types.h>
-#include <ulib/typetraits/range.h>
-
+#include <ulib/typetraits/container.h>
 
 #include <algorithm>
 #include <cstring>
@@ -23,7 +21,9 @@ namespace ulib
     public:
         using ReverseIterator = ReverseRandomAccessIterator<T>;
         using reverse_iterator = ReverseIterator;
-        using ContainerTagT = list_container_tag;
+
+        using ContainerTypeT = list_type_tag;
+        using ContainerOwnershipT = view_ownership_tag;
 
         ReversedSpan(ReverseIterator rb, ReverseIterator re) noexcept : ms(rb), me(re) {}
         ~ReversedSpan() noexcept = default;
@@ -50,8 +50,10 @@ namespace ulib
         using ReverseIterator = ReverseRandomAccessIterator<value_type>;
         using ConstReverseIterator = ReverseRandomAccessIterator<const value_type>;
         using ReverseT = ReversedSpan<const value_type>;
-        using ContainerTagT = list_container_tag;
         using SplitViewT = SplitView<SelfT>;
+
+        using ContainerTypeT = list_type_tag;
+        using ContainerOwnershipT = view_ownership_tag;
 
         using pointer = value_type *;
         using const_pointer = const value_type *;

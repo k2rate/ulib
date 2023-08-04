@@ -1,46 +1,62 @@
 #pragma once
 
 #include <memory>
+#include <ulib/allocators/defaultallocator.h>
+#include <ulib/typetraits/field.h>
 
 namespace ulib
 {
+    ULIB_DEFINE_TYPE_FIELD_CHECK_T(std_allocator_allocate_method, decltype(std::declval<T>().allocate(10)))
+    ULIB_DEFINE_TYPE_FIELD_CHECK_T(ulib_allocator_alloc_method, decltype(std::declval<T>().Alloc(10)))
+
+    // ----------------
     template <class T, class = void>
-    struct std_container_allocator
+    struct is_default_std_allocator : std::false_type
     {
-        using Type = void;
     };
 
     template <class T>
-    struct std_container_allocator<T, std::void_t<typename T::allocator_type>>
+    struct is_default_std_allocator<T, std::void_t<typename T::value_type>>
+        : std::bool_constant<std::is_same_v<T, std::allocator<typename T::value_type>>>
     {
-        using Type = typename T::allocator_type;
     };
 
-    template<class T>
-    using std_container_allocator_t = typename std_container_allocator<T>::Type;
+    template <class T>
+    inline constexpr bool is_default_std_allocator_v = is_default_std_allocator<T>::value;
 
+    // ----------------
+
+    template <class T>
+    inline constexpr bool is_default_ulib_allocator_v = std::is_same_v<T, ulib::DefaultAllocator>;
+
+    // ----------------
+
+    template <class AllocatorT, class StdAllocatorT>
+    inline constexpr bool is_same_ulib_and_std_allocators = is_default_ulib_allocator_v<AllocatorT> && is_default_std_allocator_v<StdAllocatorT>;
+
+    // ----------------
 
     template <class T, class = void>
-    struct ulib_container_allocator
+    struct choose_ulib_allocator
     {
-        using Type = void;
+        using type = ulib::DefaultAllocator;
     };
 
     template <class T>
-    struct ulib_container_allocator<T, std::void_t<typename T::AllocatorT>>
+    struct choose_ulib_allocator<T, std::enable_if_t<has_ulib_allocator_alloc_method_v<T>>>
     {
-        using Type = typename T::AllocatorT;
+        using type = T;
     };
 
-    template<class T>
-    using ulib_container_allocator_t = typename ulib_container_allocator<T>::Type;
-
     template <class T>
-    inline constexpr bool has_std_allocator_v = !std::is_same_v<std_container_allocator_t<T>, void>;
+    struct choose_ulib_allocator<T, std::enable_if_t<has_std_allocator_allocate_method_v<T>>>
+    {
+        // here need to reproduce some shit
+        using type = ulib::DefaultAllocator;
+    };
 
-    template <class T>
-    inline constexpr bool has_ulib_allocator_v = !std::is_same_v<ulib_container_allocator_t<T>, void>;
+    ULIB_DEFINE_TYPE_CHECKS(choose_ulib_allocator);
+    ULIB_DEFINE_OR_DIE_TYPE_CHECK(choose_ulib_allocator);
 
-    template<class T>
-    inline constexpr bool has_allocator_v = has_std_allocator_v<T> || has_ulib_allocator_v<T>;
-}
+    // ----------------
+} // namespace ulib

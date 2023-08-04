@@ -17,8 +17,8 @@ namespace ulib
     };
 
     template <class SourceEncodingT, class EncodingT>
-    inline constexpr bool IsParentCompatible =
-        std::is_same_v<SourceEncodingT, typename EncodingT::ParentEncodingT> ||
+    inline constexpr bool is_encodings_raw_movable_v =
+        (std::is_same_v<SourceEncodingT, typename EncodingT::ParentEncodingT> ||
         std::is_same_v<typename SourceEncodingT::ParentEncodingT, EncodingT> ||
-        std::is_same_v<SourceEncodingT, EncodingT>;
+        std::is_same_v<SourceEncodingT, EncodingT>);
 }

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "tags.h"
-
 namespace ulib
 {
-    template <class T, class TagT = DefaultTag>
+    struct DefaultHandledSingletonTag {};
+
+    template <class T, class TagT = DefaultHandledSingletonTag>
     struct Singleton
     {
         template <class... Args>

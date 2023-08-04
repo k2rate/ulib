@@ -10,8 +10,13 @@ namespace ulib
         Map
     };
 
-    struct string_container_tag {};
-    struct list_container_tag {};
-    struct map_container_tag {};
+    // ContainerTypeT
+    struct string_type_tag {};
+    struct list_type_tag {};
+    struct map_type_tag {};
+
+    // ContainerOwnershipT
+    struct view_ownership_tag {};
+    struct store_ownership_tag {};
 
 } // namespace ulib

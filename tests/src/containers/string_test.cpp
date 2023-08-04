@@ -1,14 +1,9 @@
 #include <type_traits>
 
 #include <string>
-#include <ulib/encodings/literalencoding.h>
 #include <ulib/list.h>
 #include <ulib/split.h>
 #include <ulib/string.h>
-#include <ulib/u16.h>
-#include <ulib/u32.h>
-#include <ulib/u8.h>
-#include <ulib/wchar.h>
 
 #include <gtest/gtest.h>
 
@@ -139,7 +134,7 @@ TEST(StringTest, Addition)
 TEST(StringTest, Compares)
 {
     auto test = [](const auto *kf, const auto *ks) {
-        using EncodingT = ulib::LiteralEncodingT<std::remove_reference_t<decltype(*kf)>>;
+        using EncodingT = ulib::literal_encoding_t<std::remove_cv_t<std::remove_reference_t<decltype(*kf)>>>;
         using StringViewT = ulib::EncodedStringView<EncodingT>;
         using StringT = ulib::EncodedString<EncodingT>;
 

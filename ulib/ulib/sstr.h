@@ -8,54 +8,14 @@ namespace ulib
 
 #ifdef ULIB_STD_COMPATIBILITY
 
-    template <class StringT, class EncodingT = typename StringT::EncodingT>
-    inline std::string sstr(const StringT &str)
+    template<class StringT, class EncodingT = argument_encoding_or_die_t<StringT>>
+    inline std::string sstr(const StringT& str)
     {
         return u8(str);
     }
 
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>, std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::string sstr(const CharT *str)
-    {
-        return u8(str);
-    }
-
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::string sstr(const std::basic_string<CharT> &str)
-    {
-        return u8(str);
-    }
-
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::string sstr(std::basic_string_view<CharT> str)
-    {
-        return u8(str);
-    }
-
-    template <class StringT, class EncodingT = typename StringT::EncodingT>
+    template<class StringT, class EncodingT = argument_encoding_or_die_t<StringT>>
     inline std::wstring swstr(const StringT &str)
-    {
-        return wstr(u8(str));
-    }
-
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>, std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::wstring swstr(const CharT *str)
-    {
-        return wstr(u8(str));
-    }
-
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::wstring swstr(const std::basic_string<CharT> &str)
-    {
-        return wstr(u8(str));
-    }
-
-    template <class CharT, class EncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<EncodingT, void>, bool> = true>
-    inline std::wstring swstr(std::basic_string_view<CharT> str)
     {
         return wstr(u8(str));
     }

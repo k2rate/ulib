@@ -16,7 +16,9 @@ namespace ulib
         using ReverseIterator = ReverseRandomAccessIterator<value_type>;
         using ConstReverseIterator = ReverseRandomAccessIterator<const value_type>;
         using ReverseT = ReversedSpan<const value_type>;
-        using ContainerTagT = list_container_tag;
+
+        using ContainerTypeT = list_type_tag;
+        using ContainerOwnershipT = store_ownership_tag;
 
         using pointer = value_type *;
         using const_pointer = const value_type *;

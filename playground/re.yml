@@ -28,4 +28,3 @@ cxxenv.msvc:
 # platform.!windows:
 #   enabled: false
 
-enabled: false

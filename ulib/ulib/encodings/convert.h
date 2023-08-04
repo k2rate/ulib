@@ -2,11 +2,11 @@
 
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
+#include <ulib/typetraits/literalencoding.h>
 #include <ulib/typetraits/selecttype.h>
 
 #include "cconvert.h"
 #include "type.h"
-#include "literalencoding.h"
 
 namespace ulib
 {
@@ -24,104 +24,41 @@ namespace ulib
         return result;
     }
 
-    template <class UOutputEncodingT = void, class UOutputAllocatorT = void, // user defined types
-              class EncodingT, class AllocatorT,                             // auto defined types
-              class OutputEncodingT = SelectTypeT<UOutputEncodingT, EncodingT>,
-              class OutputAllocatorT = SelectTypeT<UOutputAllocatorT, AllocatorT>>
-    inline EncodedString<OutputEncodingT, OutputAllocatorT> Convert(const EncodedString<EncodingT, AllocatorT> &str, typename OutputAllocatorT::Params al = {})
+    template <class UOutputEncodingT = missing_type, class EncodingT, class AllocatorT,
+              class OutputEncodingT = select_type_t<UOutputEncodingT, EncodingT>,
+              std::enable_if_t<is_encodings_raw_movable_v<EncodingT, OutputEncodingT>, bool> = true>
+    inline EncodedString<OutputEncodingT, AllocatorT> Convert(EncodedString<EncodingT, AllocatorT> &&str)
     {
-        if constexpr (IsParentCompatible<EncodingT, OutputEncodingT>)
+        using ParentEncodingT = typename EncodingT::ParentEncodingT;
+        using DestCharT = typename OutputEncodingT::CharT;
+        static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
+                      "Parent encoding character size must be equal with base encoding to compatibile convertation");
+
+        // EncodedString<OutputEncodingT, AllocatorT> result = std::move(*(EncodedString<OutputEncodingT, AllocatorT> *)&str);
+        return std::move(*(EncodedString<OutputEncodingT, AllocatorT> *)&str);
+    }
+
+    template <class UOutputEncodingT = missing_type, class UOutputAllocatorT = missing_type, class StringT,
+              class EncodingT = argument_encoding_or_die_t<StringT>, class AllocatorT = constainer_choose_ulib_allocator_or_die_t<StringT>,
+              class OutputEncodingT = select_type_t<UOutputEncodingT, EncodingT>,
+              class OutputAllocatorT = select_type_t<UOutputAllocatorT, AllocatorT>>
+    inline EncodedString<OutputEncodingT, OutputAllocatorT> Convert(const StringT &str, typename OutputAllocatorT::Params al = {})
+    {
+        EncodedStringView<EncodingT> view = str;
+        if constexpr (is_encodings_raw_movable_v<EncodingT, OutputEncodingT>)
         {
+            // here utf8 and multibyte are dances with flaming glow
             using ParentEncodingT = typename EncodingT::ParentEncodingT;
             using DestCharT = typename OutputEncodingT::CharT;
             static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
                           "Parent encoding character size must be equal with base encoding to compatibile convertation");
 
-            return EncodedString<OutputEncodingT, OutputAllocatorT>((DestCharT *)str.data(), (DestCharT *)str.data() + str.size(), al);
+            return EncodedString<OutputEncodingT, OutputAllocatorT>((DestCharT *)view.data(), (DestCharT *)view.data() + view.size(), al);
         }
         else
         {
-            return ConvertImpl<EncodingT, OutputEncodingT, OutputAllocatorT>(str, al);
+            return ConvertImpl<EncodingT, OutputEncodingT, OutputAllocatorT>(view, al);
         }
     }
 
-    template <class EncodingT, class AllocatorT = DefaultAllocator, class SourceEncodingT>
-    inline EncodedString<EncodingT, AllocatorT> Convert(EncodedStringView<SourceEncodingT> str, typename AllocatorT::Params al = {})
-    {
-        if constexpr (IsParentCompatible<SourceEncodingT, EncodingT>)
-        {
-            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
-            using DestCharT = typename EncodingT::CharT;
-            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
-                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
-
-            return EncodedString<EncodingT, AllocatorT>((DestCharT *)str.data(), (DestCharT *)str.data() + str.size(), al);
-        }
-        else
-        {
-            return ConvertImpl<SourceEncodingT, EncodingT, AllocatorT>(str, al);
-        }
-    }
-
-    template <class EncodingT, class AllocatorT = DefaultAllocator, class CharT, class SourceEncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<SourceEncodingT, void>, bool> = true>
-    inline EncodedString<EncodingT, AllocatorT> Convert(const CharT *str, typename AllocatorT::Params al = {})
-    {
-        if constexpr (IsParentCompatible<SourceEncodingT, EncodingT>)
-        {
-            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
-            using DestCharT = typename EncodingT::CharT;
-            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
-                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
-
-            return EncodedString<EncodingT, AllocatorT>((DestCharT *)str, al);
-        }
-        else
-        {
-            return ConvertImpl<SourceEncodingT, EncodingT, AllocatorT>(str, al);
-        }
-    }
-
-#ifdef ULIB_STD_COMPATIBILITY
-
-    template <class EncodingT, class AllocatorT = DefaultAllocator, class CharT, class SourceEncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<SourceEncodingT, void>, bool> = true>
-    inline EncodedString<EncodingT, AllocatorT> Convert(const std::basic_string<CharT> &str, typename AllocatorT::Params al = {})
-    {
-        if constexpr (IsParentCompatible<SourceEncodingT, EncodingT>)
-        {
-            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
-            using DestCharT = typename EncodingT::CharT;
-            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
-                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
-
-            return EncodedString<EncodingT, AllocatorT>((DestCharT *)str.data(), (DestCharT *)str.data() + str.size(), al);
-        }
-        else
-        {
-            return ConvertImpl<SourceEncodingT, EncodingT, AllocatorT>(str, al);
-        }
-    }
-
-    template <class EncodingT, class AllocatorT = DefaultAllocator, class CharT, class SourceEncodingT = LiteralEncodingT<CharT>,
-              std::enable_if_t<!std::is_same_v<SourceEncodingT, void>, bool> = true>
-    inline EncodedString<EncodingT, AllocatorT> Convert(std::basic_string_view<CharT> str, typename AllocatorT::Params al = {})
-    {
-        if constexpr (IsParentCompatible<SourceEncodingT, EncodingT>)
-        {
-            using ParentEncodingT = typename SourceEncodingT::ParentEncodingT;
-            using DestCharT = typename EncodingT::CharT;
-            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
-                          "Parent encoding character size must be equal with base encoding to compatibile convertation");
-
-            return EncodedString<EncodingT, AllocatorT>((DestCharT *)str.data(), (DestCharT *)str.data() + str.size(), al);
-        }
-        else
-        {
-            return ConvertImpl<SourceEncodingT, EncodingT, AllocatorT>(str, al);
-        }
-    }
-
-#endif
-
-}
+} // namespace ulib

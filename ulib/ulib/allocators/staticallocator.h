@@ -1,13 +1,15 @@
 #pragma once
 
-#include <ulib/typetraits/singleton.h>
+#include <ulib/utility/singleton.h>
 #include <cstddef>
 
 #include "allocatortag.h"
 
 namespace ulib
 {
-    template <class AllocatorT, class TagT = AllocatorTag<DefaultTag>>
+    struct DefaultAllocatorTag {};
+    
+    template <class AllocatorT, class TagT = DefaultAllocatorTag>
     class StaticAllocator
     {
     public:

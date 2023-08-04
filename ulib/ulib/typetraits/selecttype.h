@@ -1,19 +1,21 @@
 #pragma once
 
+#include <ulib/typetraits/missingtype.h>
+
 namespace ulib
 {
     template <class T, class DefaultT>
-    struct SelectType
+    struct select_type
     {
-        using Type = T;
+        using type = T;
     };
 
     template <class DefaultT>
-    struct SelectType<void, DefaultT>
+    struct select_type<ulib::missing_type, DefaultT>
     {
-        using Type = DefaultT;
+        using type = DefaultT;
     };
 
     template <class T, class DefaultT>
-    using SelectTypeT = typename SelectType<T, DefaultT>::Type;
+    using select_type_t = typename select_type<T, DefaultT>::type;
 }

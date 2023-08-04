@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <numeric>
-#include <ulib/containers/list.h>
-#include <ulib/u8.h>
+
+#include <ulib/list.h>
+#include <ulib/string.h>
 
 TEST(StringListTest, Pushing)
 {

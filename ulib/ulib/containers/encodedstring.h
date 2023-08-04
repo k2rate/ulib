@@ -5,7 +5,6 @@
 #include <ulib/types.h>
 
 #include <ulib/encodings/length.h>
-#include <ulib/encodings/literalencoding.h>
 
 #include <ulib/containers/args.h>
 #include <ulib/containers/encodedstringview.h>
@@ -14,7 +13,8 @@
 #include <ulib/allocators/defaultallocator.h>
 #include <ulib/resources/resource.h>
 
-#include <ulib/typetraits/range.h>
+#include <ulib/typetraits/literalencoding.h>
+#include <ulib/typetraits/container.h>
 #include <ulib/typetraits/string.h>
 
 #include <cstring>
@@ -69,7 +69,9 @@ namespace ulib
         using const_reverse_iterator = ConstReverseIterator;
         using size_type = size_t;
 
-        using ContainerTagT = string_container_tag;
+        // ulib fields
+        using ContainerTypeT = string_type_tag;
+        using ContainerOwnershipT = store_ownership_tag;
 
         constexpr static size_t C_STEP = 16;
         constexpr static size_t M_STEP = sizeof(CharT) * C_STEP;
@@ -77,6 +79,9 @@ namespace ulib
         // constructors
 
         inline EncodedString(AllocatorParams al = {}) : m(al) {}
+
+ 
+
         inline EncodedString(const CharT *str, AllocatorParams al = {}) : m(str, cstrlen(str), al) {}
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
@@ -310,13 +315,13 @@ namespace ulib
         ListT m;
     };
 
-    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>
     inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
     {
         return right == left;
     }
 
-    template <class CharT, class EncodingT = ulib::LiteralEncodingT<CharT>, class AllocatorT>
+    template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>
     inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
     {
         return right != left;

@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
-#include <ulib/encodings/literalencoding.h>
+#include <ulib/typetraits/literalencoding.h>
 #include <ulib/cstrlen.h>
 
 namespace ulib
@@ -86,170 +86,31 @@ namespace ulib
         return e;
     }
 
-    template <class String1T, class String2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool starts_with(const String1T &str, const String2T &sep)
+    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    inline bool starts_with(const StringT &str, const StringT &sep)
     {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
+        EncodedStringView<EncodingT> vstr = str;
+        EncodedStringView<EncodingT> vsep = sep;
 
-        return StartsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep.data()), VC(sep.data() + sep.size()));
+        return StartsWithImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
     }
 
-    template <class Char1T, class Char2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool starts_with(const Char1T *str, const Char2T *sep)
+    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    inline bool ends_with(const StringT &str, const StringT &sep)
     {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
+        EncodedStringView<EncodingT> vstr = str;
+        EncodedStringView<EncodingT> vsep = sep;
 
-        size_t s1 = cstrlen(str);
-        size_t s2 = cstrlen(sep);
-
-        return StartsWithImpl<CH>(str, str + s1, VC(sep), VC(sep + s2));
+        return EndsWithImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
     }
 
-    template <class String1T, class Char2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool starts_with(const String1T &str, const Char2T *sep)
+    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    inline bool find_first(const StringT &str, const StringT &sep)
     {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
+        EncodedStringView<EncodingT> vstr = str;
+        EncodedStringView<EncodingT> vsep = sep;
 
-        size_t s2 = cstrlen(sep);
-
-        return StartsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
-    }
-
-    template <class Char1T, class String2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool starts_with(const Char1T *str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s1 = cstrlen(str);
-
-        return StartsWithImpl<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
-    }
-
-    template <class String1T, class String2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool ends_with(const String1T &str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        return EndsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep.data()), VC(sep.data() + sep.size()));
-    }
-
-    template <class Char1T, class Char2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool ends_with(const Char1T *str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s1 = cstrlen(str);
-        size_t s2 = cstrlen(sep);
-
-        return EndsWithImpl<CH>(str, str + s1, VC(sep), VC(sep + s2));
-    }
-
-    template <class String1T, class Char2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool ends_with(const String1T &str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s2 = cstrlen(sep);
-
-        return EndsWithImpl<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
-    }
-
-    template <class Char1T, class String2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline bool ends_with(const Char1T *str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s1 = cstrlen(str);
-
-        return EndsWithImpl<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
-    }
-
-
-    template <class String1T, class String2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline typename String1T::ConstIterator find_first(const String1T &str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        return FindFirst<CH>(str.data(), str.data() + str.size(), VC(sep.data()), VC(sep.data() + sep.size()));
-    }
-
-    template <class Char1T, class Char2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline const Char1T* find_first(const Char1T *str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s1 = cstrlen(str);
-        size_t s2 = cstrlen(sep);
-
-        return FindFirst<CH>(str, str + s1, VC(sep), VC(sep + s2));
-    }
-
-    template <class String1T, class Char2T, class Encoding1T = typename String1T::EncodingT,
-              class Encoding2T = LiteralEncodingT<Char2T>,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline typename String1T::ConstIterator find_first(const String1T &str, const Char2T *sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s2 = cstrlen(sep);
-
-        return FindFirst<CH>(str.data(), str.data() + str.size(), VC(sep), VC(sep + s2));
-    }
-
-    template <class Char1T, class String2T, class Encoding1T = LiteralEncodingT<Char1T>,
-              class Encoding2T = typename String2T::EncodingT,
-              std::enable_if_t<IsParentCompatible<Encoding1T, Encoding2T>, bool> = true>
-    inline const Char1T* find_first(const Char1T *str, const String2T &sep)
-    {
-        using VT = EncodedStringView<Encoding1T>;
-        using CH = typename VT::CharT;
-        using VC = CH *;
-
-        size_t s1 = cstrlen(str);
-
-        return FindFirst<CH>(str, str + s1, VC(sep.data()), VC(sep.data() + sep.size()));
+        return FindFirstImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
     }
 
 } // namespace ulib
