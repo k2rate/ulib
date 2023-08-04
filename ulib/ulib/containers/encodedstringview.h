@@ -5,7 +5,6 @@
 #include <ulib/encodings/length.h>
 #include <ulib/span.h>
 
-
 #include <ulib/typetraits/string.h>
 
 #ifdef ULIB_STD_COMPATIBILITY
@@ -42,15 +41,20 @@ namespace ulib
         using const_reverse_iterator = ConstReverseIterator;
         using size_type = size_t;
 
-                // ulib fields
+        // ulib fields
         using ContainerTypeT = string_type_tag;
         using ContainerOwnershipT = view_ownership_tag;
+
+        using ParentEncodingT = typename EncodingT::ParentEncodingT;
+        using ParentEncodingCharT = typename ParentEncodingT::CharT;
+        using ParentStringViewT = EncodedStringView<ParentEncodingT>;
 
         EncodedStringView() {}
         EncodedStringView(const CharT *str) noexcept : mSpan(str, cstrlen(str)) {}
         EncodedStringView(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
         EncodedStringView(ConstIterator b, ConstIterator e) noexcept : mSpan(b.ptr, e.ptr) {}
         EncodedStringView(const CharT *str, size_t size) noexcept : mSpan(str, size) {}
+
         EncodedStringView(const EncodedStringView<EncodingT> &source) : mSpan(source) {}
 
         template <class K, enable_if_range_compatible_t<SelfT, K> = true>
@@ -112,12 +116,11 @@ namespace ulib
 
         inline const_reference operator[](size_type idx) const { return mSpan[idx]; }
 
+        operator ParentStringViewT() const { return ParentStringT((ParentEncodingCharT *)mSpan.Begin().Raw(), (ParentEncodingCharT *)mSpan.End().Raw()); }
+
 #ifdef ULIB_STD_COMPATIBILITY
 
-        operator std::basic_string_view<CharT>() const
-        {
-            return std::basic_string_view<CharT>(mSpan.Data(), mSpan.Size());
-        }
+        operator std::basic_string_view<CharT>() const { return std::basic_string_view<CharT>(mSpan.Data(), mSpan.Size()); }
 
         operator std::basic_string<CharT>() const { return std::basic_string<CharT>(mSpan.Data(), mSpan.Size()); }
 
@@ -126,8 +129,7 @@ namespace ulib
         // MultibyteEncoding>, bool> = true>
         operator std::basic_string_view<typename EncodingT::CharStd>() const
         {
-            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin,
-                                                                       this->Size());
+            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)this->mBegin, this->Size());
         }
 
         operator std::basic_string<typename EncodingT::CharStd>() const
@@ -170,6 +172,7 @@ namespace ulib
         inline SelfT substr(size_type pos, size_type n = npos) const { return SubString(pos, n); }
         inline SplitViewT split(SelfT sep) const { return Split(sep); }
         inline BufferView raw() const { return Raw(); }
+
     private:
         SpanT mSpan;
     };

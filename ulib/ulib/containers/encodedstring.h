@@ -54,7 +54,8 @@ namespace ulib
 
         using ParentEncodingT = typename EncodingT::ParentEncodingT;
         using ParentEncodingCharT = typename ParentEncodingT::CharT;
-        using ParentEncodedStringT = EncodedString<ParentEncodingT, AllocatorT>;
+        using ParentStringT = EncodedString<ParentEncodingT, AllocatorT>;
+        using ParentStringViewT = EncodedStringView<ParentEncodingT>;
 
         using SpanT = Span<CharT>;
 
@@ -252,9 +253,14 @@ namespace ulib
         //     return !Compare(right);
         // }
 
-        operator ParentEncodedStringT() const
+        operator ParentStringT() const
         {
-            return ParentEncodedStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw());
+            return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw());
+        }
+
+        operator ParentStringViewT() const
+        {
+            return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw());
         }
 
 #ifdef ULIB_STD_COMPATIBILITY
