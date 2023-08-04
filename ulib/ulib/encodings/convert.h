@@ -3,7 +3,7 @@
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
 #include <ulib/typetraits/literalencoding.h>
-#include <ulib/typetraits/selecttype.h>
+#include <ulib/typetraits/typeordefault.h>
 
 #include "cconvert.h"
 #include "type.h"
@@ -25,7 +25,7 @@ namespace ulib
     }
 
     template <class UOutputEncodingT = missing_type, class EncodingT, class AllocatorT,
-              class OutputEncodingT = select_type_t<UOutputEncodingT, EncodingT>,
+              class OutputEncodingT = type_or_default_t<UOutputEncodingT, EncodingT>,
               std::enable_if_t<is_encodings_raw_movable_v<EncodingT, OutputEncodingT>, bool> = true>
     inline EncodedString<OutputEncodingT, AllocatorT> Convert(EncodedString<EncodingT, AllocatorT> &&str)
     {
@@ -40,8 +40,8 @@ namespace ulib
 
     template <class UOutputEncodingT = missing_type, class UOutputAllocatorT = missing_type, class StringT,
               class EncodingT = argument_encoding_or_die_t<StringT>, class AllocatorT = constainer_choose_ulib_allocator_or_die_t<StringT>,
-              class OutputEncodingT = select_type_t<UOutputEncodingT, EncodingT>,
-              class OutputAllocatorT = select_type_t<UOutputAllocatorT, AllocatorT>>
+              class OutputEncodingT = type_or_default_t<UOutputEncodingT, EncodingT>,
+              class OutputAllocatorT = type_or_default_t<UOutputAllocatorT, AllocatorT>>
     inline EncodedString<OutputEncodingT, OutputAllocatorT> Convert(const StringT &str, typename OutputAllocatorT::Params al = {})
     {
         EncodedStringView<EncodingT> view = str;

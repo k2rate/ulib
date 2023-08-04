@@ -66,7 +66,7 @@ namespace ulib
     // -----------
 
     template <class T>
-    inline constexpr bool is_container_enumerable_v = has_container_begin_method_v<T> || has_container_end_method_v<T>;
+    inline constexpr bool is_container_enumerable_v = has_container_begin_method_v<T> && has_container_end_method_v<T>;
 
     // -----------
 

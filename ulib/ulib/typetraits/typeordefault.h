@@ -5,17 +5,17 @@
 namespace ulib
 {
     template <class T, class DefaultT>
-    struct select_type
+    struct type_or_default
     {
         using type = T;
     };
 
     template <class DefaultT>
-    struct select_type<ulib::missing_type, DefaultT>
+    struct type_or_default<missing_type, DefaultT>
     {
         using type = DefaultT;
     };
 
     template <class T, class DefaultT>
-    using select_type_t = typename select_type<T, DefaultT>::type;
+    using type_or_default_t = typename type_or_default<T, DefaultT>::type;
 }

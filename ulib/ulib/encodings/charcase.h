@@ -3,7 +3,6 @@
 #include <ulib/config.h>
 #include <ulib/allocators/tempallocator.h>
 #include <ulib/containers/encodedstring.h>
-#include <ulib/typetraits/selecttype.h>
 #include <ulib/typetraits/string.h>
 #include <ulib/encodings/convert.h>
 #include <ulib/encodings/wide/encoding.h>

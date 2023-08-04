@@ -18,7 +18,6 @@ namespace ulib
                                         >)
         {
             return __builtin_strlen((const char *)ptr);
-            
         }
         else
         {
