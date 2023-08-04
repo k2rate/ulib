@@ -720,7 +720,7 @@ namespace ulib
         inline const_iterator at_index(size_type i) const { return GetIterator(i); }
         inline SplitViewT split(InitializerListT sep) const { return SplitViewT{*this, sep}; }
         inline SplitViewT split(SpanT sep) const { return SplitViewT{*this, sep}; }
-        inline BufferView raw() const { return BufferView{mBegin, mLast}; }
+        inline BufferView raw() const { return Raw(); }
 
     private:
         inline void ConcreteReallocateMemory(size_t currentSizeInBytes, size_t reqSizeInBytes)
