@@ -1,8 +1,9 @@
 #pragma once
 
+#include <ulib/typetraits/allocator.h>
 #include <ulib/typetraits/carray.h>
 #include <ulib/typetraits/field.h>
-#include <ulib/typetraits/allocator.h>
+
 
 #include <iterator>
 
@@ -29,6 +30,9 @@ namespace ulib
 
     ULIB_DEFINE_TYPE_FIELD_CHECK(std_container_traits, traits_type);
     ULIB_DEFINE_TYPE_FIELD_CHECK(std_container_allocator, allocator_type);
+
+    ULIB_DEFINE_TYPE_FIELD_CHECK_T(begin_result, decltype(std::begin(std::declval<T>())));
+    ULIB_DEFINE_TYPE_FIELD_CHECK_T(end_result, decltype(std::end(std::declval<T>())));
 
     // -------------
 
@@ -68,6 +72,9 @@ namespace ulib
     template <class T>
     inline constexpr bool is_container_enumerable_v = has_container_begin_method_v<T> && has_container_end_method_v<T>;
 
+    template <class T>
+    inline constexpr bool is_enumerable_v = has_begin_result_v<T> && has_end_result_v<T>;
+
     // -----------
 
     template <class T, class K>
@@ -96,20 +103,19 @@ namespace ulib
 
     // -----------
 
-
-    template<class T, class = void>
+    template <class T, class = void>
     struct container_allocator
     {
         using type = missing_type;
     };
 
-    template<class T>
+    template <class T>
     struct container_allocator<T, std::enable_if_t<has_ulib_container_allocator_v<T>>>
     {
         using type = ulib_container_allocator_t<T>;
     };
 
-    template<class T>
+    template <class T>
     struct container_allocator<T, std::enable_if_t<has_std_container_allocator_v<T>>>
     {
         using type = std_container_allocator_t<T>;
@@ -118,7 +124,7 @@ namespace ulib
     ULIB_DEFINE_TYPE_CHECKS(container_allocator);
     // ULIB_DEFINE_OR_DIE_TYPE_CHECK(container_allocator);
 
-    template<class T>
+    template <class T>
     using constainer_choose_ulib_allocator = choose_ulib_allocator<container_allocator_t<T>>;
 
     ULIB_DEFINE_TYPE_CHECKS(constainer_choose_ulib_allocator);
