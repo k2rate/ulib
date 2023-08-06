@@ -605,7 +605,7 @@ namespace ulib
         // container aliases
 
         inline void assign(ViewT right) { return Assign(right); }
-        inline void assign(List<T, AllocatorT> &&source) { return Assign(std::move(source)); }
+        inline void assign(SelfT &&source) { return Assign(std::move(source)); }
         inline void resize(size_t newSize) { return Resize(newSize); }
         inline void resize(size_t newSize, const_reference value) { return Resize(newSize, value); }
 
@@ -792,8 +792,8 @@ namespace ulib
             {
                 auto e = pointer((uchar *)dest + bcount);
                 auto s = src;
-                for (auto it = dest; it != e; it++, src++)
-                    new (it) T(*src);
+                for (auto it = dest; it != e; it++, s++)
+                    new (it) T(*s);
             }
         }
         inline void CopyConstructElements(pointer dest, const_pointer src, size_type count)

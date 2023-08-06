@@ -8,23 +8,31 @@ deps:
   - ulib
 # - conan:mimalloc@2.0.9
 
-cxxenv.msvc:
+cxxenv.msvc|clang.cl:
   cxx-build-flags:
-        compiler:
-          - "/utf-8 /sourceDependencies deps.json"
-        linker:
-          - "/DEBUG"
+    compiler:
+      - "/utf-8 /W3 /permissive- /sourceDependencies deps.json"
+    linker:
+      - "/DEBUG"
   config.release:
     cxx-build-flags:
       compiler:
-        - "/GL /O2 /Oi /Gy"
+        - "/O2 /Oi /Gy"
       linker:
         - "/LTCG /OPT:REF /OPT:ICF"
 
+cxxenv.clang.msvc:
   cxx-link-deps:
-    - "user32.lib"
-    - "Advapi32.lib"
+    - msvcrt.lib
+
+platform.windows:
+  cxxenv.!gcc:
+    cxx-link-deps:
+      - "user32.lib"
+      - "Advapi32.lib"
 
 # platform.!windows:
 #   enabled: false
 
+cxxenv.!gcc:
+  cxx-standard: 20

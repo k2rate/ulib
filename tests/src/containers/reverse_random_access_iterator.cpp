@@ -52,7 +52,6 @@ TEST(ReverseRandomAccessIteratorTest, Addition)
 
     {
         iterator begin = std::end(str) - 1;
-        iterator end = std::begin(str) - 1;
 
         ASSERT_EQ(*(begin + 0), '\0');
         ASSERT_EQ(*(begin + 1), 'r');
@@ -75,7 +74,6 @@ TEST(ReverseRandomAccessIteratorTest, Subtraction)
     value_type str[] = "narrator";
 
     {
-        iterator begin = std::end(str) - 1;
         iterator end = std::begin(str) - 1;
 
         ASSERT_TRUE((end - 0) == end);
@@ -88,7 +86,7 @@ TEST(ReverseRandomAccessIteratorTest, Subtraction)
         ASSERT_EQ(*end, 'n');
 
         --end;
-        ASSERT_EQ(*end, 'a');
+        ASSERT_EQ(*end, 'a');      
     }
 }
 

@@ -3,7 +3,7 @@
 
 TEST(PageManagerTest, CanAllocAndFree)
 {
-    constexpr size_t kAllocSize = 16;
+    // constexpr size_t kAllocSize = 16;
     constexpr size_t kBufferSize = ulib::PageManager::FreePageOverhead() + 1024;
 
     ulib::PageManager pager;

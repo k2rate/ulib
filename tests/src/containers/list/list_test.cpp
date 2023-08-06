@@ -149,11 +149,13 @@ TEST(ListTest, Resize)
 
 TEST(ListTest, NestedContainers)
 {
-    for (auto i : ulib::range(40))
-    {
-        ulib::List<ulib::List<ulib::List<int>>> list;
-        list.resize(400);
-    }
+    ASSERT_NO_FATAL_FAILURE({
+        for (auto i : ulib::range(80))
+        {
+            ulib::List<ulib::List<ulib::List<int>>> list;
+            list.resize(i);
+        }
+    });
 }
 
 TEST(ListTest, WithString)

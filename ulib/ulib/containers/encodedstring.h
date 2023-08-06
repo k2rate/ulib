@@ -13,8 +13,8 @@
 #include <ulib/allocators/defaultallocator.h>
 #include <ulib/resources/resource.h>
 
-#include <ulib/typetraits/literalencoding.h>
 #include <ulib/typetraits/container.h>
+#include <ulib/typetraits/literalencoding.h>
 #include <ulib/typetraits/string.h>
 
 #include <cstring>
@@ -81,8 +81,6 @@ namespace ulib
 
         inline EncodedString(AllocatorParams al = {}) : m(al) {}
 
- 
-
         inline EncodedString(const CharT *str, AllocatorParams al = {}) : m(str, cstrlen(str), al) {}
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
@@ -90,7 +88,6 @@ namespace ulib
         template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true>
         inline EncodedString(const K &cont, AllocatorParams al = {}) : m(cont, al)
         {
-            
         }
 
         inline EncodedString(size_t size, AllocatorParams al = {}) : m(size, al) {}
@@ -254,15 +251,9 @@ namespace ulib
         //     return !Compare(right);
         // }
 
-        operator ParentStringT() const
-        {
-            return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw());
-        }
+        operator ParentStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
 
-        operator ParentStringViewT() const
-        {
-            return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw());
-        }
+        operator ParentStringViewT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
 
 #ifdef ULIB_STD_COMPATIBILITY
 
@@ -322,16 +313,21 @@ namespace ulib
         ListT m;
     };
 
+// c++ < 20
+#if not __cplusplus >= 202002L
+
+#endif
+
     template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>
     inline bool operator==(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
     {
-        return right == left;
+        return right.Compare(left);
     }
 
     template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>
     inline bool operator!=(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
     {
-        return right != left;
+        return !right.Compare(left);
     }
 
 } // namespace ulib

@@ -146,6 +146,8 @@ TEST(StringTest, Compares)
         StringT s2 = ks;
         StringViewT s3 = ks;
 
+        auto result = kf == f1;
+
         ASSERT_EQ(f1, f2);
         ASSERT_EQ(f2, f1);
         ASSERT_EQ(f1, kf);

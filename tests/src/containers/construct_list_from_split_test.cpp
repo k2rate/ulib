@@ -9,7 +9,7 @@ TEST(ListTest, FromSplit)
     auto spl = ulib::split("hello world", " ");
     ulib::list<ulib::string> list{spl.begin(), spl.end()};
 
-    ASSERT_TRUE(list.size() == 2);
+    ASSERT_EQ(list.size(), 2);
     ASSERT_TRUE(list[0] == "hello");
     ASSERT_TRUE(list[1] == "world");
 }
