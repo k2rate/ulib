@@ -4,7 +4,7 @@
 #include <ulib/string.h>
 #include <ulib/list.h>
 
-TEST(SpanTest, WithString)
+TEST(SpanWithStringTest, ContainsAndFind)
 {
     ulib::string strs[] = { "hello", "world", "alpha", "core", "plak", "mp" };
     ulib::span<ulib::string> spn = strs;

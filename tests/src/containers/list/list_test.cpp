@@ -635,3 +635,13 @@ TEST(ListTest, SelfContains)
 
     ASSERT_EQ(list.Size(), 600);
 }
+
+#include <ulib/string.h>
+
+TEST(ListTest, ConstructsToSpan)
+{
+    const ulib::List<int> list;
+    ulib::span<const int> spn = list;
+
+    ASSERT_EQ(spn, list);
+}

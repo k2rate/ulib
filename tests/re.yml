@@ -32,4 +32,4 @@ platform.linux|osx:
   cxx-global-link-deps:
     - pthread
 
-cxx-standard: 17
+cxx-standard: 20

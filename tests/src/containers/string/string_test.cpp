@@ -146,7 +146,6 @@ TEST(StringTest, Compares)
         StringT s2 = ks;
         StringViewT s3 = ks;
 
-
         ASSERT_EQ(f1, f2);
         ASSERT_EQ(f2, f1);
         ASSERT_EQ(f1, kf);
@@ -512,4 +511,23 @@ TEST(StringTest, At)
     ASSERT_EQ(str.at(4), 'E');
 
     ASSERT_THROW(str.at(6), std::out_of_range);
+}
+
+TEST(StringTest, ConstructFromSpan)
+{
+    {
+        char arr[] = {'a', 'b', 'c'};
+        ulib::span<char> spn = arr;
+        ulib::string str = spn;
+
+        ASSERT_EQ(str, spn);
+    }
+
+    {
+        char8 arr[] = {'a', 'b', 'c'};
+        ulib::span<char8> spn = arr;
+        ulib::u8string str = spn;
+
+        ASSERT_EQ(str, spn);
+    }
 }
