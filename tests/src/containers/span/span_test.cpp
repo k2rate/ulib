@@ -5,6 +5,19 @@
 TEST(SpanTest, Empty)
 {
     {
+        ulib::span<const int> ints;
+        ASSERT_TRUE(ints.empty());
+    }
+
+    {
+        int buf[5] = {0, 1, 2, 3, 4};
+        ulib::span<const int> ints(buf);
+        ASSERT_FALSE(ints.empty());
+
+        
+    }
+
+    {
         ulib::span<int> ints;
         ASSERT_TRUE(ints.empty());
     }
@@ -283,6 +296,7 @@ TEST(SpanTest, Assignment)
     ulib::span<int> ints2;
 
     ints2 = buf;
+    
     ASSERT_TRUE(ints2 == buf);
     ASSERT_TRUE(ints2 == ints);
 

@@ -4,7 +4,6 @@
 #include <ulib/typetraits/carray.h>
 #include <ulib/typetraits/field.h>
 
-
 #include <iterator>
 
 #include <ulib/containers/tags.h>
@@ -14,6 +13,7 @@ namespace ulib
     // -----------
 
     ULIB_DEFINE_TYPE_FIELD_CHECK(container_value_type, value_type);
+    ULIB_DEFINE_TYPE_FIELD_CHECK(container_element_type, element_type);
     ULIB_DEFINE_TYPE_FIELD_CHECK(container_iterator, iterator);
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(container_iterator_tag, typename std::iterator_traits<typename T::iterator>::iterator_category);
     ULIB_DEFINE_TYPE_FIELD_CHECK_T(container_data_method, decltype(std::declval<T>().data()));
@@ -77,18 +77,38 @@ namespace ulib
 
     // -----------
 
+    template <class T, class = void>
+    struct determined_value_type
+    {
+        using type = missing_type;
+    };
+
+    template <class T>
+    struct determined_value_type<T, std::enable_if_t<is_c_array_v<T>>>
+    {
+        using type = c_array_value_type_t<T>;
+    };
+
+    template <class T>
+    struct determined_value_type<T, std::enable_if_t<has_container_value_type_v<T>>>
+    {
+        using type = container_value_type_t<T>;
+    };
+
+    ULIB_DEFINE_TYPE_CHECKS(determined_value_type);
+
+    // -----------
+
     template <class T, class K>
     struct container_range_compatible
     {
         using value_type = container_value_type_t<T>;
         using k_value_type = container_value_type_t<K>;
 
-        static constexpr bool is_tags_compatible = has_container_iterator_tag_v<T> && is_container_iterator_tag_v<T, container_iterator_tag_t<K>>;
+        static constexpr bool is_tags_compatible =
+            is_container_iterator_tag_v<T, std::random_access_iterator_tag> && is_container_iterator_tag_v<K, std::random_access_iterator_tag>;
 
-        // static constexpr bool is_const_compatible = std::is_const_v<value_type> || (!std::is_const_v<value_type> && !std::is_const_v<k_value_type>)
-        // ;
         static constexpr bool is_type_compatible = std::is_same_v<std::remove_cv_t<value_type>, std::remove_cv_t<k_value_type>>;
-
         static constexpr bool value = is_tags_compatible && is_type_compatible;
     };
 
@@ -96,10 +116,50 @@ namespace ulib
     inline constexpr bool is_container_range_compatible_v = container_range_compatible<T, K>::value;
 
     template <class T, class K>
-    inline constexpr bool is_different_container_range_compatible_v = !std::is_same_v<T, K> && is_container_range_compatible_v<T, K>;
+    inline constexpr bool is_const_compatible_v = !(!std::is_const_v<T> && std::is_const_v<K>);
 
     template <class T, class K>
-    using enable_if_range_compatible_t = std::enable_if_t<is_different_container_range_compatible_v<T, K>, bool>;
+    using enable_if_range_compatible_t = std::enable_if_t<is_container_range_compatible_v<T, K>, bool>;
+
+    template <class T, class K>
+    using enable_if_not_same_t = std::enable_if_t<!std::is_same_v<T, K>, bool>;
+
+    template <class T, class K>
+    using enable_if_const_compatible_t = std::enable_if_t<is_const_compatible_v<T, K>, bool>;
+
+    template <class SpanT, class K>
+    struct span_from_range_constructible
+    {
+        using s_type = SpanT;
+        using k_type = std::remove_reference_t<K>;
+        
+        using s_element_type = typename s_type::element_type;
+
+        static constexpr bool is_cc = is_const_compatible_v<s_element_type, k_type> &&
+                                      (!has_container_element_type_v<k_type> || is_const_compatible_v<s_element_type, container_element_type_t<k_type>>);
+
+        static constexpr bool value = is_cc && !std::is_same_v<s_type, k_type> && is_container_range_compatible_v<s_type, k_type>;
+    };
+
+    template <class SpanT, class K>
+    static constexpr bool is_span_from_range_constructible_v = span_from_range_constructible<SpanT, K>::value;
+
+    template <class SpanT, class K>
+    using enable_if_span_from_range_constructible_t = std::enable_if_t<is_span_from_range_constructible_v<SpanT, K>, bool>;
+
+    template <class RangeT, class K>
+    using enable_if_container_from_range_constructible_t =
+        std::enable_if_t<!std::is_same_v<RangeT, std::remove_reference_t<K>> && is_container_range_compatible_v<RangeT, std::remove_reference_t<K>>,
+                         bool>;
+
+    // construct view from range
+    // construct container from range
+
+    // template <class T, class K>
+    // inline constexpr bool is_different_container_range_compatible_v = !std::is_same_v<T, K> && is_container_range_compatible_v<T, K>;
+
+    // template <class T, class K>
+    // using enable_if_range_compatible_t = std::enable_if_t<is_different_container_range_compatible_v<T, K>, bool>;
 
     // -----------
 

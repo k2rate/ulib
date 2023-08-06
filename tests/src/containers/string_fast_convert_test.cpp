@@ -5,6 +5,13 @@
 
 TEST(StringTest, FastConvert)
 {
+#ifdef __cpp_char8_t
+    using std_u8string = std::u8string;
+    using std_u8string_view = std::u8string_view;
+#else
+    using std_u8string = std::string;
+    using std_u8string_view = std::string_view;
+#endif
 
     {
         std::string s0 = ulib::sstr(ulib::u8string(u8"ky"));
@@ -25,13 +32,13 @@ TEST(StringTest, FastConvert)
         std::string s13 = ulib::sstr("ky");
         std::string s14 = ulib::sstr(L"ky");
 
-        std::string s15 = ulib::sstr(std::u8string(u8"ky"));
+        std::string s15 = ulib::sstr(std_u8string(u8"ky"));
         std::string s16 = ulib::sstr(std::u16string(u"ky"));
         std::string s17 = ulib::sstr(std::u32string(U"ky"));
         std::string s18 = ulib::sstr(std::string("ky"));
         std::string s19 = ulib::sstr(std::wstring(L"ky"));
 
-        std::string s20 = ulib::sstr(std::u8string_view(u8"ky"));
+        std::string s20 = ulib::sstr(std_u8string_view(u8"ky"));
         std::string s21 = ulib::sstr(std::u16string_view(u"ky"));
         std::string s22 = ulib::sstr(std::u32string_view(U"ky"));
         std::string s23 = ulib::sstr(std::string_view("ky"));
@@ -57,13 +64,13 @@ TEST(StringTest, FastConvert)
         std::wstring s13 = ulib::swstr("ky");
         std::wstring s14 = ulib::swstr(L"ky");
 
-        std::wstring s15 = ulib::swstr(std::u8string(u8"ky"));
+        std::wstring s15 = ulib::swstr(std_u8string(u8"ky"));
         std::wstring s16 = ulib::swstr(std::u16string(u"ky"));
         std::wstring s17 = ulib::swstr(std::u32string(U"ky"));
         std::wstring s18 = ulib::swstr(std::string("ky"));
         std::wstring s19 = ulib::swstr(std::wstring(L"ky"));
 
-        std::wstring s20 = ulib::swstr(std::u8string_view(u8"ky"));
+        std::wstring s20 = ulib::swstr(std_u8string_view(u8"ky"));
         std::wstring s21 = ulib::swstr(std::u16string_view(u"ky"));
         std::wstring s22 = ulib::swstr(std::u32string_view(U"ky"));
         std::wstring s23 = ulib::swstr(std::string_view("ky"));
@@ -85,7 +92,7 @@ TEST(StringTest, FastConvert)
         ulib::u32string_view u32view = U"с добрым утром ";
 
         std::wstring_view swview = L"с добрым утром ";
-        std::u8string_view su8view = u8"с добрым утром ";
+        std_u8string_view su8view = u8"с добрым утром ";
         std::u16string_view su16view = u"с добрым утром ";
         std::u32string_view su32view = U"с добрым утром ";
 
@@ -152,7 +159,7 @@ TEST(StringTest, FastConvert)
         u32view1 = u32view;
 
         std::string sstr;
-        std::u8string su8str;
+        std_u8string su8str;
         ulib::u8string u8str;
         ulib::u8string_view u8view2 = u8str;
 
@@ -200,7 +207,7 @@ TEST(StringTest, FastConvert)
 
         test = ulib::u8(std::string("ky"));
         test = ulib::u8(std::wstring(L"ky"));
-        test = ulib::u8(std::u8string(u8"ky"));
+        test = ulib::u8(std_u8string(u8"ky"));
         test = ulib::u8(std::u16string(u"ky"));
         test = ulib::u8(std::u32string(U"ky"));
 
@@ -218,7 +225,7 @@ TEST(StringTest, FastConvert)
 
         std::string_view sview = "whoo";
         std::wstring_view swview = L"clang";
-        std::u8string_view su8view = u8"format";
+        std_u8string_view su8view = u8"format";
         std::u16string_view su16view = u"oh";
         std::u32string_view su32view = U"my";
 
@@ -280,7 +287,7 @@ TEST(StringTest, FastConvert)
         // u8str = str; error
 
         std::string sstr = str;
-        std::u8string su8str = u8str;
+        std_u8string su8str = u8str;
         std::u16string su16str = u16str;
         std::u32string su32str = u32str;
 

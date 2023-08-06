@@ -12,10 +12,10 @@ namespace ulib
 
         if constexpr (std::is_same_v<CharT, char>
 #ifdef __cpp_char8_t
-                      || std::is_same_v<CharT, char8_t
+                      || std::is_same_v<CharT, char8_t>
 
 #endif
-                                        >)
+        )
         {
             return __builtin_strlen((const char *)ptr);
         }

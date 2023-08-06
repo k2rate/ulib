@@ -196,50 +196,50 @@ TEST(StringTest, Copy)
     ulib::u8string str1 = kU8Str;
     ulib::u8string str2 = str1;
 
-    ASSERT_EQ(str1, kU8Str);
-    ASSERT_EQ(str2, kU8Str);
+    ASSERT_TRUE(str1 == kU8Str);
+    ASSERT_TRUE(str2 == kU8Str);
     ASSERT_EQ(str1, str2);
     ASSERT_EQ(str2, str1);
 
     ulib::u8string str4;
     str4 = kU8Str;
 
-    ASSERT_EQ(str4, kU8Str);
+    ASSERT_TRUE(str4 == kU8Str);
     ASSERT_EQ(str4, str1);
     ASSERT_EQ(str4, str2);
 
     ulib::u8string str5;
     str5 = str1;
 
-    ASSERT_EQ(str5, kU8Str);
+    ASSERT_TRUE(str5 == kU8Str);
     ASSERT_EQ(str5, str1);
     ASSERT_EQ(str5, str2);
 
     ulib::u8string str6 = u8"jasdhfkasjh";
     str6 = kU8Str;
 
-    ASSERT_EQ(str6, kU8Str);
+    ASSERT_TRUE(str6 == kU8Str);
     ASSERT_EQ(str6, str1);
     ASSERT_EQ(str6, str2);
 
     ulib::u8string str7 = u8"fdsgfdswdf";
     str7 = str1;
 
-    ASSERT_EQ(str7, kU8Str);
+    ASSERT_TRUE(str7 == kU8Str);
     ASSERT_EQ(str7, str1);
     ASSERT_EQ(str7, str2);
 
     ulib::u8string str8 = u8"fdsgfdswdf";
     str8.Assign(str1);
 
-    ASSERT_EQ(str8, kU8Str);
+    ASSERT_TRUE(str8 == kU8Str);
     ASSERT_EQ(str8, str1);
     ASSERT_EQ(str8, str2);
 
     ulib::u8string str9 = u8"fdsgfdswdf";
     str9.Assign(kU8Str);
 
-    ASSERT_EQ(str9, kU8Str);
+    ASSERT_TRUE(str9 == kU8Str);
     ASSERT_EQ(str9, str1);
     ASSERT_EQ(str9, str2);
 }
@@ -427,17 +427,17 @@ TEST(StringTest, Length)
 #define arrsize(x) (sizeof(x) / sizeof(x[0]))
 #define cstrsize(x) (arrsize(x) - 1)
 
-    ASSERT_EQ(str.size(), cstrsize(kStr));
-    ASSERT_EQ(wstr.size(), cstrsize(kWstr));
-    ASSERT_EQ(u8str.size(), cstrsize(kU8str));
-    ASSERT_EQ(u16str.size(), cstrsize(kU16str));
-    ASSERT_EQ(u32str.size(), cstrsize(kU32str));
+    EXPECT_EQ(str.size(), cstrsize(kStr));
+    EXPECT_EQ(wstr.size(), cstrsize(kWstr));
+    EXPECT_EQ(u8str.size(), cstrsize(kU8str));
+    EXPECT_EQ(u16str.size(), cstrsize(kU16str));
+    EXPECT_EQ(u32str.size(), cstrsize(kU32str));
 
-    ASSERT_EQ(str.length(), 10);
-    ASSERT_EQ(wstr.length(), 10);
-    ASSERT_EQ(u8str.length(), 9);
-    ASSERT_EQ(u16str.length(), 9);
-    ASSERT_EQ(u32str.length(), 9);
+    EXPECT_EQ(str.length(), 10);
+    EXPECT_EQ(wstr.length(), 10);
+    EXPECT_EQ(u8str.length(), 9);
+    EXPECT_EQ(u16str.length(), 9);
+    EXPECT_EQ(u32str.length(), 9);
 
 #undef cstrsize
 #undef arrsize

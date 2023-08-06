@@ -11,7 +11,7 @@ deps:
 cxxenv.msvc:
   cxx-build-flags:
         compiler:
-          - "/utf-8"
+          - "/utf-8 /sourceDependencies deps.json"
         linker:
           - "/DEBUG"
   config.release:

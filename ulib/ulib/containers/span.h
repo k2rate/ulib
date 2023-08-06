@@ -42,58 +42,55 @@ namespace ulib
     public:
         using SelfT = Span<T>;
 
-        using value_type = T;
-        using BufferViewT = Span<uchar>;
+        using element_type = T;
+        using value_type = std::remove_cv_t<T>;
 
-        using Iterator = RandomAccessIterator<value_type>;
-        using ConstIterator = RandomAccessIterator<const value_type>;
-        using ReverseIterator = ReverseRandomAccessIterator<value_type>;
-        using ConstReverseIterator = ReverseRandomAccessIterator<const value_type>;
-        using ReverseT = ReversedSpan<const value_type>;
+        using BufferViewT = Span<const uchar>;
+        using ReverseT = ReversedSpan<const T>;
         using SplitViewT = SplitView<SelfT>;
 
         using ContainerTypeT = list_type_tag;
         using ContainerOwnershipT = view_ownership_tag;
 
-        using pointer = value_type *;
-        using const_pointer = const value_type *;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using iterator = Iterator;
-        using const_iterator = ConstIterator;
-        using reverse_iterator = ReverseIterator;
-        using const_reverse_iterator = ConstReverseIterator;
+        using SpanT = Span<T>;
+        using ViewT = Span<const T>;
+
+        using pointer = T *;
+        using const_pointer = const T *;
+        using reference = T &;
+        using const_reference = const T &;
+        using iterator = RandomAccessIterator<T>;
+        using const_iterator = RandomAccessIterator<const T>;
+        using reverse_iterator = ReverseRandomAccessIterator<T>;
+        using const_reverse_iterator = ReverseRandomAccessIterator<const T>;
         using size_type = size_t;
 
         Span() noexcept { mBegin = mLast = nullptr; }
         Span(const SelfT &other) noexcept { mBegin = other.mBegin, mLast = other.mLast; }
-        Span(const_pointer b, const_pointer e) noexcept { mBegin = b, mLast = e; }
-        Span(const_pointer v, size_type count) noexcept { mBegin = v, mLast = v + count; }
-        Span(const_iterator first, const_iterator last) noexcept { mBegin = first.raw(), mLast = last.raw(); }
+        Span(pointer b, pointer e) noexcept { mBegin = b, mLast = e; }
+        Span(pointer v, size_type count) noexcept { mBegin = v, mLast = v + count; }
+        Span(iterator first, iterator last) noexcept { mBegin = first.raw(), mLast = last.raw(); }
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
-        Span(const K &arr)
+        template <class K, enable_if_span_from_range_constructible_t<SelfT, K> = true>
+        Span(K &&arr)
         {
             mBegin = std::data(arr);
             mLast = mBegin + std::size(arr);
         }
 
         template <size_type N>
-        Span(value_type (&arr)[N]) noexcept
+        Span(T (&arr)[N]) noexcept
         {
             mBegin = &arr[0], mLast = &arr[N];
         }
 
         ~Span() noexcept = default;
-        // Span(const_iterator first, const_iterator last) { mBegin = first.raw(), mLast = first.raw(); }
-        // functions
 
-        inline const_pointer Data() { return mBegin; }
-        inline const_pointer Data() const { return mBegin; }
-        inline const_iterator Begin() const { return mBegin; }
-        inline const_iterator End() const { return mLast; }
-        inline const_reverse_iterator ReverseBegin() const { return mLast - 1; }
-        inline const_reverse_iterator ReverseEnd() const { return mBegin - 1; }
+        inline pointer Data() const { return mBegin; }
+        inline iterator Begin() const { return mBegin; }
+        inline iterator End() const { return mLast; }
+        inline reverse_iterator ReverseBegin() const { return mLast - 1; }
+        inline reverse_iterator ReverseEnd() const { return mBegin - 1; }
         inline ReverseT Reverse() const { return ReverseT{ReverseBegin(), ReverseEnd()}; }
         inline bool Empty() const { return mBegin == mLast; }
         inline size_type Size() const { return mLast - mBegin; }
@@ -101,25 +98,25 @@ namespace ulib
         inline size_type SizeInBytes() const { return size_type(mLast) - size_type(mBegin); }
         inline void RemovePrefix(size_type c) { mBegin += c; }
         inline void RemoveSuffix(size_type c) { mLast -= c; }
-        inline const_reference At(size_type idx) const
+        inline reference At(size_type idx) const
         {
             if (idx >= Size())
                 throw std::out_of_range{".at() out of range"};
             return mBegin[idx];
         }
-        inline const_reference Front() const
+        inline reference Front() const
         {
             assert(!Empty());
             return *Begin();
         }
 
-        inline const_reference Back() const
+        inline reference Back() const
         {
             assert(!Empty());
             return *(mLast - 1);
         }
 
-        inline bool Compare(SelfT right) const { return std::equal(mBegin, mLast, right.mBegin, right.mLast); }
+        inline bool Compare(ViewT right) const { return std::equal(mBegin, mLast, right.Begin().Raw(), right.End().Raw()); }
 
         inline size_type Find(const_reference v, size_type pos = 0) const
         {
@@ -136,9 +133,9 @@ namespace ulib
             // return npos;
         }
 
-        inline size_type Find(SelfT v, size_type pos = 0) const
+        inline size_type Find(ViewT v, size_type pos = 0) const
         {
-            auto it = std::search(mBegin + pos, mLast, v.mBegin, v.mLast);
+            auto it = std::search(mBegin + pos, mLast, v.Begin().Raw(), v.End().Raw());
             return it == mLast ? npos : it - mBegin;
 
             // size_type msize = SizeInBytes() - pos * sizeof(value_type), vsize = v.SizeInBytes();
@@ -170,8 +167,8 @@ namespace ulib
         {
             // auto re = mBegin + pos - 1;
 
-            auto it = std::find(ReverseBegin(), ConstReverseIterator{mBegin + pos - 1}, v);
-            return it == ReverseEnd() ? npos : it.base() - ConstIterator(mBegin);
+            auto it = std::find(ReverseBegin(), reverse_iterator{mBegin + pos - 1}, v);
+            return it == ReverseEnd() ? npos : it.base() - iterator(mBegin);
 
             // auto mend = mBegin + pos - 1;
             // auto mbegin = mLast - 1;
@@ -188,10 +185,10 @@ namespace ulib
             // return npos;
         }
 
-        inline size_type ReverseFind(SelfT v, size_type pos = 0) const
+        inline size_type ReverseFind(ViewT v, size_type pos = 0) const
         {
-            auto it = std::search(ReverseBegin(), ConstReverseIterator{mBegin + pos - 1}, v.ReverseBegin(), v.ReverseEnd());
-            return it == ReverseEnd() ? npos : it.base() - ConstIterator(mBegin) - v.Size() + 1;
+            auto it = std::search(ReverseBegin(), reverse_iterator{mBegin + pos - 1}, v.ReverseBegin(), v.ReverseEnd());
+            return it == ReverseEnd() ? npos : it.base() - iterator(mBegin) - v.Size() + 1;
 
             // size_type msize = SizeInBytes() - pos * sizeof(value_type), vsize = v.SizeInBytes();
             // if (msize < vsize)
@@ -221,28 +218,28 @@ namespace ulib
             return false;
         }
 
-        inline bool StartsWith(SelfT v) const
+        inline bool StartsWith(ViewT v) const
         {
             size_type msize = SizeInBytes(), vsize = v.SizeInBytes();
             if (msize < vsize)
                 return false;
 
-            return std::equal(v.mBegin, v.mLast, mBegin);
+            return std::equal(v.Begin().Raw(), v.End().Raw(), mBegin);
 
             // return memcmp(mBegin, v.mBegin, vsize) == 0;
         }
 
-        inline bool EndsWith(SelfT v) const
+        inline bool EndsWith(ViewT v) const
         {
             size_type msize = SizeInBytes(), vsize = v.SizeInBytes();
             if (msize < vsize)
                 return false;
 
-            return std::equal(v.mBegin, v.mLast, (const_pointer)((uchar *)mLast - vsize));
+            return std::equal(v.Begin().Raw(), v.End().Raw(), (const_pointer)((uchar *)mLast - vsize));
             // return memcmp((const_pointer)((uchar *)mLast - vsize), v.mBegin, vsize) == 0;
         }
 
-        inline bool Contains(SelfT v) const { return Find(v) != npos; }
+        inline bool Contains(ViewT v) const { return Find(v) != npos; }
         inline SelfT SubSpan(size_type pos, size_type n = npos) const
         {
             auto first = mBegin + pos;
@@ -263,12 +260,13 @@ namespace ulib
             }
         }
 
-        inline SplitViewT Split(SelfT sep) const { return SplitViewT{*this, sep}; }
-        inline BufferViewT Raw() const { return BufferViewT{(uchar *)mBegin, (uchar *)mLast}; }
+        inline SplitViewT Split(ViewT sep) const { return SplitViewT{*this, sep}; }
+        inline BufferViewT Raw() const { return BufferViewT{(const uchar *)mBegin, (const uchar *)mLast}; }
 
         // operators
 
-        inline SelfT &operator=(SelfT right) { return mBegin = right.mBegin, mLast = right.mLast, *this; }
+        inline SelfT &operator=(const SelfT &right) { return mBegin = right.mBegin, mLast = right.mLast, *this; }
+        // inline SelfT &operator=(ViewT right) { return mBegin = right.mBegin, mLast = right.mLast, *this; }
         // template <class K, enable_if_range_compatible_t<SelfT, K> = true>
         // inline SelfT &operator=(const K &right)
         // {
@@ -276,29 +274,27 @@ namespace ulib
         //     mLast = mBegin + right.size();
         // }
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        template <class K, std::enable_if_t<std::is_constructible_v<ViewT, K>, bool> = true>
         inline bool operator==(const K &right) const
         {
-            return Compare(SelfT{right});
+            return Compare(ViewT{right});
         }
-        inline bool operator==(SelfT right) const { return Compare(right); }
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        template <class K, std::enable_if_t<std::is_constructible_v<ViewT, K>, bool> = true>
         inline bool operator!=(const K &right) const
         {
-            return !Compare(SelfT{right});
+            return !Compare(ViewT{right});
         }
-        inline bool operator!=(SelfT right) const { return !Compare(right); }
 
-        inline const_reference operator[](size_type idx) const { return mBegin[idx]; }
+        inline reference operator[](size_type idx) const { return mBegin[idx]; }
 
         // aliases
 
-        inline const_pointer data() const { return Data(); }
-        inline const_iterator begin() const { return mBegin; }
-        inline const_iterator end() const { return mLast; }
-        inline const_reverse_iterator rbegin() const { return mLast - 1; }
-        inline const_reverse_iterator rend() const { return mBegin - 1; }
+        inline pointer data() const { return Data(); }
+        inline iterator begin() const { return mBegin; }
+        inline iterator end() const { return mLast; }
+        inline reverse_iterator rbegin() const { return mLast - 1; }
+        inline reverse_iterator rend() const { return mBegin - 1; }
         inline ReverseT reverse() const { return Reverse(); }
         inline bool empty() const { return Empty(); }
         inline size_type size() const { return Size(); }
@@ -306,33 +302,52 @@ namespace ulib
         inline size_type length() const { return Length(); }
         inline void remove_prefix(size_type c) const { mBegin += c; }
         inline void remove_suffix(size_type c) const { mLast -= c; }
-        inline const_reference at(size_type idx) const { return At(idx); }
-        inline const_reference front() const { return Front(); }
-        inline const_reference back() const { return Back(); }
-        inline bool compare(SelfT right) const { return Compare(right); }
+        inline reference at(size_type idx) const { return At(idx); }
+        inline reference front() const { return Front(); }
+        inline reference back() const { return Back(); }
+        inline bool compare(ViewT right) const { return Compare(right); }
         inline size_type find(const_reference v, size_type pos = 0) const { return Find(v, pos); }
-        inline size_type find(SelfT v, size_type pos = 0) const { return Find(v, pos); }
+        inline size_type find(ViewT v, size_type pos = 0) const { return Find(v, pos); }
         inline size_type rfind(const_reference v, size_type pos = 0) const { return ReverseFind(v, pos); }
-        inline size_type rfind(SelfT v, size_type pos = 0) const { return ReverseFind(v, pos); }
+        inline size_type rfind(ViewT v, size_type pos = 0) const { return ReverseFind(v, pos); }
         inline bool starts_with(const_reference v) const { return StartsWith(v); }
         inline bool ends_with(const_reference v) const { return EndsWith(v); }
         inline bool contains(const_reference v) const { return Contains(v); }
-        inline bool starts_with(SelfT v) const { return StartsWith(v); }
-        inline bool ends_with(SelfT v) const { return EndsWith(v); }
-        inline bool contains(SelfT v) const { return Contains(v); }
+        inline bool starts_with(ViewT v) const { return StartsWith(v); }
+        inline bool ends_with(ViewT v) const { return EndsWith(v); }
+        inline bool contains(ViewT v) const { return Contains(v); }
         inline SelfT subspan(size_type pos, size_type n = npos) const { return SubSpan(pos, n); }
-        inline SplitViewT split(SelfT sep) const { return Split(sep); }
+        inline SplitViewT split(ViewT sep) const { return Split(sep); }
         inline BufferViewT raw() const { return Raw(); }
 
     private:
-        const_pointer mBegin;
-        const_pointer mLast;
+        pointer mBegin;
+        pointer mLast;
     };
+
+    template <class T>
+    using SpanView = Span<const T>;
 
     template <class T>
     using span = Span<T>;
 
+    template <class T>
+    using span_view = SpanView<T>;
+
     using BufferView = Span<uchar>;
     using buffer_view = BufferView;
+
+    // template<class T, class T1>
+    // inline bool operator==(Span<T> left, Span<T1> right)
+    // {
+    //     return left.Compare(right);
+    // }
+
+    // template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+    // inline bool operator!=(const K &right) const
+    // {
+    //     return !Compare(ViewT{right});
+    // }
+    // inline bool operator!=(ViewT right) const { return !Compare(right); }
 
 } // namespace ulib

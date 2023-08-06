@@ -3,17 +3,12 @@
 #include <ulib/config.h>
 
 #include <ulib/encodings/multibyte/string.h>
-#include <ulib/encodings/multibyte/stringview.h>
 #include <ulib/encodings/utf16/string.h>
-#include <ulib/encodings/utf16/stringview.h>
 #include <ulib/encodings/utf32/string.h>
-#include <ulib/encodings/utf32/stringview.h>
 #include <ulib/encodings/utf8/string.h>
-#include <ulib/encodings/utf8/stringview.h>
 #include <ulib/encodings/wide/string.h>
-#include <ulib/encodings/wide/stringview.h>
-
 #include <ulib/encodings/convert.h>
+
 #include <ulib/typetraits/string.h>
 
 namespace ulib

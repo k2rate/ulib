@@ -14,27 +14,29 @@
 
 namespace ulib
 {
-    template <class EncodingTy>
-    class EncodedStringView
+    template <class EncodingTy, class CharTy = typename EncodingTy::CharT>
+    class EncodedStringSpan
     {
     public:
+        using SelfT = EncodedStringSpan<EncodingTy, CharTy>;
         using EncodingT = EncodingTy;
-        using CharT = typename EncodingT::CharT;
-        using SpanT = Span<CharT>;
-        using SelfT = EncodedStringView<EncodingTy>;
+        using CharT = std::remove_cv_t<typename EncodingT::CharT>;
+        using SpanT = Span<CharTy>;
+        using ViewT = EncodedStringSpan<EncodingTy, const CharTy>;
 
-        using Iterator = RandomAccessIterator<CharT>;
-        using ConstIterator = RandomAccessIterator<const CharT>;
-        using ReverseIterator = ReverseRandomAccessIterator<CharT>;
-        using ConstReverseIterator = ReverseRandomAccessIterator<const CharT>;
+        using Iterator = RandomAccessIterator<CharTy>;
+        using ConstIterator = RandomAccessIterator<const CharTy>;
+        using ReverseIterator = ReverseRandomAccessIterator<CharTy>;
+        using ConstReverseIterator = ReverseRandomAccessIterator<const CharTy>;
         using ReverseT = ReversedSpan<const CharT>;
         using SplitViewT = SplitView<SelfT>;
 
+        using element_type = CharTy;
         using value_type = CharT;
-        using pointer = value_type *;
-        using const_pointer = const value_type *;
-        using reference = value_type &;
-        using const_reference = const value_type &;
+        using pointer = CharTy *;
+        using const_pointer = const CharTy *;
+        using reference = CharTy &;
+        using const_reference = const CharTy &;
         using iterator = Iterator;
         using const_iterator = ConstIterator;
         using reverse_iterator = ReverseIterator;
@@ -47,30 +49,30 @@ namespace ulib
 
         using ParentEncodingT = typename EncodingT::ParentEncodingT;
         using ParentEncodingCharT = typename ParentEncodingT::CharT;
-        using ParentStringViewT = EncodedStringView<ParentEncodingT>;
+        using ParentStringSpanT = EncodedStringSpan<ParentEncodingT>;
 
-        EncodedStringView() {}
-        EncodedStringView(const CharT *str) noexcept : mSpan(str, cstrlen(str)) {}
-        EncodedStringView(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
-        EncodedStringView(ConstIterator b, ConstIterator e) noexcept : mSpan(b.ptr, e.ptr) {}
-        EncodedStringView(const CharT *str, size_t size) noexcept : mSpan(str, size) {}
+        EncodedStringSpan() {}
+        EncodedStringSpan(const CharT *str) noexcept : mSpan(str, cstrlen(str)) {}
+        EncodedStringSpan(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
+        EncodedStringSpan(ConstIterator b, ConstIterator e) noexcept : mSpan(b.ptr, e.ptr) {}
+        EncodedStringSpan(const CharT *str, size_t size) noexcept : mSpan(str, size) {}
 
-        EncodedStringView(const EncodedStringView<EncodingT> &source) : mSpan(source) {}
+        EncodedStringSpan(const EncodedStringSpan<EncodingT> &source) : mSpan(source) {}
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
-        EncodedStringView(const K &str) : mSpan(str)
+        template <class K, enable_if_span_from_range_constructible_t<SelfT, K> = true>
+        EncodedStringSpan(K &&str) : mSpan(str)
         {
         }
-        ~EncodedStringView() noexcept = default;
+        ~EncodedStringSpan() noexcept = default;
 
         // functions
 
-        inline const_pointer Data() { return mSpan.Data(); }
-        inline const_pointer Data() const { return mSpan.Data(); }
-        inline const_iterator Begin() const { return mSpan.Begin(); }
-        inline const_iterator End() const { return mSpan.End(); }
-        inline const_reverse_iterator ReverseBegin() const { return mSpan.ReverseBegin(); }
-        inline const_reverse_iterator ReverseEnd() const { return mSpan.ReverseEnd(); }
+        inline pointer Data() { return mSpan.Data(); }
+        inline pointer Data() const { return mSpan.Data(); }
+        inline iterator Begin() const { return mSpan.Begin(); }
+        inline iterator End() const { return mSpan.End(); }
+        inline reverse_iterator ReverseBegin() const { return mSpan.ReverseBegin(); }
+        inline reverse_iterator ReverseEnd() const { return mSpan.ReverseEnd(); }
         inline ReverseT Reverse() const { return ReverseT{ReverseBegin(), ReverseEnd()}; }
         inline bool Empty() const { return mSpan.Empty(); }
         inline size_type Size() const { return mSpan.Size(); }
@@ -78,9 +80,9 @@ namespace ulib
         inline size_type SizeInBytes() const { return mSpan.SizeInBytes(); }
         inline void RemovePrefix(size_type c) { mSpan.RemovePrefix(c); }
         inline void RemoveSuffix(size_type c) { mSpan.RemoveSuffix(c); }
-        inline const_reference At(size_type idx) const { return mSpan.At(idx); }
-        inline const_reference Front() const { return mSpan.Front(); }
-        inline const_reference Back() const { return mSpan.Back(); }
+        inline reference At(size_type idx) const { return mSpan.At(idx); }
+        inline reference Front() const { return mSpan.Front(); }
+        inline reference Back() const { return mSpan.Back(); }
         inline bool Compare(SelfT right) const { return mSpan.Compare(right); }
         inline size_type Find(const_reference v, size_type pos = 0) const { return mSpan.Find(v, pos); }
         inline size_type Find(SelfT v, size_type pos = 0) const { return mSpan.Find(v, pos); }
@@ -89,34 +91,49 @@ namespace ulib
         inline bool StartsWith(const_reference v) const { return mSpan.StartsWith(v); }
         inline bool EndsWith(const_reference v) const { return mSpan.EndsWith(v); }
         inline bool Contains(const_reference v) const { return mSpan.Contains(v); }
-        inline bool StartsWith(SelfT v) const { return mSpan.StartsWith(v); }
-        inline bool EndsWith(SelfT v) const { return mSpan.EndsWith(v); }
-        inline bool Contains(SelfT v) const { return mSpan.Contains(v); }
+        inline bool StartsWith(ViewT v) const { return mSpan.StartsWith(v); }
+        inline bool EndsWith(ViewT v) const { return mSpan.EndsWith(v); }
+        inline bool Contains(ViewT v) const { return mSpan.Contains(v); }
         inline SelfT SubString(size_type pos, size_type n = npos) const { return SelfT(mSpan.SubSpan(pos, n)); }
-        inline SplitViewT Split(SelfT sep) const { return SplitViewT{*this, sep}; }
+        inline SplitViewT Split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView Raw() const { return mSpan.Raw(); }
 
         // operators
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        template <class K, std::enable_if_t<std::is_constructible_v<ViewT, K>, bool> = true>
         inline bool operator==(const K &right) const
         {
-            return mSpan.Compare(SpanT{right});
+            return Compare(ViewT{right});
         }
-        inline bool operator==(const CharT *right) const { return mSpan.Compare(SpanT{right, cstrlen(right)}); }
-        inline bool operator==(SelfT right) const { return mSpan.Compare(right); }
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        template <class K, std::enable_if_t<std::is_constructible_v<ViewT, K>, bool> = true>
         inline bool operator!=(const K &right) const
         {
-            return !mSpan.Compare(SpanT{right});
+            return !Compare(ViewT{right});
         }
-        inline bool operator!=(const CharT *right) const { return !mSpan.Compare(SpanT{right, cstrlen(right)}); }
-        inline bool operator!=(SelfT right) const { return !mSpan.Compare(right); }
 
-        inline const_reference operator[](size_type idx) const { return mSpan[idx]; }
+        // template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        // inline bool operator==(const K &right) const
+        // {
+        //     return mSpan.Compare(SpanT{right});
+        // }
+        // inline bool operator==(const CharT *right) const { return mSpan.Compare(SpanT{right, cstrlen(right)}); }
+        // inline bool operator==(SelfT right) const { return mSpan.Compare(right); }
 
-        operator ParentStringViewT() const { return ParentStringT((ParentEncodingCharT *)mSpan.Begin().Raw(), (ParentEncodingCharT *)mSpan.End().Raw()); }
+        // template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        // inline bool operator!=(const K &right) const
+        // {
+        //     return !mSpan.Compare(SpanT{right});
+        // }
+        // inline bool operator!=(const CharT *right) const { return !mSpan.Compare(SpanT{right, cstrlen(right)}); }
+        // inline bool operator!=(SelfT right) const { return !mSpan.Compare(right); }
+
+        inline reference operator[](size_type idx) const { return mSpan[idx]; }
+
+        operator ParentStringSpanT() const
+        {
+            return ParentStringT((ParentEncodingCharT *)mSpan.Begin().Raw(), (ParentEncodingCharT *)mSpan.End().Raw());
+        }
 
 #ifdef ULIB_STD_COMPATIBILITY
 
@@ -143,11 +160,11 @@ namespace ulib
 
         // aliases
 
-        inline const_pointer data() const { return Data(); }
-        inline const_iterator begin() const { return Begin(); }
-        inline const_iterator end() const { return End(); }
-        inline const_reverse_iterator rbegin() const { return ReverseBegin(); }
-        inline const_reverse_iterator rend() const { return ReverseEnd(); }
+        inline pointer data() const { return Data(); }
+        inline iterator begin() const { return Begin(); }
+        inline iterator end() const { return End(); }
+        inline reverse_iterator rbegin() const { return ReverseBegin(); }
+        inline reverse_iterator rend() const { return ReverseEnd(); }
         inline ReverseT reverse() const { return Reverse(); }
         inline bool empty() const { return Empty(); }
         inline size_type size() const { return Size(); }
@@ -155,27 +172,30 @@ namespace ulib
         inline size_type length() const { return Length(); }
         inline void remove_prefix(size_type c) { RemovePrefix(c); }
         inline void remove_suffix(size_type c) { RemoveSuffix(c); }
-        inline const_reference at(size_type idx) const { return At(idx); }
-        inline const_reference front() const { return Front(); }
-        inline const_reference back() const { return Back(); }
-        inline bool compare(SelfT right) const { return Compare(right); }
+        inline reference at(size_type idx) const { return At(idx); }
+        inline reference front() const { return Front(); }
+        inline reference back() const { return Back(); }
+        inline bool compare(ViewT right) const { return Compare(right); }
         inline size_type find(const_reference v, size_type pos = 0) const { return Find(v, pos); }
-        inline size_type find(SelfT v, size_type pos = 0) const { return Find(v, pos); }
+        inline size_type find(ViewT v, size_type pos = 0) const { return Find(v, pos); }
         inline size_type rfind(const_reference v, size_type pos = 0) const { return ReverseFind(v, pos); }
-        inline size_type rfind(SelfT v, size_type pos = 0) const { return ReverseFind(v, pos); }
+        inline size_type rfind(ViewT v, size_type pos = 0) const { return ReverseFind(v, pos); }
         inline bool starts_with(const_reference v) const { return StartsWith(v); }
         inline bool ends_with(const_reference v) const { return EndsWith(v); }
         inline bool contains(const_reference v) const { return Contains(v); }
-        inline bool starts_with(SelfT v) const { return StartsWith(v); }
-        inline bool ends_with(SelfT v) const { return EndsWith(v); }
-        inline bool contains(SelfT v) const { return Contains(v); }
+        inline bool starts_with(ViewT v) const { return StartsWith(v); }
+        inline bool ends_with(ViewT v) const { return EndsWith(v); }
+        inline bool contains(ViewT v) const { return Contains(v); }
         inline SelfT substr(size_type pos, size_type n = npos) const { return SubString(pos, n); }
-        inline SplitViewT split(SelfT sep) const { return Split(sep); }
+        inline SplitViewT split(ViewT sep) const { return Split(sep); }
         inline BufferView raw() const { return Raw(); }
 
     private:
         SpanT mSpan;
     };
+
+    template <class EncodingTy>
+    using EncodedStringView = EncodedStringSpan<EncodingTy, const typename EncodingTy::CharT>;
 
     template <class EncodingT, class CharT>
     inline bool operator==(const CharT *left, ulib::EncodedStringView<EncodingT> str)

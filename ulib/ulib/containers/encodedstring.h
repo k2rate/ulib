@@ -87,9 +87,10 @@ namespace ulib
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
 
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
+        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true>
         inline EncodedString(const K &cont, AllocatorParams al = {}) : m(cont, al)
         {
+            
         }
 
         inline EncodedString(size_t size, AllocatorParams al = {}) : m(size, al) {}
@@ -336,7 +337,7 @@ namespace ulib
 } // namespace ulib
 
 template <class EncodingT, class AllocatorT>
-inline ulib::EncodedString<EncodingT, AllocatorT> operator+(ulib::EncodedStringView<EncodingT> left,
+inline ulib::EncodedString<EncodingT, AllocatorT> operator+(ulib::EncodedStringSpan<EncodingT> left,
                                                             const ulib::EncodedString<EncodingT, AllocatorT> &right)
 {
     ulib::EncodedString<EncodingT, AllocatorT> result(left);

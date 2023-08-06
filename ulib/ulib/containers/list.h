@@ -53,14 +53,14 @@ namespace ulib
         // ulib optional fields
         using AllocatorT = AllocatorTy;
         using ReverseT = ReversedSpan<const value_type>;
-        using ViewT = Span<T>;
+        using SpanT = Span<T>;
+        using ViewT = SpanView<T>;
 
         // detail fields
         using BufferT = List<uchar, AllocatorT>;
         using ResourceT = Resource<AllocatorT>;
         using AllocatorParams = typename AllocatorT::Params;
-        using InitializerListT = std::initializer_list<T>;
-        using SpanT = ViewT;
+        using InitializerListT = std::initializer_list<T>;    
         using SplitViewT = SplitView<SpanT>;
 
         constexpr static size_t C_STEP = 16;
@@ -75,12 +75,14 @@ namespace ulib
         }
 
         inline List(const_pointer ptr, size_type count, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(ptr, count); }
-        template <class K, enable_if_range_compatible_t<SelfT, K> = true>
-        inline List(const K &cont, AllocatorParams al = {}) : ResourceT(al)
+
+        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true>
+        inline List(K &&cont, AllocatorParams al = {}) : ResourceT(al)
         {
-            SpanT rn = cont;
+            ViewT rn = cont;
             SetupWithCopyConstructB(rn.Data(), rn.SizeInBytes());
         }
+
         inline explicit List(size_type size, AllocatorParams al = {}) : ResourceT(al) { SetupViaSizeAndConstruct(size); }
         inline explicit List(args::Capacity capacity, AllocatorParams al = {}) : ResourceT(al) { SetupViaCapacity(capacity.cc); }
         inline List(InitializerListT init, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(init.begin(), init.end()); }
@@ -125,7 +127,7 @@ namespace ulib
         inline size_type AvailableInBytes() const { return mEndB - mLastB; }
         inline bool Empty() const { return mLast == mBegin; }
 
-        inline void AssignS(SpanT right)
+        inline void AssignS(ViewT right)
         {
             size_t allocSize = right.SizeInBytes();
             size_t requiredSize = allocSize;
@@ -303,7 +305,7 @@ namespace ulib
             return it;
         }
 
-        inline iterator Insert(const_iterator pos, SpanT right) { return Insert(pos, right.Begin(), right.End()); }
+        inline iterator Insert(const_iterator pos, ViewT right) { return Insert(pos, right.Begin(), right.End()); }
         inline iterator Insert(const_iterator pos, InitializerListT right) { return Insert(pos, right.begin(), right.end()); }
 
         template <class InputIt>
@@ -337,7 +339,7 @@ namespace ulib
         inline iterator InsertBack(const_reference v) { return Insert(End(), v); }
         inline iterator InsertBack(T &&v) { return Insert(End(), std::move(v)); }
         inline iterator InsertBack(size_type count, const_reference value) { return Insert(End(), count, value); }
-        inline iterator InsertBack(SpanT right) { return Insert(End(), right); }
+        inline iterator InsertBack(ViewT right) { return Insert(End(), right); }
         inline iterator InsertBack(const_iterator pos, InitializerListT right) { return Insert(End(), right.begin(), right.end()); }
         template <class InputIt>
         inline iterator InsertBack(InputIt first, InputIt last)
@@ -348,7 +350,7 @@ namespace ulib
         inline iterator InsertFront(const_reference v) { return Insert(Begin(), v); }
         inline iterator InsertFront(T &&v) { return Insert(Begin(), std::move(v)); }
         inline iterator InsertFront(size_type count, const_reference value) { return Insert(Begin(), count, value); }
-        inline iterator InsertFront(SpanT right) { return Insert(Begin(), right); }
+        inline iterator InsertFront(ViewT right) { return Insert(Begin(), right); }
         inline iterator InsertFront(const_iterator pos, InitializerListT right) { return Insert(Begin(), right.begin(), right.end()); }
         template <class InputIt>
         inline iterator InsertFront(InputIt first, InputIt last)
@@ -408,7 +410,7 @@ namespace ulib
             return *Emplace(Begin(), args...);
         }
 
-        inline SelfT &Append(SpanT right) { return InsertBack(right), *this; }
+        inline SelfT &Append(ViewT right) { return InsertBack(right), *this; }
 
         inline T &Front()
         {
@@ -564,45 +566,45 @@ namespace ulib
         }
 
         inline SpanT ToSpan() const { return SpanT{mBegin, mLast}; }
-        inline bool Compare(SpanT right) const { return ToSpan().Compare(right); }
+        inline bool Compare(ViewT right) const { return ToSpan().Compare(right); }
         inline size_type Find(const_reference v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
-        inline size_type Find(SpanT v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
+        inline size_type Find(ViewT v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
         inline size_type ReverseFind(const_reference v, size_type pos = 0) const { return ToSpan().ReverseFind(v, pos); }
-        inline size_type ReverseFind(SpanT v, size_type pos = 0) const { return ToSpan().ReverseFind(v, pos); }
+        inline size_type ReverseFind(ViewT v, size_type pos = 0) const { return ToSpan().ReverseFind(v, pos); }
         inline bool StartsWith(const_reference v) const { return ToSpan().StartsWith(v); }
         inline bool EndsWith(const_reference v) const { return ToSpan().EndsWith(v); }
         inline bool Contains(const_reference v) const { return ToSpan().Contains(v); }
-        inline bool StartsWith(SpanT v) const { return ToSpan().StartsWith(v); }
-        inline bool EndsWith(SpanT v) const { return ToSpan().EndsWith(v); }
-        inline bool Contains(SpanT v) const { return ToSpan().Contains(v); }
+        inline bool StartsWith(ViewT v) const { return ToSpan().StartsWith(v); }
+        inline bool EndsWith(ViewT v) const { return ToSpan().EndsWith(v); }
+        inline bool Contains(ViewT v) const { return ToSpan().Contains(v); }
         inline SpanT SubSpan(size_type pos, size_type n = npos) const { return ToSpan().SubSpan(pos, n); }
 
         inline size_type GetIndex(const_iterator it) const { return size_type(it.ptr - mBegin); }
         inline iterator GetIterator(size_type i) const { return mBegin + i; }
 
-        inline SplitViewT Split(SpanT sep) const { return SplitViewT{*this, sep}; }
+        inline SplitViewT Split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView Raw() const { return BufferView{mBeginB, mLastB}; }
 
         // operators
 
-        inline SelfT &operator=(SpanT right) { return Assign(right), *this; }
+        inline SelfT &operator=(ViewT right) { return Assign(right), *this; }
         inline SelfT &operator=(const SelfT &right) { return Assign(right), *this; }
         inline SelfT &operator=(SelfT &&source) { return Assign(std::move(source)), *this; }
 
-        inline bool operator==(const SelfT &right) const { return Compare(right); }
-        inline bool operator==(SpanT right) const { return Compare(right); }
+        // inline bool operator==(const SelfT &right) const { return Compare(right); }
+        inline bool operator==(ViewT right) const { return Compare(right); }
 
-        inline bool operator!=(const SelfT &right) const { return !Compare(right); }
-        inline bool operator!=(SpanT right) const { return !Compare(right); }
+        // inline bool operator!=(const SelfT &right) const { return !Compare(right); }
+        inline bool operator!=(ViewT right) const { return !Compare(right); }
 
         inline T &operator[](size_t i) { return mBegin[i]; }
         inline const T &operator[](size_t i) const { return mBegin[i]; }
 
-        inline SelfT operator+(SpanT right) const { return AdditionImpl(right); }
-        inline SelfT &operator+=(SpanT right) { return Append(right); }
+        inline SelfT operator+(ViewT right) const { return AdditionImpl(right); }
+        inline SelfT &operator+=(ViewT right) { return Append(right); }
         // container aliases
 
-        inline void assign(SpanT right) { return Assign(right); }
+        inline void assign(ViewT right) { return Assign(right); }
         inline void assign(List<T, AllocatorT> &&source) { return Assign(std::move(source)); }
         inline void resize(size_t newSize) { return Resize(newSize); }
         inline void resize(size_t newSize, const_reference value) { return Resize(newSize, value); }
@@ -655,7 +657,7 @@ namespace ulib
         {
             return EmplaceFront(args...);
         }
-        inline SelfT &append(SpanT right) { return Append(right); }
+        inline SelfT &append(ViewT right) { return Append(right); }
         inline SelfT &append(InitializerListT right) { return Append(right); }
 
         inline iterator erase(const_iterator it) { return Erase(it); }
@@ -719,7 +721,7 @@ namespace ulib
         inline size_type iter_index(const_iterator it) const { return GetIndex(it); }
         inline const_iterator at_index(size_type i) const { return GetIterator(i); }
         inline SplitViewT split(InitializerListT sep) const { return SplitViewT{*this, sep}; }
-        inline SplitViewT split(SpanT sep) const { return SplitViewT{*this, sep}; }
+        inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
 
     private:
@@ -841,7 +843,7 @@ namespace ulib
             }
         }
 
-        inline SelfT AdditionImpl(SpanT right) const
+        inline SelfT AdditionImpl(ViewT right) const
         {
             SelfT result{args::Capacity(Size() + right.Size())};
 
