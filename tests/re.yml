@@ -14,10 +14,6 @@ cxxenv.msvc|clang.cl:
       linker:
         - "/LTCG /OPT:REF /OPT:ICF"
 
-cxxenv.clang.msvc:
-  cxx-link-deps:
-    - msvcrt.lib
-
 load-context.!standalone:
   enabled: false
 
@@ -35,5 +31,3 @@ platform.!windows:
 platform.linux|osx:
   cxx-global-link-deps:
     - pthread
-
-cxx-standard: 17

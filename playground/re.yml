@@ -6,7 +6,6 @@ load-context.!standalone:
 
 deps:
   - ulib
-# - conan:mimalloc@2.0.9
 
 cxxenv.msvc|clang.cl:
   cxx-build-flags:

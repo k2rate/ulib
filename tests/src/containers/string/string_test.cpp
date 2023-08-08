@@ -146,8 +146,6 @@ TEST(StringTest, Compares)
         StringT s2 = ks;
         StringViewT s3 = ks;
 
-        auto result = kf == f1;
-
         ASSERT_EQ(f1, f2);
         ASSERT_EQ(f2, f1);
         ASSERT_EQ(f1, kf);
@@ -531,5 +529,22 @@ TEST(StringTest, ConstructFromSpan)
         ulib::u8string str = spn;
 
         ASSERT_EQ(str, spn);
+    }
+}
+
+#include <ulib/range.h>
+
+TEST(StringTest, ParentEncoding)
+{
+    for (auto i : ulib::range(40))
+    {
+        ulib::u8string str = u8"hello";
+        str.resize(i + 5);
+
+        ulib::string_view vstr = str;
+        ulib::string str0 = vstr;
+
+        ASSERT_EQ(str.raw(), vstr.raw());
+        ASSERT_EQ(str0, vstr);
     }
 }

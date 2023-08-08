@@ -334,7 +334,7 @@ namespace ulib
     template <class T>
     using span_view = SpanView<T>;
 
-    using BufferView = Span<uchar>;
+    using BufferView = SpanView<uchar>;
     using buffer_view = BufferView;
 
     // template<class T, class T1>

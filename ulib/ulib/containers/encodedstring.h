@@ -253,7 +253,7 @@ namespace ulib
 
         operator ParentStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
 
-        operator ParentStringViewT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
+        operator ParentStringViewT() const { return ParentStringViewT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
 
 #ifdef ULIB_STD_COMPATIBILITY
 
