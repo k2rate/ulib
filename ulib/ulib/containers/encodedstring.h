@@ -146,8 +146,13 @@ namespace ulib
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
 
-        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true>
+        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true, std::enable_if_t<!std::is_same_v<parent_encoding_t<std::remove_reference_t<K>>, EncodingT>, bool> = true>
         inline EncodedString(const K &cont, AllocatorParams al = {}) : m(cont, al)
+        {
+        }
+
+        template <class K, std::enable_if_t<std::is_same_v<typename std::remove_reference_t<K>::ParentEncodingT, EncodingT>, bool> = true>
+        EncodedString(const K &str) : m((CharT*)str.data(), str.size())
         {
         }
 

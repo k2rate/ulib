@@ -557,3 +557,8 @@ TEST(StringTest, CopyConstruct)
     ASSERT_NE(str.data(), str1.data());
 
 }
+
+TEST(StringTest, ConstructFromCompatible)
+{
+    ulib::string str = ulib::u8string(u8"asdfkjdsaf");
+}
