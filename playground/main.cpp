@@ -3,11 +3,8 @@
 
 int main()
 {
-    ulib::u8string str = u8"";
-    ulib::string_view vstr = str;
+    ulib::EncodedString<ulib::MultibyteEncoding> str = u8"";
 
-    char16_t kUtf16Str[] = u"sfasdf";
-    ulib::u16(kUtf16Str);
 
     return 0;
 }

@@ -67,20 +67,6 @@ namespace ulib
 
     // -----------
 
-    template<class CharT, class Char2T>
-    struct CompatibleCharacter
-    {
-        CompatibleCharacter();
-        CompatibleCharacter(CharT ch){ch1 = ch;}
-        CompatibleCharacter(Char2T ch){ch1 = ch;}
-
-        union
-        {
-            CharT ch1;
-            Char2T ch2;
-        };
-    };
-
     template <class EncodingTy, class AllocatorTy = DefaultAllocator>
     class EncodedString
     {
@@ -151,7 +137,12 @@ namespace ulib
 
         inline EncodedString(AllocatorParams al = {}) : m(al) {}
 
-        inline EncodedString(const CharT *str, AllocatorParams al = {}) : m(str, cstrlen(str), al) {}
+        template <class T, class TEncodingT = literal_encoding_t<T>,
+                  std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
+        inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT*)str, cstrlen(str), al)
+        {
+        }
+
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
 
@@ -321,8 +312,9 @@ namespace ulib
         //     return !Compare(right);
         // }
 
-        // operator OperatorParentEncodedStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
-        // operator OperatorParentEncodedStringViewT() const { return ParentStringViewT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
+        // operator OperatorParentEncodedStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT
+        // *)m.End().Raw()); } operator OperatorParentEncodedStringViewT() const { return ParentStringViewT((ParentEncodingCharT *)m.Begin().Raw(),
+        // (ParentEncodingCharT *)m.End().Raw()); }
 
         // ----------------
 
