@@ -103,7 +103,12 @@ namespace ulib
             undefined_if_missing_t<type_if_t<ParentStdStringViewT, !std::is_same_v<ParentStdStringViewT, StdStringViewT>>, ULIB_LINE_TAG>;
 
         EncodedStringSpan() {}
-        EncodedStringSpan(const CharT *str) noexcept : mSpan(str, cstrlen(str)) {}
+
+        template <class T, class TEncodingT = literal_encoding_t<T>,
+                  std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
+        EncodedStringSpan(const T *str) noexcept : mSpan((CharT*)str, cstrlen(str))
+        {
+        }
         EncodedStringSpan(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
         EncodedStringSpan(ConstIterator b, ConstIterator e) noexcept : mSpan(b.ptr, e.ptr) {}
         EncodedStringSpan(const CharT *str, size_t size) noexcept : mSpan(str, size) {}
