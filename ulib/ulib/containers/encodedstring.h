@@ -328,12 +328,12 @@ namespace ulib
 
         operator OperatorParentStdStringViewT() const
         {
-            return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)m.Data(), m.Size());
+            return std::basic_string_view<ParentEncodingCharT>((ParentEncodingCharT *)m.Data(), m.Size());
         }
 
         operator OperatorParentStdStringT() const
         {
-            return std::basic_string<typename EncodingT::CharStd>((typename EncodingT::CharStd *)m.Begin().Raw(), m.Size());
+            return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size());
         }
 
     protected:
