@@ -20,12 +20,67 @@
 #include <cstring>
 #include <ulib/list.h>
 
+#include <ulib/typetraits/typeordefault.h>
+
 #ifdef min
 #undef min
 #endif
 
 namespace ulib
 {
+    template <class EncodingTy, class AllocatorT>
+    class EncodedString;
+
+    // ------------
+
+    template <class EncodingT, class AllocatorT, class = void>
+    struct parent_encoded_string
+    {
+        using type = missing_type;
+    };
+
+    template <class EncodingT, class AllocatorT>
+    struct parent_encoded_string<EncodingT, AllocatorT, std::void_t<typename EncodingT::ParentEncodingT>>
+    {
+        using type = EncodedString<typename EncodingT::ParentEncodingT, AllocatorT>;
+    };
+
+    template <class EncodingT, class AllocatorT>
+    using parent_encoded_string_t = typename parent_encoded_string<EncodingT, AllocatorT>::type;
+
+    // ------------
+
+    template <class EncodingT, class = void>
+    struct parent_encoded_string_view
+    {
+        using type = missing_type;
+    };
+
+    template <class EncodingT>
+    struct parent_encoded_string_view<EncodingT, std::void_t<typename EncodingT::ParentEncodingT::CharT>>
+    {
+        using type = EncodedStringSpan<typename EncodingT::ParentEncodingT, const typename EncodingT::ParentEncodingT::CharT>;
+    };
+
+    template <class EncodingT>
+    using parent_encoded_string_view_t = typename parent_encoded_string_view<EncodingT>::type;
+
+    // -----------
+
+    template<class CharT, class Char2T>
+    struct CompatibleCharacter
+    {
+        CompatibleCharacter();
+        CompatibleCharacter(CharT ch){ch1 = ch;}
+        CompatibleCharacter(Char2T ch){ch1 = ch;}
+
+        union
+        {
+            CharT ch1;
+            Char2T ch2;
+        };
+    };
+
     template <class EncodingTy, class AllocatorTy = DefaultAllocator>
     class EncodedString
     {
@@ -52,10 +107,25 @@ namespace ulib
         using ReverseT = ReversedSpan<const CharT>;
         using SplitViewT = SplitView<ViewT>;
 
-        using ParentEncodingT = typename EncodingT::ParentEncodingT;
-        using ParentEncodingCharT = typename ParentEncodingT::CharT;
-        using ParentStringT = EncodedString<ParentEncodingT, AllocatorT>;
-        using ParentStringViewT = EncodedStringView<ParentEncodingT>;
+        using ParentEncodingT = parent_encoding_t<EncodingT>;
+        using ParentEncodingCharT = encoding_char_t<ParentEncodingT>;
+
+        using ParentStringT = parent_encoded_string_t<EncodingT, AllocatorT>;
+        using ParentStringViewT = parent_encoded_string_view_t<EncodingT>;
+        using ParentStdStringT = parent_std_string_t<EncodingT>;
+        using ParentStdStringViewT = parent_std_string_view_t<EncodingT>;
+
+        using StdStringT = std::basic_string<CharT>;
+        using StdStringViewT = std::basic_string_view<CharT>;
+
+        using OperatorParentEncodedStringT = undefined_if_missing_t<type_if_t<ParentStringT, !std::is_same_v<ParentStringT, SelfT>>, ULIB_LINE_TAG>;
+        using OperatorParentEncodedStringViewT =
+            undefined_if_missing_t<type_if_t<ParentStringViewT, !std::is_same_v<ParentStringViewT, ViewT>>, ULIB_LINE_TAG>;
+
+        using OperatorParentStdStringT =
+            undefined_if_missing_t<type_if_t<ParentStdStringT, !std::is_same_v<ParentStdStringT, StdStringT>>, ULIB_LINE_TAG>;
+        using OperatorParentStdStringViewT =
+            undefined_if_missing_t<type_if_t<ParentStdStringViewT, !std::is_same_v<ParentStdStringViewT, StdStringViewT>>, ULIB_LINE_TAG>;
 
         using SpanT = Span<CharT>;
 
@@ -251,29 +321,23 @@ namespace ulib
         //     return !Compare(right);
         // }
 
-        operator ParentStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
+        // operator OperatorParentEncodedStringT() const { return ParentStringT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
+        // operator OperatorParentEncodedStringViewT() const { return ParentStringViewT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
 
-        operator ParentStringViewT() const { return ParentStringViewT((ParentEncodingCharT *)m.Begin().Raw(), (ParentEncodingCharT *)m.End().Raw()); }
+        // ----------------
 
-#ifdef ULIB_STD_COMPATIBILITY
+        operator StdStringViewT() const { return StdStringViewT(m.Data(), m.Size()); }
+        operator StdStringT() const { return StdStringT(m.Data(), m.Size()); }
 
-        operator std::basic_string_view<CharT>() const { return std::basic_string_view<CharT>(m.Data(), m.Size()); }
-        operator std::basic_string<CharT>() const { return std::basic_string<CharT>(m.Data(), m.Size()); }
-
-#ifdef __cpp_char8_t
-        // template <class CurrentCharT = typename EncodingT::CharStd, std::enable_if_t<std::is_same_v<ParentEncodingT,
-        // MultibyteEncoding>, bool> = true>
-        operator std::basic_string_view<typename EncodingT::CharStd>() const
+        operator OperatorParentStdStringViewT() const
         {
             return std::basic_string_view<typename EncodingT::CharStd>((typename EncodingT::CharStd *)m.Data(), m.Size());
         }
 
-        operator std::basic_string<typename EncodingT::CharStd>() const
+        operator OperatorParentStdStringT() const
         {
             return std::basic_string<typename EncodingT::CharStd>((typename EncodingT::CharStd *)m.Begin().Raw(), m.Size());
         }
-#endif
-#endif
 
     protected:
         void MarkZeroEndImpl()

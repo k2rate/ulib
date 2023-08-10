@@ -28,13 +28,10 @@ namespace ulib
     struct WideEncoding
     {
         using CharT = wchar_t;
-        using ParentEncodingT = ulib::NullEncoding<CharT>;
+
         constexpr static EncodingType kType = ulib::SystemWideEncoding::kType;
         constexpr static EncodingCharType kCharType = ulib::SystemWideEncoding::kCharType;
 
-#ifdef __cpp_char8_t
-        using CharStd = int;
-#endif
         inline static CharT *Encode(uint codepoint, CharT *out)
         {
             return (CharT *)ulib::SystemWideEncoding::Encode(codepoint, (detail::WideChar *)out);

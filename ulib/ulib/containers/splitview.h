@@ -171,7 +171,7 @@ namespace ulib
         {
             size_t counter = 0;
             for (auto obj : *this)
-                ++counter;
+                (void)obj, ++counter;
 
             return counter;
         }

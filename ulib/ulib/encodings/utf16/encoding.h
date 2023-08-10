@@ -6,19 +6,16 @@
 #include "../type.h"
 #include "../nullencoding.h"
 
+#include <ulib/typetraits/missingtype.h>
+
 namespace ulib
 {
     struct Utf16
     {
         using CharT = char16;
-        using ParentEncodingT = NullEncoding<CharT>;
 
         constexpr static EncodingType kType = EncodingType::Concrete;
         constexpr static EncodingCharType kCharType = EncodingCharType::MultiByte;
-
-#ifdef __cpp_char8_t
-        using CharStd = int;
-#endif
 
         inline static CharT *Encode(uint codepoint, CharT *out)
         {

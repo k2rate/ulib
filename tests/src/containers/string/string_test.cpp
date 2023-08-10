@@ -548,3 +548,12 @@ TEST(StringTest, ParentEncoding)
         ASSERT_EQ(str0, vstr);
     }
 }
+
+TEST(StringTest, CopyConstruct)
+{
+    ulib::u8string str = u8"asdfkjdsaf";
+    ulib::u8string str1 = str;
+
+    ASSERT_NE(str.data(), str1.data());
+
+}

@@ -10,7 +10,7 @@ namespace ulib
     struct Utf32
     {
         using CharT = char32;
-        using ParentEncodingT = NullEncoding<CharT>;
+
         constexpr static EncodingType kType = EncodingType::Concrete;
         constexpr static EncodingCharType kCharType = EncodingCharType::SingleByte;
 

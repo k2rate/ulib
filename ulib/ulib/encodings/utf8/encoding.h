@@ -11,12 +11,7 @@ namespace ulib
     struct Utf8
     {
         using CharT = char8;
-
         using ParentEncodingT = MultibyteEncoding;
-
-#ifdef __cpp_char8_t
-        using CharStd = char;
-#endif
 
         constexpr static EncodingType kType = EncodingType::Concrete;
         constexpr static EncodingCharType kCharType = EncodingCharType::MultiByte;

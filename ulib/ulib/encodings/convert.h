@@ -29,9 +29,9 @@ namespace ulib
               std::enable_if_t<is_encodings_raw_movable_v<EncodingT, OutputEncodingT>, bool> = true>
     inline EncodedString<OutputEncodingT, AllocatorT> Convert(EncodedString<EncodingT, AllocatorT> &&str)
     {
-        using ParentEncodingT = typename EncodingT::ParentEncodingT;
+        // here utf8 and multibyte are dances with flaming glow
         using DestCharT = typename OutputEncodingT::CharT;
-        static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
+        static_assert(sizeof(typename EncodingT::CharT) == sizeof(DestCharT),
                       "Parent encoding character size must be equal with base encoding to compatibile convertation");
 
         // EncodedString<OutputEncodingT, AllocatorT> result = std::move(*(EncodedString<OutputEncodingT, AllocatorT> *)&str);
@@ -48,9 +48,8 @@ namespace ulib
         if constexpr (is_encodings_raw_movable_v<EncodingT, OutputEncodingT>)
         {
             // here utf8 and multibyte are dances with flaming glow
-            using ParentEncodingT = typename EncodingT::ParentEncodingT;
             using DestCharT = typename OutputEncodingT::CharT;
-            static_assert(sizeof(typename ParentEncodingT::CharT) == sizeof(DestCharT),
+            static_assert(sizeof(typename EncodingT::CharT) == sizeof(DestCharT),
                           "Parent encoding character size must be equal with base encoding to compatibile convertation");
 
             return EncodedString<OutputEncodingT, OutputAllocatorT>((DestCharT *)view.data(), (DestCharT *)view.data() + view.size(), al);
