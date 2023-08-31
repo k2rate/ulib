@@ -3,6 +3,8 @@
 #include <ulib/string.h>
 #include <ulib/charcase.h>
 
+#include <clocale>
+
 TEST(StringTest, Charcase)
 {
     std::setlocale(LC_ALL, ".utf8");
