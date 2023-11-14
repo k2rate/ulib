@@ -1,10 +1,8 @@
 
-#include <ulib/string.h>
+#include <ulib/chrono.h>
 
 int main()
 {
-    ulib::EncodedString<ulib::MultibyteEncoding> str = u8"";
-
-
+    printf("%d\n", ulib::years_in(ulib::unix_time()).count());
     return 0;
 }
