@@ -39,6 +39,20 @@ namespace ulib
         return clock_time<DurationT, std::chrono::system_clock>();
     }
 
+
+#if (__cpp_lib_chrono >= 201907L)
+
+    template <class DurationT>
+    inline DurationT local_time()
+    {
+        auto current = std::chrono::system_clock::now();
+        auto local = std::chrono::current_zone()->to_local(current);
+        
+        return std::chrono::floor<DurationT>(local.time_since_epoch());
+    }
+
+#endif
+
     inline seconds unix_time() { return system_time<seconds>(); }
 
     namespace chrono
@@ -109,5 +123,38 @@ namespace ulib
     {
         return std::chrono::floor<microseconds>(dur);
     }
+
+#if (__cpp_lib_chrono >= 201907L)
+
+    template <class Duration>
+    class year_month_day_hh_mm_ss
+    {
+    public:
+        year_month_day_hh_mm_ss() {}
+        year_month_day_hh_mm_ss(const std::chrono::year_month_day &ymd, const std::chrono::hh_mm_ss<Duration> &hms)
+            : mYmd(ymd), mHms(hms)
+        {
+        }
+
+        year_month_day_hh_mm_ss(Duration dur)
+        {
+            days daysInDur = days_in(dur);
+            mYmd = std::chrono::year_month_day{std::chrono::sys_days{daysInDur}};
+
+            Duration durInDays = std::chrono::duration_cast<Duration>(daysInDur);
+            Duration durForHms = dur - durInDays;
+
+            mHms = std::chrono::hh_mm_ss<Duration>{durForHms};
+        }
+
+        const std::chrono::year_month_day &ymd() { return mYmd; }
+        const std::chrono::hh_mm_ss<Duration> &hms() { return mHms; }
+
+    private:
+        std::chrono::year_month_day mYmd;
+        std::chrono::hh_mm_ss<Duration> mHms;
+    };
+
+#endif
 
 } // namespace ulib
