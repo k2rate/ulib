@@ -1,11 +1,12 @@
 #pragma once
 
-#include <ulib/encodings/type.h>
 #include <stdexcept>
 #include <ulib/containers/encodedstring.h>
 #include <ulib/containers/encodedstringview.h>
-#include <ulib/typetraits/literalencoding.h>
 #include <ulib/cstrlen.h>
+#include <ulib/encodings/type.h>
+#include <ulib/typetraits/literalencoding.h>
+
 
 namespace ulib
 {
@@ -68,7 +69,7 @@ namespace ulib
                         return b;
                     }
 
-                    if(*it != *bb)
+                    if (*it != *bb)
                         break;
 
                     it++;
@@ -86,7 +87,8 @@ namespace ulib
         return e;
     }
 
-    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    template <class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
     inline bool starts_with(const StringT &str, const StringT &sep)
     {
         EncodedStringView<EncodingT> vstr = str;
@@ -95,7 +97,8 @@ namespace ulib
         return StartsWithImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
     }
 
-    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    template <class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
     inline bool ends_with(const StringT &str, const StringT &sep)
     {
         EncodedStringView<EncodingT> vstr = str;
@@ -104,13 +107,31 @@ namespace ulib
         return EndsWithImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
     }
 
-    template<class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>, std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
+    template <class StringT, class String2T, class EncodingT = argument_encoding_t<StringT>,
+              std::enable_if_t<!std::is_same_v<EncodingT, missing_type> && is_argument_encoding_v<String2T, EncodingT>>>
     inline bool find_first(const StringT &str, const StringT &sep)
     {
         EncodedStringView<EncodingT> vstr = str;
         EncodedStringView<EncodingT> vsep = sep;
 
         return FindFirstImpl(vstr.data(), vstr.data() + vstr.size(), vsep.data(), vsep.data() + vsep.size());
+    }
+
+    template <class ContT, class SepT, class ValueT = typename ContT::value_type,
+              std::enable_if_t<is_string_v<ValueT> && std::is_same_v<argument_encoding_t<SepT>, argument_encoding_t<ValueT>>, bool> = true>
+    inline ValueT join(const ContT &cont, const SepT &sep)
+    {
+        ValueT r;
+        for (auto it = cont.begin();;)
+        {
+            r += *it;
+            it++;
+
+            if (it == cont.end())
+                return r;
+
+            r += sep;
+        }
     }
 
 } // namespace ulib
