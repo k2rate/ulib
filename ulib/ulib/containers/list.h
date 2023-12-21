@@ -61,7 +61,7 @@ namespace ulib
         using ResourceT = Resource<AllocatorT>;
         using AllocatorParams = typename AllocatorT::Params;
         using InitializerListT = std::initializer_list<T>;    
-        using SplitViewT = SplitView<SpanT>;
+        using SplitViewT = SplitView<ViewT>;
 
         constexpr static size_t C_STEP = 16;
         constexpr static bool IsTrivial() { return std::is_trivially_copyable_v<T>; }
@@ -723,6 +723,51 @@ namespace ulib
         inline SplitViewT split(InitializerListT sep) const { return SplitViewT{*this, sep}; }
         inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
+
+        inline SelfT replace(ViewT from, ViewT to)
+        {
+            size_t fromLen = from.size();
+
+            SelfT result;
+            for (auto it = mBegin; it != mLast; )
+            {
+                // equal
+                if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
+                {
+                    result.append(to);
+                    it += fromLen;
+                }
+                else 
+                {
+                    result.push_back(*it);
+                    ++it;
+                }
+            }
+
+            return result;
+        }
+
+        inline SelfT remove_all(ViewT from)
+        {
+            size_t fromLen = from.size();
+
+            SelfT result;
+            for (auto it = mBegin; it != mLast; )
+            {
+                // equal
+                if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
+                {
+                    it += fromLen;
+                }
+                else 
+                {
+                    result.push_back(*it);
+                    ++it;
+                }
+            }
+
+            return result;
+        }
 
     private:
         inline void ConcreteReallocateMemory(size_t currentSizeInBytes, size_t reqSizeInBytes)

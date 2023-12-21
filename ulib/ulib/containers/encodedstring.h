@@ -139,20 +139,21 @@ namespace ulib
 
         template <class T, class TEncodingT = literal_encoding_t<T>,
                   std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
-        inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT*)str, cstrlen(str), al)
+        inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT *)str, cstrlen(str), al)
         {
         }
 
         inline EncodedString(const CharT *b, const CharT *e, AllocatorParams al = {}) : m(b, e, al) {}
         inline EncodedString(const CharT *str, size_t size, AllocatorParams al = {}) : m(str, size, al) {}
 
-        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true, std::enable_if_t<!std::is_same_v<parent_encoding_t<std::remove_reference_t<K>>, EncodingT>, bool> = true>
+        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true,
+                  std::enable_if_t<!std::is_same_v<parent_encoding_t<std::remove_reference_t<K>>, EncodingT>, bool> = true>
         inline EncodedString(const K &cont, AllocatorParams al = {}) : m(cont, al)
         {
         }
 
         template <class K, std::enable_if_t<std::is_same_v<typename std::remove_reference_t<K>::ParentEncodingT, EncodingT>, bool> = true>
-        EncodedString(const K &str) : m((CharT*)str.data(), str.size())
+        EncodedString(const K &str) : m((CharT *)str.data(), str.size())
         {
         }
 
@@ -300,6 +301,9 @@ namespace ulib
         inline bool operator!=(ViewT right) const { return !Compare(right); }
 
         inline bool operator<(ViewT right) const { return LowerThanImpl(right.begin().raw(), right.end().raw()); }
+
+        inline SelfT replace(ViewT from, ViewT to) { return SelfT(std::move(m.replace(from, to))); }
+        inline SelfT remove_all(ViewT from) { return SelfT(std::move(m.remove_all(from))); }
         // inline bool operator<(const CharT *right) const { return LowerThanImpl(right); }
 
         // inline bool operator==(const CharT *right) const { return Compare(right); }
@@ -331,10 +335,7 @@ namespace ulib
             return std::basic_string_view<ParentEncodingCharT>((ParentEncodingCharT *)m.Data(), m.Size());
         }
 
-        operator OperatorParentStdStringT() const
-        {
-            return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size());
-        }
+        operator OperatorParentStdStringT() const { return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size()); }
 
     protected:
         void MarkZeroEndImpl()

@@ -562,3 +562,31 @@ TEST(StringTest, ConstructFromCompatible)
 {
     ulib::string str = ulib::u8string(u8"asdfkjdsaf");
 }
+
+TEST(StringTest, Replace)
+{
+    ulib::string str{"12plak28plak256fullplak"};
+    ulib::string result = str.replace("plak", "ky");
+
+    ASSERT_EQ(result, "12ky28ky256fullky");
+
+    result = result.replace("ky", "");
+    ASSERT_EQ(result, "1228256full");
+
+    result = result.replace("full", "555555");
+    ASSERT_EQ(result, "1228256555555");
+
+    result = result.replace("1228256", "");
+    ASSERT_EQ(result, "555555");
+
+    result = result.replace("5", "");
+    ASSERT_EQ(result, "");
+}
+
+TEST(StringTest, RemoveAll)
+{
+    ulib::string str{"1plak2plak3plak4"};
+    ulib::string result = str.remove_all("plak");
+
+    ASSERT_EQ(result, "1234");
+}

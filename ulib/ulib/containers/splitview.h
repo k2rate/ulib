@@ -13,7 +13,7 @@ namespace ulib
     class SplitIterator
     {
     public:
-        using IteratorT = typename SpanT::ConstIterator;
+        using IteratorT = typename SpanT::const_iterator;
 
         struct SetupBegin
         {
@@ -147,7 +147,7 @@ namespace ulib
     class SplitView
     {
     public:
-        using IteratorT = typename SpanT::ConstIterator;
+        using IteratorT = typename SpanT::const_iterator;
         using SplitIteratorT = SplitIterator<SpanT>;
         using ValueT = typename SpanT::value_type;
 
