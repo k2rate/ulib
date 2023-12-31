@@ -14,6 +14,14 @@
 
 namespace ulib
 {
+    constexpr bool is_compiler_utf8() { return sizeof(u8"К") == 3 && sizeof("К") == 3; }
+    
+#ifndef ULIB_STRING_SKIP_UTF8_CHECK
+    static_assert(is_compiler_utf8(),
+                  "ulib/string.h requires your compiler to run in UTF-8 mode for some string conversions to work properly. Check compiler "
+                  "documentation for the necessary flags and set them, or define ULIB_STRING_SKIP_UTF8_CHECK to ignore this error.");
+#endif
+
     template <uint line>
     struct LineTag
     {
@@ -106,7 +114,7 @@ namespace ulib
 
         template <class T, class TEncodingT = literal_encoding_t<T>,
                   std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
-        EncodedStringSpan(const T *str) noexcept : mSpan((CharT*)str, cstrlen(str))
+        EncodedStringSpan(const T *str) noexcept : mSpan((CharT *)str, cstrlen(str))
         {
         }
         EncodedStringSpan(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
