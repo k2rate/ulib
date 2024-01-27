@@ -132,11 +132,12 @@ namespace ulib
     {
         using s_type = SpanT;
         using k_type = std::remove_reference_t<K>;
-        
+
         using s_element_type = typename s_type::element_type;
 
-        static constexpr bool is_cc = is_const_compatible_v<s_element_type, k_type> &&
-                                      (!has_container_element_type_v<k_type> || is_const_compatible_v<s_element_type, container_element_type_t<k_type>>);
+        static constexpr bool is_cc =
+            is_const_compatible_v<s_element_type, k_type> &&
+            (!has_container_element_type_v<k_type> || is_const_compatible_v<s_element_type, container_element_type_t<k_type>>);
 
         static constexpr bool value = is_cc && !std::is_same_v<s_type, k_type> && is_container_range_compatible_v<s_type, k_type>;
     };
@@ -148,9 +149,11 @@ namespace ulib
     using enable_if_span_from_range_constructible_t = std::enable_if_t<is_span_from_range_constructible_v<SpanT, K>, bool>;
 
     template <class RangeT, class K>
-    using enable_if_container_from_range_constructible_t =
-        std::enable_if_t<!std::is_same_v<RangeT, std::remove_reference_t<K>> && is_container_range_compatible_v<RangeT, std::remove_reference_t<K>>,
-                         bool>;
+    static constexpr bool is_container_from_range_constructible_v =
+        !std::is_same_v<RangeT, std::remove_reference_t<K>> && is_container_range_compatible_v<RangeT, std::remove_reference_t<K>>;
+
+    template <class RangeT, class K>
+    using enable_if_container_from_range_constructible_t = std::enable_if_t<is_container_from_range_constructible_v<RangeT, K>, bool>;
 
     // construct view from range
     // construct container from range

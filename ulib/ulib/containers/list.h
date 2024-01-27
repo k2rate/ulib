@@ -45,7 +45,6 @@ namespace ulib
         using const_reverse_iterator = ReverseRandomAccessIterator<const value_type>;
         using size_type = size_t;
 
-
         // ulib fields
         using ContainerTypeT = list_type_tag;
         using ContainerOwnershipT = store_ownership_tag;
@@ -60,7 +59,7 @@ namespace ulib
         using BufferT = List<uchar, AllocatorT>;
         using ResourceT = Resource<AllocatorT>;
         using AllocatorParams = typename AllocatorT::Params;
-        using InitializerListT = std::initializer_list<T>;    
+        using InitializerListT = std::initializer_list<T>;
         using SplitViewT = SplitView<ViewT>;
 
         constexpr static size_t C_STEP = 16;
@@ -81,6 +80,14 @@ namespace ulib
         {
             ViewT rn = cont;
             SetupWithCopyConstructB(rn.Data(), rn.SizeInBytes());
+        }
+
+        template <class K, std::enable_if_t<!is_container_from_range_constructible_v<SelfT, K> && has_container_begin_method_v<K> &&
+                                                std::is_constructible_v<value_type, typename K::value_type>,
+                                            bool> = true>
+        inline List(K &&cont, AllocatorParams al = {}) : ResourceT(al)
+        {
+            SetupWithCopyConstructWithIterators(cont.begin(), cont.end());
         }
 
         inline explicit List(size_type size, AllocatorParams al = {}) : ResourceT(al) { SetupViaSizeAndConstruct(size); }
@@ -729,7 +736,7 @@ namespace ulib
             size_t fromLen = from.size();
 
             SelfT result;
-            for (auto it = mBegin; it != mLast; )
+            for (auto it = mBegin; it != mLast;)
             {
                 // equal
                 if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
@@ -737,7 +744,7 @@ namespace ulib
                     result.append(to);
                     it += fromLen;
                 }
-                else 
+                else
                 {
                     result.push_back(*it);
                     ++it;
@@ -752,14 +759,14 @@ namespace ulib
             size_t fromLen = from.size();
 
             SelfT result;
-            for (auto it = mBegin; it != mLast; )
+            for (auto it = mBegin; it != mLast;)
             {
                 // equal
                 if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
                 {
                     it += fromLen;
                 }
-                else 
+                else
                 {
                     result.push_back(*it);
                     ++it;
@@ -884,7 +891,7 @@ namespace ulib
             {
                 SetupViaCapacity(C_STEP);
                 for (auto it = first; it != last; ++it)
-                    PushBack(*it);
+                    PushBack(T{*it});
             }
         }
 

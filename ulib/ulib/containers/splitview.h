@@ -147,10 +147,11 @@ namespace ulib
     class SplitView
     {
     public:
-        using IteratorT = typename SpanT::const_iterator;
-        using SplitIteratorT = SplitIterator<SpanT>;
-        using ValueT = typename SpanT::value_type;
+        using const_iterator = typename SpanT::const_iterator;
+        using iterator = typename SpanT::iterator;
+        using value_type = SpanT;
 
+        using SplitIteratorT = SplitIterator<SpanT>;
         using ContainerTypeT = list_type_tag;
         using ContainerOwnershipT = view_ownership_tag;
 
