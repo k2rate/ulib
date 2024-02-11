@@ -12,10 +12,12 @@
 #include <string_view>
 #endif
 
+#include <filesystem>
+
 namespace ulib
 {
     constexpr bool is_compiler_utf8() { return sizeof(u8"К") == 3 && sizeof("К") == 3; }
-    
+
 #ifndef ULIB_STRING_SKIP_UTF8_CHECK
     static_assert(is_compiler_utf8(),
                   "ulib/string.h requires your compiler to run in UTF-8 mode for some string conversions to work properly. Check compiler "
@@ -209,15 +211,13 @@ namespace ulib
 #ifdef __cpp_char8_t
         // template <class CurrentCharT = typename EncodingT::CharStd, std::enable_if_t<std::is_same_v<ParentEncodingT,
         // MultibyteEncoding>, bool> = true>
-        operator OperatorParentStdStringViewT() const { return OperatorParentStdStringViewT((ParentEncodingCharT *)this->mBegin, this->Size()); }
-
-        operator OperatorParentStdStringT() const
-        {
-            return OperatorParentStdStringT((ParentEncodingCharT *)this->mBegin, (ParentEncodingCharT *)this->mLast);
-        }
+        operator OperatorParentStdStringViewT() const { return OperatorParentStdStringViewT((ParentEncodingCharT *)mSpan.Data(), mSpan.Size()); }
+        operator OperatorParentStdStringT() const { return OperatorParentStdStringT((ParentEncodingCharT *)mSpan.Data(), mSpan.Size()); }
 
 #endif
 #endif
+
+        operator std::filesystem::path() const { return std::filesystem::path{mSpan.begin(), mSpan.end()}; }
 
         // aliases
 

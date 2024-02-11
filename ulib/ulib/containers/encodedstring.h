@@ -330,12 +330,17 @@ namespace ulib
         operator StdStringViewT() const { return StdStringViewT(m.Data(), m.Size()); }
         operator StdStringT() const { return StdStringT(m.Data(), m.Size()); }
 
-        operator OperatorParentStdStringViewT() const
-        {
-            return std::basic_string_view<ParentEncodingCharT>((ParentEncodingCharT *)m.Data(), m.Size());
-        }
+        operator OperatorParentStdStringViewT() const { return OperatorParentStdStringViewT((ParentEncodingCharT *)m.Data(), m.Size()); }
+        operator OperatorParentStdStringT() const { return OperatorParentStdStringT((ParentEncodingCharT *)m.Data(), m.Size()); }
 
-        operator OperatorParentStdStringT() const { return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size()); }
+        // operator OperatorParentStdStringViewT() const
+        // {
+        //     return std::basic_string_view<ParentEncodingCharT>((ParentEncodingCharT *)m.Data(), m.Size());
+        // }
+
+        // operator OperatorParentStdStringT() const { return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size()); }
+
+        operator std::filesystem::path() const { return std::filesystem::path{m.begin(), m.end()}; }
 
     protected:
         void MarkZeroEndImpl()
