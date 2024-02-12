@@ -15,6 +15,42 @@ namespace ulib
 {
     static constexpr size_t npos = size_t(-1);
 
+    namespace detail
+    {
+        template<class IterT>
+        inline bool equal(IterT b0, IterT e0, IterT b1, IterT e1)
+        {
+            while (b0 != e0)
+            {
+                if (b1 == e1)
+                    return false;
+
+                if (*b0 != *b1)
+                    return false;
+                
+                ++b0; 
+                ++b1;       
+            }
+
+            return true;
+        }
+
+        template<class IterT>
+        inline bool equal_nolength(IterT b0, IterT e0, IterT b1, IterT e1)
+        {
+            while (b0 != e0)
+            {
+                if (*b0 != *b1)
+                    return false;
+                
+                ++b0; 
+                ++b1;       
+            }
+
+            return true;
+        }
+    }
+
     template <class T>
     class ReversedSpan
     {

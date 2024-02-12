@@ -715,15 +715,15 @@ namespace ulib
         inline SpanT to_span() const { return ToSpan(); }
         inline bool compare(SpanT right) const { return Compare(right); }
         inline size_type find(const_reference v, size_type pos = 0) const { return Find(v, pos); }
-        inline size_type find(SpanT v, size_type pos = 0) const { return Find(v, pos); }
+        inline size_type find(ViewT v, size_type pos = 0) const { return Find(v, pos); }
         inline size_type rfind(const_reference v, size_type pos = 0) const { return ReverseFind(v, pos); }
-        inline size_type rfind(SpanT v, size_type pos = 0) const { return ReverseFind(v, pos); }
+        inline size_type rfind(ViewT v, size_type pos = 0) const { return ReverseFind(v, pos); }
         inline bool starts_with(const_reference v) const { return StartsWith(v); }
         inline bool ends_with(const_reference v) const { return EndsWith(v); }
         inline bool contains(const_reference v) const { return Contains(v); }
-        inline bool starts_with(SpanT v) const { return StartsWith(v); }
-        inline bool ends_with(SpanT v) const { return EndsWith(v); }
-        inline bool contains(SpanT v) const { return Contains(v); }
+        inline bool starts_with(ViewT v) const { return StartsWith(v); }
+        inline bool ends_with(ViewT v) const { return EndsWith(v); }
+        inline bool contains(ViewT v) const { return Contains(v); }
         inline SelfT subspan(size_type pos, size_type n = npos) const { return SubSpan(pos, n); }
         inline size_type iter_index(const_iterator it) const { return GetIndex(it); }
         inline const_iterator at_index(size_type i) const { return GetIterator(i); }
@@ -733,13 +733,15 @@ namespace ulib
 
         inline SelfT replace(ViewT from, ViewT to)
         {
-            size_t fromLen = from.size();
+            assert(!from.empty());
+            // assert(!to.empty());
 
+            size_t fromLen = from.size();
             SelfT result;
             for (auto it = mBegin; it != mLast;)
             {
                 // equal
-                if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
+                if (mLast - it >= fromLen && detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
                 {
                     result.append(to);
                     it += fromLen;
@@ -762,7 +764,7 @@ namespace ulib
             for (auto it = mBegin; it != mLast;)
             {
                 // equal
-                if (mLast - it >= fromLen && ViewT{it, fromLen} == from)
+                if (mLast - it >= fromLen && detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
                 {
                     it += fromLen;
                 }
