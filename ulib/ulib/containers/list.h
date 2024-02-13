@@ -14,7 +14,9 @@
 #include <assert.h>
 #include <string.h> // memcpy
 
+#include <functional>
 #include <ulib/typetraits/rawmove.h>
+
 
 namespace ulib
 {
@@ -730,6 +732,52 @@ namespace ulib
         inline SplitViewT split(InitializerListT sep) const { return SplitViewT{*this, sep}; }
         inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
+
+        SelfT map(std::function<value_type(reference)> fn)
+        {
+            SelfT result;
+            for (auto it = mBegin; it != mLast; it++)
+                result.push_back(fn(*it));
+
+            return result;
+        }
+
+        value_type reduce(std::function<value_type(reference, reference)> fn)
+        {
+            if (size() < 2)
+                return {};
+
+            value_type result = *mBegin;
+            for (auto it = mBegin + 1; it != mLast; it++)
+            {
+                result = fn(result, *it);
+            }
+
+            return result;
+        }
+
+        value_type reduce(std::function<value_type(reference, reference)> fn, value_type initialValue)
+        {
+            value_type result = initialValue; 
+            for (auto it = mBegin; it != mLast; it++)
+            {
+                result = fn(result, *it);
+            }
+
+            return result;
+        }
+
+        SelfT filter(std::function<bool(reference)> fn)
+        {
+            SelfT result;
+            for (auto it = mBegin; it != mLast; it++)
+            {
+                if (fn(*it))
+                    result.push_back(*it);
+            }
+
+            return result;
+        }
 
         inline SelfT replace(ViewT from, ViewT to)
         {
