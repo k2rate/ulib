@@ -138,7 +138,9 @@ namespace ulib
         inline EncodedString(AllocatorParams al = {}) : m(al) {}
 
         template <class T, class TEncodingT = literal_encoding_t<T>,
-                  std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
+                  std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>> ||
+                                       std::is_same_v<parent_encoding_t<EncodingT>, TEncodingT>,
+                                   bool> = true>
         inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT *)str, cstrlen(str), al)
         {
         }
@@ -338,7 +340,8 @@ namespace ulib
         //     return std::basic_string_view<ParentEncodingCharT>((ParentEncodingCharT *)m.Data(), m.Size());
         // }
 
-        // operator OperatorParentStdStringT() const { return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(), m.Size()); }
+        // operator OperatorParentStdStringT() const { return std::basic_string<ParentEncodingCharT>((ParentEncodingCharT *)m.Begin().Raw(),
+        // m.Size()); }
 
         operator std::filesystem::path() const { return std::filesystem::path{m.begin(), m.end()}; }
 

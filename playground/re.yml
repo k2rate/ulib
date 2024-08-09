@@ -10,7 +10,8 @@ deps:
 cxxenv.msvc|clang.cl:
   cxx-build-flags:
     compiler:
-      - "/utf-8 /W3 /permissive- /sourceDependencies deps.json"
+      - "/W3 /permissive- /sourceDependencies deps.json /Zi"
+      - "/utf-8"
     linker:
       - "/DEBUG"
   config.release:
