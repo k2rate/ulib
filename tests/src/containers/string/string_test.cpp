@@ -555,13 +555,9 @@ TEST(StringTest, CopyConstruct)
     ulib::u8string str1 = str;
 
     ASSERT_NE(str.data(), str1.data());
-
 }
 
-TEST(StringTest, ConstructFromCompatible)
-{
-    ulib::string str = ulib::u8string(u8"asdfkjdsaf");
-}
+TEST(StringTest, ConstructFromCompatible) { ulib::string str = ulib::u8string(u8"asdfkjdsaf"); }
 
 TEST(StringTest, Replace)
 {
@@ -589,4 +585,35 @@ TEST(StringTest, RemoveAll)
     ulib::string result = str.remove_all("plak");
 
     ASSERT_EQ(result, "1234");
+}
+
+TEST(StringTest, LiteralAddition)
+{
+    {
+        ulib::string str{"full"};
+        ulib::string result = "plak " + str;
+
+        ASSERT_EQ(result, "plak full");
+    }
+
+    {
+        ulib::u8string str{u8"full"};
+        ulib::u8string result = u8"plak " + str;
+
+        ASSERT_EQ(result, u8"plak full");
+    }
+
+    {
+        ulib::string_view str{"full"};
+        ulib::string result = "plak " + str;
+
+        ASSERT_EQ(result, "plak full");
+    }
+
+    {
+        ulib::u8string_view str{u8"full"};
+        ulib::u8string result = u8"plak " + str;
+
+        ASSERT_EQ(result, u8"plak full");
+    }
 }

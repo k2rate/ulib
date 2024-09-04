@@ -419,6 +419,22 @@ inline ulib::EncodedString<EncodingT> operator+(ulib::EncodedStringView<Encoding
     return result;
 }
 
+template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>
+inline ulib::EncodedString<EncodingT, AllocatorT> operator+(const CharT *const left, const ulib::EncodedString<EncodingT, AllocatorT> &right)
+{
+    ulib::EncodedString<EncodingT> result{left};
+    result += right;
+    return result;
+}
+
+template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>>
+inline ulib::EncodedString<EncodingT> operator+(const CharT *const left, ulib::EncodedStringView<EncodingT> right)
+{
+    ulib::EncodedString<EncodingT> result(left);
+    result += right;
+    return result;
+}
+
 namespace std
 {
     template <class EncodingT, class AllocatorT, class AllocT>
