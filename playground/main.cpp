@@ -12,6 +12,11 @@ int main()
     ulib::list<int> vals = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
     constexpr int ky = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13;
 
+    ulib::string str = "full plak";
+    str.erase(1, 2);
+    printf("str: %s\n", str.c_str());
+    
+
     auto filterVals = vals.filter([](auto v) { return v <= 8; });
 
     auto reduceVals = vals.reduce([](auto left, auto right) { return left + right; });

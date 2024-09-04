@@ -214,6 +214,7 @@ namespace ulib
         inline iterator Erase(const_iterator it) { return m.Erase(it); }
         inline iterator Erase(size_type i) { return m.Erase(i); }
         inline iterator Erase(const_iterator first, const_iterator last) { return m.Erase(first, last); }
+        inline SelfT &Erase(size_type index = 0, size_type count = npos) { return m.Erase(index, count), *this; }
         inline size_type GetIndex(const_iterator it) const { return m.GetIndex(it); }
         inline iterator FastErase(const_iterator it) { return m.FastErase(it); }
         inline void PopBack() { return m.PopBack(); }
@@ -245,7 +246,10 @@ namespace ulib
         inline pointer raw_data() { return RawData(); }
         inline const_pointer raw_data() const { return RawData(); }
         inline pointer data() { return Data(); }
-        inline void erase(iterator it) { Erase(it); }
+        inline iterator erase(const_iterator it) { return Erase(it); }
+        // inline iterator erase(size_type i) { return Erase(i); }
+        inline iterator erase(const_iterator first, const_iterator last) { return Erase(first, last); }
+        inline SelfT &erase(size_type index = 0, size_type count = npos) { return Erase(index, count); }
         inline void push_back(const_reference o) { PushBack(o); }
         inline void push_back(CharT &&o) { PushBack(std::move(o)); }
         inline void pop_back() { PopBack(); }

@@ -403,7 +403,7 @@ namespace ulib
                 }
             }
 
-            new ((void*)it) T(std::forward<Args>(args)...);
+            new ((void *)it) T(std::forward<Args>(args)...);
             mLast += 1;
 
             return it;
@@ -485,7 +485,7 @@ namespace ulib
             return pointer(it.raw());
         }
 
-        inline iterator Erase(size_type i) { return Erase(mBegin + i); }
+        // inline iterator Erase(size_type i) { return Erase(mBegin + i); }
         inline iterator Erase(const_iterator first, const_iterator last)
         {
             for (auto it = first; it != last; it++)
@@ -496,6 +496,18 @@ namespace ulib
 
             mLast -= last - first;
             return pointer(first.raw());
+        }
+
+        inline SelfT &Erase(size_type index = 0, size_type count = npos)
+        {
+            size_t removeCount = std::min(count, size() - index);
+            auto start = mBegin + index;
+            auto finish = start + count;
+
+            if (start != finish)
+                Erase(start, finish);
+
+            return *this;
         }
 
         inline iterator FastErase(const_iterator it)
@@ -670,8 +682,10 @@ namespace ulib
         inline SelfT &append(InitializerListT right) { return Append(right); }
 
         inline iterator erase(const_iterator it) { return Erase(it); }
-        inline iterator erase(size_type i) { return Erase(i); }
+        // inline iterator erase(size_type i) { return Erase(i); }
         inline iterator erase(const_iterator first, const_iterator last) { return Erase(first, last); }
+        inline SelfT &erase(size_type index = 0, size_type count = npos) { return Erase(index, count); }
+
         inline iterator ferase(const_iterator it) { return FastErase(it); }
         inline iterator ferase(size_type i) { return FastErase(i); }
         inline bool remove(const_reference elem) { return Remove(elem); }
@@ -758,7 +772,7 @@ namespace ulib
 
         value_type reduce(std::function<value_type(reference, reference)> fn, value_type initialValue)
         {
-            value_type result = initialValue; 
+            value_type result = initialValue;
             for (auto it = mBegin; it != mLast; it++)
             {
                 result = fn(result, *it);

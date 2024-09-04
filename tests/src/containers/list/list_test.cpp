@@ -463,7 +463,7 @@ TEST(ListTest, EraseFull)
     size_t prevSize = list.Size();
     while (list.Size())
     {
-        list.Erase(0);
+        list.Erase(0, 1);
         EXPECT_NE(prevSize, list.Size());
         prevSize = list.Size();
     }
@@ -475,7 +475,7 @@ TEST(ListTest, SequenceAfterErase)
     std::iota(list.begin(), list.end(), 0);
 
     ASSERT_EQ(list[4], 4);
-    list.Erase(4);
+    list.Erase(4, 1);
 
     ASSERT_EQ(list[4], 5);
     ASSERT_EQ(list.Size(), 9);
