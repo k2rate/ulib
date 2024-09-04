@@ -16,7 +16,7 @@
 
 #include <functional>
 #include <ulib/typetraits/rawmove.h>
-
+#include <utility>
 
 namespace ulib
 {
@@ -403,7 +403,7 @@ namespace ulib
                 }
             }
 
-            new (it) T(args...);
+            new ((void*)it) T(std::forward<Args>(args)...);
             mLast += 1;
 
             return it;
@@ -411,12 +411,12 @@ namespace ulib
         template <class... Args>
         inline reference EmplaceBack(Args &&...args)
         {
-            return *Emplace(End(), args...);
+            return *Emplace(End(), std::forward<Args>(args)...);
         }
         template <class... Args>
         inline reference EmplaceFront(Args &&...args)
         {
-            return *Emplace(Begin(), args...);
+            return *Emplace(Begin(), std::forward<Args>(args)...);
         }
 
         inline SelfT &Append(ViewT right) { return InsertBack(right), *this; }
@@ -654,17 +654,17 @@ namespace ulib
         template <class... Args>
         inline iterator emplace(const_iterator pos, Args &&...args)
         {
-            return Emplace(pos, args...);
+            return Emplace(pos, std::forward<Args>(args)...);
         }
         template <class... Args>
         inline reference emplace_back(Args &&...args)
         {
-            return EmplaceBack(args...);
+            return EmplaceBack(std::forward<Args>(args)...);
         }
         template <class... Args>
         inline reference emplace_front(Args &&...args)
         {
-            return EmplaceFront(args...);
+            return EmplaceFront(std::forward<Args>(args)...);
         }
         inline SelfT &append(ViewT right) { return Append(right); }
         inline SelfT &append(InitializerListT right) { return Append(right); }
