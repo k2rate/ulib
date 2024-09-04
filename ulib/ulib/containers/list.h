@@ -489,7 +489,7 @@ namespace ulib
         inline iterator Erase(const_iterator first, const_iterator last)
         {
             for (auto it = first; it != last; it++)
-                it->~T();
+                it.ptr->~T();
 
             auto from = last;
             ::memcpy(pointer(first.raw()), last.raw(), mLastB - (uchar *)last.raw());
