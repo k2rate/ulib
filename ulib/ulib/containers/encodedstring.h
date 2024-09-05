@@ -141,7 +141,7 @@ namespace ulib
                   std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>> ||
                                        std::is_same_v<parent_encoding_t<EncodingT>, TEncodingT>,
                                    bool> = true>
-        inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT *)str, cstrlen(str), al)
+        inline EncodedString(const T *str, AllocatorParams al = {}) : m((CharT *)str, cstrlen(checked_c_str(str)), al)
         {
         }
 

@@ -14,6 +14,12 @@
 
 #include <filesystem>
 
+#ifdef _WIN32
+#ifdef _DEBUG
+#include "cstr_debug.h"
+#endif
+#endif
+
 namespace ulib
 {
     constexpr bool is_compiler_utf8() { return sizeof(u8"К") == 3 && sizeof("К") == 3; }
@@ -64,6 +70,18 @@ namespace ulib
 
     template <class EncodingT>
     using parent_std_string_view_t = typename parent_std_string_view<EncodingT>::type;
+
+    template <class CharT>
+    const CharT *checked_c_str(const CharT *ch)
+    {
+#ifdef _WIN32
+#ifdef _DEBUG
+        return c_str_read_check_tpl<CharT>(ch);
+#else
+        return ch;
+#endif
+#endif
+    }
 
     template <class EncodingTy, class CharTy = typename EncodingTy::CharT>
     class EncodedStringSpan
@@ -116,7 +134,7 @@ namespace ulib
 
         template <class T, class TEncodingT = literal_encoding_t<T>,
                   std::enable_if_t<std::is_same_v<EncodingT, TEncodingT> || std::is_same_v<EncodingT, parent_encoding_t<TEncodingT>>, bool> = true>
-        EncodedStringSpan(const T *str) noexcept : mSpan((CharT *)str, cstrlen(str))
+        EncodedStringSpan(const T *str) noexcept : mSpan((CharT *)str, cstrlen(checked_c_str(str)))
         {
         }
         EncodedStringSpan(const CharT *b, const CharT *e) noexcept : mSpan(b, e) {}
