@@ -306,6 +306,14 @@ namespace ulib
         inline bool operator==(ViewT right) const { return Compare(right); }
         inline bool operator!=(ViewT right) const { return !Compare(right); }
 
+        inline SelfT operator*(size_t c) const
+        {
+            SelfT result;
+            for (size_t i = 0; i != c; i++)
+                result.append(*this);
+            return result;
+        }
+
         inline bool operator<(ViewT right) const { return LowerThanImpl(right.begin().raw(), right.end().raw()); }
 
         inline SelfT replace(ViewT from, ViewT to) { return SelfT(std::move(m.replace(from, to))); }
@@ -421,6 +429,12 @@ inline ulib::EncodedString<EncodingT> operator+(ulib::EncodedStringView<Encoding
     ulib::EncodedString<EncodingT> result(left);
     result += right;
     return result;
+}
+
+template <class EncodingT>
+inline ulib::EncodedString<EncodingT> operator*(ulib::EncodedStringView<EncodingT> left, size_t right)
+{
+    return ulib::EncodedString<EncodingT>{left} * right;
 }
 
 template <class CharT, class EncodingT = ulib::literal_encoding_t<CharT>, class AllocatorT>

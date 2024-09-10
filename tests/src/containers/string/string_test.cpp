@@ -617,3 +617,13 @@ TEST(StringTest, LiteralAddition)
         ASSERT_EQ(result, u8"plak full");
     }
 }
+
+TEST(StringTest, Mul)
+{
+    auto mul1 = ulib::string{"test"} * 3;
+    auto mul2 = ulib::string_view{"test"} * 3;
+
+    ASSERT_EQ(mul1, mul2);
+    ASSERT_EQ(mul1, "testtesttest");
+    ASSERT_EQ(mul2, "testtesttest");
+}
