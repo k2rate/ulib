@@ -1,11 +1,13 @@
 #pragma once
 
-#include <stdexcept>
 #include <assert.h>
+#include <stdexcept>
 
-#include <ulib/types.h>
+
 #include <ulib/allocators/defaultallocator.h>
 #include <ulib/containers/tags.h>
+#include <ulib/types.h>
+
 
 namespace ulib
 {
@@ -72,6 +74,17 @@ namespace ulib
             StepNext();
             return *this;
         } // Postfix increment operator.
+
+        inline SplitIterator operator+(size_t val)
+        {
+            auto result = *this;
+            for (size_t i = 0; i != val; i++)
+            {
+                result.StepNext();
+            }
+
+            return result;
+        } // Prefix increment operator.
 
         inline bool operator==(const SplitIterator &right) const { return mWordBegin == right.mWordBegin; }
         inline bool operator!=(const SplitIterator &right) const { return mWordBegin != right.mWordBegin; }
@@ -142,7 +155,6 @@ namespace ulib
         SpanT mSeparator;
     };
 
-    
     template <class SpanT>
     class SplitView
     {
@@ -155,10 +167,7 @@ namespace ulib
         using ContainerTypeT = list_type_tag;
         using ContainerOwnershipT = view_ownership_tag;
 
-        inline SplitView(SpanT str, SpanT sep) : mString(str), mSeparator(sep)
-        {
-            assert(!sep.empty() && "Separator for SplitView can not be empty");
-        }
+        inline SplitView(SpanT str, SpanT sep) : mString(str), mSeparator(sep) { assert(!sep.empty() && "Separator for SplitView can not be empty"); }
 
         inline SplitIteratorT begin() const { return Begin(); }
         inline SplitIteratorT end() const { return End(); }

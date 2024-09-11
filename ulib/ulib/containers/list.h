@@ -944,14 +944,14 @@ namespace ulib
         template <class IterT>
         inline void SetupWithCopyConstructWithIterators(IterT first, IterT last)
         {
-            if constexpr (std::is_pointer_v<IterT> || is_iterator_tag_v<IterT, std::random_access_iterator_tag>)
-            {
-                size_t size = last - first;
-                SetupViaSizeB(size * sizeof(T));
+            // if constexpr (std::is_pointer_v<IterT> || is_iterator_tag_v<IterT, std::random_access_iterator_tag>)
+            // {
+            //     size_t size = last - first;
+            //     SetupViaSizeB(size * sizeof(T));
 
-                memcpy(mBegin, &(*first), size * sizeof(T));
-            }
-            else
+            //     memcpy(mBegin, &(*first), size * sizeof(T));
+            // }
+            // else
             {
                 SetupViaCapacity(C_STEP);
                 for (auto it = first; it != last; ++it)
