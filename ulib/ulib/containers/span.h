@@ -17,7 +17,7 @@ namespace ulib
 
     namespace detail
     {
-        template<class IterT>
+        template <class IterT>
         inline bool equal(IterT b0, IterT e0, IterT b1, IterT e1)
         {
             while (b0 != e0)
@@ -27,29 +27,29 @@ namespace ulib
 
                 if (*b0 != *b1)
                     return false;
-                
-                ++b0; 
-                ++b1;       
+
+                ++b0;
+                ++b1;
             }
 
             return true;
         }
 
-        template<class IterT>
+        template <class IterT>
         inline bool equal_nolength(IterT b0, IterT e0, IterT b1, IterT e1)
         {
             while (b0 != e0)
             {
                 if (*b0 != *b1)
                     return false;
-                
-                ++b0; 
-                ++b1;       
+
+                ++b0;
+                ++b1;
             }
 
             return true;
         }
-    }
+    } // namespace detail
 
     template <class T>
     class ReversedSpan
@@ -355,6 +355,107 @@ namespace ulib
         inline SelfT subspan(size_type pos, size_type n = npos) const { return SubSpan(pos, n); }
         inline SplitViewT split(ViewT sep) const { return Split(sep); }
         inline BufferViewT raw() const { return Raw(); }
+
+        inline SelfT lstrip(ViewT bytes)
+        {
+            auto it = mBegin;
+            if (it != mLast)
+            {
+                for (auto bIt = bytes.mBegin; bIt != bytes.mLast;)
+                {
+                    if (*it == *bIt)
+                    {
+                        it++;
+                        if (it == mLast)
+                            return SelfT{it, mLast};
+
+                        bIt = bytes.mBegin;
+                    }
+                    else
+                    {
+                        bIt++;
+                    }
+                }
+            }
+
+            return SelfT{it, mLast};
+        }
+
+        inline SelfT rstrip(ViewT bytes)
+        {
+            auto it = mBegin;
+            if (it != mLast)
+            {
+                auto rIt = mLast - 1;
+                auto eIt = it - 1;
+
+                for (auto bIt = bytes.mBegin; bIt != bytes.mLast;)
+                {
+                    if (*rIt == *bIt)
+                    {
+                        rIt--;
+                        if (rIt == eIt)
+                            return SelfT{it, it};
+
+                        bIt = bytes.mBegin;
+                    }
+                    else
+                    {
+                        bIt++;
+                    }
+                }
+
+                return SelfT{it, rIt + 1};
+            }
+
+            return SelfT{it, it};
+        }
+
+        inline SelfT strip(ViewT bytes)
+        {
+            auto it = mBegin;
+            if (it != mLast)
+            {
+                for (auto bIt = bytes.mBegin; bIt != bytes.mLast;)
+                {
+                    if (*it == *bIt)
+                    {
+                        it++;
+                        if (it == mLast)
+                            return SelfT{it, it};
+
+                        bIt = bytes.mBegin;
+                    }
+                    else
+                    {
+                        bIt++;
+                    }
+                }
+
+                auto rIt = mLast - 1;
+                auto eIt = it - 1;
+
+                for (auto bIt = bytes.mBegin; bIt != bytes.mLast;)
+                {
+                    if (*rIt == *bIt)
+                    {
+                        rIt--;
+                        if (rIt == eIt)
+                            return SelfT{it, it};
+
+                        bIt = bytes.mBegin;
+                    }
+                    else
+                    {
+                        bIt++;
+                    }
+                }
+
+                return SelfT{it, rIt + 1};
+            }
+
+            return SelfT{it, it};
+        }
 
     private:
         pointer mBegin;

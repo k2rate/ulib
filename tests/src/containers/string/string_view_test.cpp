@@ -68,10 +68,64 @@ TEST(StringViewTest, RemoveSuffixAndPrefix)
 
 TEST(StringViewTest, ConstructFromSpan)
 {
-    char buf[] = { 'h', 'e', 'l', 'l', 'o' };
+    char buf[] = {'h', 'e', 'l', 'l', 'o'};
     ulib::span<char> span = buf;
     ulib::string_view view = span;
-    
+
     ASSERT_EQ(view, "hello");
     ASSERT_EQ(view, span);
+}
+
+TEST(StringViewTest, strip)
+{
+    ulib::string_view text0 = "111text111";
+    ulib::string_view text1 = "1text1";
+    ulib::string_view text2 = "text1";
+    ulib::string_view text3 = "21text12";
+    ulib::string_view text4 = "21text1";
+
+    ASSERT_EQ(text0.strip("1"), "text");
+    ASSERT_EQ(text1.strip("1"), "text");
+    ASSERT_EQ(text2.strip("1"), "text");
+    ASSERT_EQ(text3.strip("1"), "21text12");
+    ASSERT_EQ(text4.strip("1"), "21text");
+
+    ASSERT_EQ(text3.strip("12"), "text");
+    ASSERT_EQ(text4.strip("21"), "text");
+}
+
+TEST(StringViewTest, lstrip)
+{
+    ulib::string_view text0 = "111text111";
+    ulib::string_view text1 = "1text1";
+    ulib::string_view text2 = "text1";
+    ulib::string_view text3 = "21text12";
+    ulib::string_view text4 = "21text1";
+
+    ASSERT_EQ(text0.lstrip("1"), "text111");
+    ASSERT_EQ(text1.lstrip("1"), "text1");
+    ASSERT_EQ(text2.lstrip("1"), "text1");
+    ASSERT_EQ(text3.lstrip("1"), "21text12");
+    ASSERT_EQ(text4.lstrip("1"), "21text1");
+
+    ASSERT_EQ(text3.lstrip("12"), "text12");
+    ASSERT_EQ(text4.lstrip("21"), "text1");
+}
+
+TEST(StringViewTest, rstrip)
+{
+    ulib::string_view text0 = "111text111";
+    ulib::string_view text1 = "1text1";
+    ulib::string_view text2 = "text1";
+    ulib::string_view text3 = "21text12";
+    ulib::string_view text4 = "21text1";
+
+    ASSERT_EQ(text0.rstrip("1"), "111text");
+    ASSERT_EQ(text1.rstrip("1"), "1text");
+    ASSERT_EQ(text2.rstrip("1"), "text");
+    ASSERT_EQ(text3.rstrip("1"), "21text12");
+    ASSERT_EQ(text4.rstrip("1"), "21text");
+
+    ASSERT_EQ(text3.rstrip("12"), "21text");
+    ASSERT_EQ(text4.rstrip("21"), "21text");
 }

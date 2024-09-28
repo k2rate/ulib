@@ -500,7 +500,7 @@ namespace ulib
 
         inline SelfT &Erase(size_type index = 0, size_type count = npos)
         {
-            size_t removeCount = std::min(count, size() - index);
+            // size_t removeCount = std::min(count, size() - index);
             auto start = mBegin + index;
             auto finish = start + count;
 

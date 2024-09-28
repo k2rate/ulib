@@ -268,6 +268,9 @@ namespace ulib
         inline SelfT substr(size_type pos, size_type n = npos) const { return SubString(pos, n); }
         inline SplitViewT split(ViewT sep) const { return Split(sep); }
         inline BufferView raw() const { return Raw(); }
+        inline SelfT lstrip(ViewT chars) { return SelfT(mSpan.lstrip(chars.mSpan)); }
+        inline SelfT rstrip(ViewT chars) { return SelfT(mSpan.rstrip(chars.mSpan)); }
+        inline SelfT strip(ViewT chars) { return SelfT(mSpan.strip(chars.mSpan)); }
 
     private:
         SpanT mSpan;

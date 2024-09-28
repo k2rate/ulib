@@ -7,6 +7,12 @@
 
 int main()
 {
+    ulib::string_view text0 = "111text111";
+    printf("%s\n", ulib::str(text0.strip("1")).c_str());
+
+    ulib::string str0 = "text";
+    // ulib::string str1(str0.begin(), str0.end());
+
     // ulib::list<int> vals = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
     // constexpr int ky = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13;
 
