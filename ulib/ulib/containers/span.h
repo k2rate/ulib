@@ -244,8 +244,18 @@ namespace ulib
             // return npos;
         }
 
-        inline bool StartsWith(const_reference v) const { return Front() == v; }
-        inline bool EndsWith(const_reference v) const { return Back() == v; }
+        inline bool StartsWith(const_reference v) const
+        {
+            if (mBegin != mLast)
+                return Front() == v;
+            return false;
+        }
+        inline bool EndsWith(const_reference v) const
+        {
+            if (mBegin != mLast)
+                return Back() == v;
+            return false;
+        }
         inline bool Contains(const_reference v) const
         {
             for (auto &obj : *this)

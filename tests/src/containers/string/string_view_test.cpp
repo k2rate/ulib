@@ -129,3 +129,34 @@ TEST(StringViewTest, rstrip)
     ASSERT_EQ(text3.rstrip("12"), "21text");
     ASSERT_EQ(text4.rstrip("21"), "21text");
 }
+
+TEST(StringViewTest, starts_with)
+{
+    ulib::string_view text0 = "text";
+    
+    ASSERT_TRUE(text0.starts_with("tex"));
+    ASSERT_TRUE(text0.starts_with("t"));
+    ASSERT_TRUE(text0.starts_with('t'));
+    ASSERT_FALSE(text0.starts_with('e'));
+
+    text0.remove_suffix(text0.length());
+
+    ASSERT_FALSE(text0.starts_with("t"));
+    ASSERT_FALSE(text0.starts_with('t'));
+
+    ASSERT_TRUE(text0.starts_with(""));
+}
+
+TEST(StringViewTest, ends_with)
+{
+    ulib::string_view text0 = "text";
+    
+    ASSERT_TRUE(text0.ends_with("ext"));
+    ASSERT_TRUE(text0.ends_with("t"));
+    ASSERT_TRUE(text0.ends_with('t'));
+    ASSERT_FALSE(text0.ends_with('x'));
+
+    text0.remove_suffix(text0.length());
+
+    ASSERT_TRUE(text0.ends_with(""));
+}
