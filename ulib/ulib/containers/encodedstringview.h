@@ -17,6 +17,7 @@
 #ifdef _WIN32
 #ifdef _DEBUG
 #include "cstr_debug.h"
+#define ULIB_USE_C_STR_READ_CHECK_TPL
 #endif
 #endif
 
@@ -74,12 +75,10 @@ namespace ulib
     template <class CharT>
     const CharT *checked_c_str(const CharT *ch)
     {
-#ifdef _WIN32
-#ifdef _DEBUG
+#ifdef ULIB_USE_READ_CHECK_TPL
         return c_str_read_check_tpl<CharT>(ch);
 #else
         return ch;
-#endif
 #endif
     }
 
