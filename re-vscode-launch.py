@@ -2,6 +2,8 @@ import json
 import os
 
 workspaceFolder = os.getcwd()
+os.makedirs('.re-cache', exist_ok=True)
+os.makedirs('.vscode', exist_ok=True)
 
 meta = None
 with open('.re-cache/meta/full.json', 'r') as outfile:
