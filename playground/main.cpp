@@ -51,8 +51,7 @@ int main()
 
     auto strs_view = strs.ToSpan();
 
-    auto view =
-        strs_view.map(predicate, ".").map(&ulib::string::split, "ky"); // ulib::PredMapView{ulib::PredMapView{strs, predicate, "."}, predicate, "_"};
+    auto view = strs_view.map(predicate, ".").map(&ulib::string::split, "ky"); // ulib::MapView{ulib::MapView{strs, predicate, "."}, predicate, "_"};
 
     for (auto s : view)
     {

@@ -471,7 +471,7 @@ namespace ulib
         template <class Pred, class... Args>
         auto map(Pred &&pred, Args &&...args)
         {
-            return PredMapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return MapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
     private:

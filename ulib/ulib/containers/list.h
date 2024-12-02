@@ -766,20 +766,20 @@ namespace ulib
             for (auto it = mBegin; it != mLast; it++)
                 result.push_back(pred(*it, args...));
 
-            return PredMapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
+            return MapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
         }
          */
 
         template <class Pred, class... Args>
         auto map_lazy(Pred &&pred, Args &&...args) const
         {
-            return PredMapView<const SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return MapView<const SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
         template <class Pred, class... Args>
         auto map_lazy(Pred &&pred, Args &&...args)
         {
-            return PredMapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return MapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
         template <class Pred, class... Args>

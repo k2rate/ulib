@@ -11,10 +11,10 @@
 namespace ulib
 {
     template <class SpanT, class Pred, class... Args>
-    class PredMapView
+    class MapView
     {
     public:
-        using SelfT = PredMapView<SpanT, Pred, Args...>;
+        using SelfT = MapView<SpanT, Pred, Args...>;
 
         using underlying_span_type = SpanT;
         using predicate_type = std::decay_t<Pred>;
@@ -28,7 +28,7 @@ namespace ulib
         struct Iterator : public BaseIterator<std::remove_cv_t<value_type>, std::random_access_iterator_tag>
         {
             inline Iterator() {}
-            inline Iterator(underlying_iterator iter, const PredMapView *view) : iter(iter), view(view) {}
+            inline Iterator(underlying_iterator iter, const MapView *view) : iter(iter), view(view) {}
 
             static auto TupleIterHelper(underlying_value_type &obj) { return std::make_tuple(std::ref(obj)); }
 
@@ -70,7 +70,7 @@ namespace ulib
             // inline T *raw() { return ptr; }
 
             underlying_iterator iter;
-            const PredMapView *view;
+            const MapView *view;
         };
 
     public:
@@ -79,12 +79,12 @@ namespace ulib
         SpanT &underlying_span() { return mSpan; }
         const SpanT &underlying_span() const { return mSpan; }
 
-        PredMapView(underlying_span_type span, predicate_type &&pred, Args... args)
+        MapView(underlying_span_type span, predicate_type &&pred, Args... args)
             : mSpan{span}, mPred{std::move(pred)}, mArgs{std::make_tuple<std::decay_t<Args>...>(args...)}
         {
         }
 
-        PredMapView(underlying_span_type span, const predicate_type &pred, Args... args)
+        MapView(underlying_span_type span, const predicate_type &pred, Args... args)
             : mSpan{span}, mPred{pred}, mArgs{std::make_tuple<std::decay_t<Args>...>(args...)}
         {
         }
@@ -97,21 +97,21 @@ namespace ulib
         template <class NewPred, class... NewArgs>
         auto map(NewPred &&pred, NewArgs &&...args) const
         {
-            return PredMapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
+            return MapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
         }
 
         template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
         auto map(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args) const
         {
             auto pred = [fn, ... args = std::forward<FuncArgs>(args)](VT &instance) { return ((instance).*fn)(args...); };
-            return PredMapView<SelfT, decltype(pred)>{*this, std::move(pred)};
+            return MapView<SelfT, decltype(pred)>{*this, std::move(pred)};
         }
 
         template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
         auto map(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
         {
             auto pred = [fn, ... args = std::forward<FuncArgs>(args)](const VT &instance) { return ((instance).*fn)(args...); };
-            return PredMapView<SelfT, decltype(pred)>{*this, std::move(pred)};
+            return MapView<SelfT, decltype(pred)>{*this, std::move(pred)};
         }
 
     private:
