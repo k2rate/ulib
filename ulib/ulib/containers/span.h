@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ulib/containers/iterators/randomaccessiterator.h>
+#include <ulib/containers/mapview.h>
 #include <ulib/containers/splitview.h>
 #include <ulib/containers/tags.h>
 
@@ -465,6 +466,12 @@ namespace ulib
             }
 
             return SelfT{it, it};
+        }
+
+        template <class Pred, class... Args>
+        auto map(Pred &&pred, Args &&...args)
+        {
+            return PredMapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
     private:

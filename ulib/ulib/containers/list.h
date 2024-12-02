@@ -750,48 +750,54 @@ namespace ulib
         inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
 
-        template <
-            class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
-            class ResultT =
-                ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args)
+        /*
+
+        template <class NewPred, class... NewArgs>
+        auto map(NewPred &&pred, NewArgs &&...args) const
         {
-            static_assert(!std::is_void_v<ResultT>, "ulib::List<T>::map() does not support methods returning void for consistency."
-                                                    "To invoke a method on all items without any return values, use ulib::List<T>::transform");
+            using result_value_t = std::invoke_result_t<NewPred, value_type, NewArgs...>;
 
-            ResultT result{args::Capacity(size())};
+            static_assert(!std::is_void_v<result_value_t>, "ulib::List<T>::map() does not support methods returning void for consistency."
+                                                           "To invoke a method on all items without any return values, use ulib::List<T>::transform");
+
+            using result_list_t = List<result_value_t, AllocatorT>;
+
+            result_list_t result{args::Capacity(size())};
             for (auto it = mBegin; it != mLast; it++)
-                result.push_back((it->*fn)(std::forward<FuncArgs>(args)...));
+                result.push_back(pred(*it, args...));
 
-            return result;
+            return PredMapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
+        }
+         */
+
+        template <class Pred, class... Args>
+        auto map_lazy(Pred &&pred, Args &&...args) const
+        {
+            return PredMapView<const SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
-        template <
-            class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
-            class ResultT =
-                ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
+        template <class Pred, class... Args>
+        auto map_lazy(Pred &&pred, Args &&...args)
         {
-            static_assert(!std::is_void_v<ResultT>, "ulib::List<T>::map() does not support methods returning void for consistency."
-                                                    "To invoke a method on all items without any return values, use ulib::List<T>::transform");
-
-            ResultT result{args::Capacity(size())};
-
-            for (auto it = mBegin; it != mLast; it++)
-                result.push_back((it->*fn)(std::forward<FuncArgs>(args)...));
-
-            return result;
+            return PredMapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
-        SelfT map(std::function<value_type(reference)> fn) const
+        template <class Pred, class... Args>
+        auto map(Pred &&pred, Args &&...args) const
         {
-            SelfT result;
-            result.reserve(size());
+            auto map_view = map_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
 
-            for (auto it = mBegin; it != mLast; it++)
-                result.push_back(fn(*it));
+            using mapped_value_type = typename decltype(map_view)::value_type;
+            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
+        }
 
-            return result;
+        template <class Pred, class... Args>
+        auto map(Pred &&pred, Args &&...args)
+        {
+            auto map_view = map_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
+
+            using mapped_value_type = typename decltype(map_view)::value_type;
+            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
         }
 
         template <class... FuncArgs, class RetVal = void, class VT = value_type>

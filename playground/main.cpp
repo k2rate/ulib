@@ -5,6 +5,31 @@
 #include <ulib/string.h>
 #include <ulib/strutility.h>
 
+#include <ulib/containers/mapview.h>
+
+namespace ulib
+{
+    namespace detail
+    {
+        template <typename Sig, typename C>
+        inline Sig C::*overload_resolve_v(std::false_type, Sig C::*mem_func_ptr)
+        {
+            return mem_func_ptr;
+        }
+
+        template <typename Sig, typename C>
+        inline Sig C::*overload_resolve_v(std::true_type, Sig C::*mem_variable_ptr)
+        {
+            return mem_variable_ptr;
+        }
+    } // namespace detail
+
+    template <typename Sig, typename C>
+    inline Sig C::*overload(Sig C::*mem_ptr)
+    {
+        return detail::overload_resolve_v(std::is_member_object_pointer<Sig C::*>(), mem_ptr);
+    }
+} // namespace ulib
 
 int main()
 {
@@ -15,18 +40,44 @@ int main()
 
     // ulib::string str0 = "text";
 
-    ulib::list<ulib::string> strs = {"one", "two", "three"};
+    ulib::list<ulib::string> strs = {"onkye", "two", "thr ee"};
+
+    auto predicate = [](const ulib::string &str, const ulib::string &sep) {
+        std::printf("[Invoking predicate on '%s']\n", str.c_str());
+        return str + sep + str;
+    };
+
+    printf("Lazy-mapped:\n");
+
+    auto strs_view = strs.ToSpan();
+
+    auto view =
+        strs_view.map(predicate, ".").map(&ulib::string::split, "ky"); // ulib::PredMapView{ulib::PredMapView{strs, predicate, "."}, predicate, "_"};
+
+    for (auto s : view)
+    {
+        for (auto v : s)
+            printf("%s\n", ulib::string{v}.data());
+    }
+
+    printf("\n");
 
     strs.transform(&ulib::string::push_back, '?');
 
-    for (const char *cstr : strs.map(&ulib::string::c_str))
+    for (auto strs : strs.map(&ulib::string::split, " "))
     {
-        printf("%s\n", cstr);
+        for (auto v : strs)
+            printf("v: %s\n", ulib::string{v}.c_str());
     }
 
-    for (const char *cstr : strs.map(&ulib::string::c_str))
+    for (auto size : strs.map(&ulib::string::size))
     {
-        printf("%s\n", cstr);
+        printf("size: %llu\n", size);
+    }
+
+    for (auto b : strs.map(ulib::overload<bool(ulib::string::ViewT) const>(&ulib::string::starts_with), "two"))
+    {
+        printf("starts_with: %i\n", b);
     }
 
     // ulib::string str1(str0.begin(), str0.end());
