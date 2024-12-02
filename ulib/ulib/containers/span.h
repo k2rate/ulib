@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ulib/containers/filterview.h>
 #include <ulib/containers/iterators/randomaccessiterator.h>
 #include <ulib/containers/mapview.h>
 #include <ulib/containers/splitview.h>
@@ -469,9 +470,27 @@ namespace ulib
         }
 
         template <class Pred, class... Args>
+        auto map(Pred &&pred, Args &&...args) const
+        {
+            return MapView<ViewT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+        }
+
+        template <class Pred, class... Args>
         auto map(Pred &&pred, Args &&...args)
         {
             return MapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+        }
+
+        template <class Pred, class... Args>
+        auto filter(Pred &&pred, Args &&...args) const
+        {
+            return FilterView<ViewT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+        }
+
+        template <class Pred, class... Args>
+        auto filter(Pred &&pred, Args &&...args)
+        {
+            return FilterView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
         }
 
     private:

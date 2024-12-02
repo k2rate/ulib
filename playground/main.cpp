@@ -5,6 +5,7 @@
 #include <ulib/string.h>
 #include <ulib/strutility.h>
 
+#include <ulib/containers/filterview.h>
 #include <ulib/containers/mapview.h>
 
 namespace ulib
@@ -40,7 +41,7 @@ int main()
 
     // ulib::string str0 = "text";
 
-    ulib::list<ulib::string> strs = {"onkye", "two", "thr ee"};
+    ulib::list<ulib::string> strs = {"one", "two", "thr ee", "things", "foo bar"};
 
     auto predicate = [](const ulib::string &str, const ulib::string &sep) {
         std::printf("[Invoking predicate on '%s']\n", str.c_str());
@@ -51,12 +52,11 @@ int main()
 
     auto strs_view = strs.ToSpan();
 
-    auto view = strs_view.map(predicate, ".").map(&ulib::string::split, "ky"); // ulib::MapView{ulib::MapView{strs, predicate, "."}, predicate, "_"};
+    auto view = strs_view.map(predicate, ".").map(predicate, "_"); // ulib::MapView{ulib::MapView{strs, predicate, "."}, predicate, "_"};
 
     for (auto s : view)
     {
-        for (auto v : s)
-            printf("%s\n", ulib::string{v}.data());
+        printf("%s\n", ulib::string{s}.data());
     }
 
     printf("\n");
@@ -74,9 +74,11 @@ int main()
         printf("size: %llu\n", size);
     }
 
-    for (auto b : strs.map(ulib::overload<bool(ulib::string::ViewT) const>(&ulib::string::starts_with), "two"))
+    auto pred = [](const ulib::string &str) { return str.starts_with("tw"); };
+
+    for (auto b : strs.filter(pred).map(&ulib::string::c_str))
     {
-        printf("starts_with: %i\n", b);
+        printf("starts_with: %s\n", b);
     }
 
     // ulib::string str1(str0.begin(), str0.end());

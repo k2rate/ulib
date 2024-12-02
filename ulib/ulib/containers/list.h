@@ -590,6 +590,7 @@ namespace ulib
         }
 
         inline SpanT ToSpan() const { return SpanT{mBegin, mLast}; }
+        inline ViewT ToView() const { return ViewT{mBegin, mLast}; }
         inline bool Compare(ViewT right) const { return ToSpan().Compare(right); }
         inline size_type Find(const_reference v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
         inline size_type Find(ViewT v, size_type pos = 0) const { return ToSpan().Find(v, pos); }
@@ -732,6 +733,7 @@ namespace ulib
         inline const_reference front() const { return Front(); }
         inline const_reference back() const { return Back(); }
         inline SpanT to_span() const { return ToSpan(); }
+        inline ViewT to_view() const { return ToView(); }
         inline bool compare(SpanT right) const { return Compare(right); }
         inline size_type find(const_reference v, size_type pos = 0) const { return Find(v, pos); }
         inline size_type find(ViewT v, size_type pos = 0) const { return Find(v, pos); }
@@ -770,16 +772,18 @@ namespace ulib
         }
          */
 
+        // Map Operations
+
         template <class Pred, class... Args>
         auto map_lazy(Pred &&pred, Args &&...args) const
         {
-            return MapView<const SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return to_view().map(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
         auto map_lazy(Pred &&pred, Args &&...args)
         {
-            return MapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return to_span().map(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
@@ -800,6 +804,40 @@ namespace ulib
             return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
         }
 
+        // Filter Operations
+
+        template <class Pred, class... Args>
+        auto filter_lazy(Pred &&pred, Args &&...args) const
+        {
+            return to_view().filter(std::forward<Pred>(pred), std::forward<Args>(args)...);
+        }
+
+        template <class Pred, class... Args>
+        auto filter_lazy(Pred &&pred, Args &&...args)
+        {
+            return to_span().filter(std::forward<Pred>(pred), std::forward<Args>(args)...);
+        }
+
+        template <class Pred, class... Args>
+        auto filter(Pred &&pred, Args &&...args) const
+        {
+            auto map_view = filter_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
+
+            using mapped_value_type = typename decltype(map_view)::value_type;
+            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
+        }
+
+        template <class Pred, class... Args>
+        auto filter(Pred &&pred, Args &&...args)
+        {
+            auto map_view = filter_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
+
+            using mapped_value_type = typename decltype(map_view)::value_type;
+            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
+        }
+
+        // Transform Operations
+
         template <class... FuncArgs, class RetVal = void, class VT = value_type>
         void transform(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args)
         {
@@ -810,7 +848,7 @@ namespace ulib
         template <class... FuncArgs, class RetVal = void, class VT = value_type>
         void transform(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
         {
-            for (auto it = mBegin; it != mLast; it++)
+            for (const T *it = mBegin; it != mLast; it++)
                 (it->*fn)(std::forward<FuncArgs>(args)...);
         }
 
@@ -840,18 +878,6 @@ namespace ulib
             for (auto it = mBegin; it != mLast; it++)
             {
                 result = fn(result, *it);
-            }
-
-            return result;
-        }
-
-        SelfT filter(std::function<bool(reference)> fn)
-        {
-            SelfT result;
-            for (auto it = mBegin; it != mLast; it++)
-            {
-                if (fn(*it))
-                    result.push_back(*it);
             }
 
             return result;
