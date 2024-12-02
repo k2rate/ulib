@@ -754,46 +754,36 @@ namespace ulib
             class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
             class ResultT =
                 ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map(RetVal (VT::*pt2ConstMember)(FuncArgs &&...), FuncArgs &&...args)
+        ResultT map(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args)
         {
-            if constexpr (std::is_same_v<ResultT, void>)
-            {
-                for (auto it = mBegin; it != mLast; it++)
-                    (it->*pt2ConstMember)(std::forward<FuncArgs>(args)...);
-            }
-            else
-            {
-                ResultT result{args::Capacity(size())};
-                for (auto it = mBegin; it != mLast; it++)
-                    result.push_back((it->*pt2ConstMember)(std::forward<FuncArgs>(args)...));
+            static_assert(!std::is_void_v<ResultT>, "ulib::List<T>::map() does not support methods returning void for consistency."
+                                                    "To invoke a method on all items without any return values, use ulib::List<T>::transform");
 
-                return result;
-            }
+            ResultT result{args::Capacity(size())};
+            for (auto it = mBegin; it != mLast; it++)
+                result.push_back((it->*fn)(std::forward<FuncArgs>(args)...));
+
+            return result;
         }
 
         template <
             class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
             class ResultT =
                 ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map(RetVal (VT::*pt2ConstMember)(FuncArgs &&...) const, FuncArgs &&...args)
+        ResultT map(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
         {
-            if constexpr (std::is_same_v<ResultT, void>)
-            {
-                for (auto it = mBegin; it != mLast; it++)
-                    (it->*pt2ConstMember)(std::forward<FuncArgs>(args)...);
-            }
-            else
-            {
-                ResultT result{args::Capacity(size())};
+            static_assert(!std::is_void_v<ResultT>, "ulib::List<T>::map() does not support methods returning void for consistency."
+                                                    "To invoke a method on all items without any return values, use ulib::List<T>::transform");
 
-                for (auto it = mBegin; it != mLast; it++)
-                    result.push_back((it->*pt2ConstMember)(std::forward<FuncArgs>(args)...));
+            ResultT result{args::Capacity(size())};
 
-                return result;
-            }
+            for (auto it = mBegin; it != mLast; it++)
+                result.push_back((it->*fn)(std::forward<FuncArgs>(args)...));
+
+            return result;
         }
 
-        SelfT map(std::function<value_type(reference)> fn)
+        SelfT map(std::function<value_type(reference)> fn) const
         {
             SelfT result;
             result.reserve(size());
@@ -802,6 +792,26 @@ namespace ulib
                 result.push_back(fn(*it));
 
             return result;
+        }
+
+        template <class... FuncArgs, class RetVal = void, class VT = value_type>
+        void transform(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args)
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                (it->*fn)(std::forward<FuncArgs>(args)...);
+        }
+
+        template <class... FuncArgs, class RetVal = void, class VT = value_type>
+        void transform(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                (it->*fn)(std::forward<FuncArgs>(args)...);
+        }
+
+        void transform(std::function<value_type(reference)> fn) const
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                fn(*it);
         }
 
         value_type reduce(std::function<value_type(reference, reference)> fn)

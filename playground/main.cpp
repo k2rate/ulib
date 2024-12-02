@@ -17,7 +17,7 @@ int main()
 
     ulib::list<ulib::string> strs = {"one", "two", "three"};
 
-    strs.map(&ulib::string::push_back, '?');
+    strs.transform(&ulib::string::push_back, '?');
 
     for (const char *cstr : strs.map(&ulib::string::c_str))
     {
