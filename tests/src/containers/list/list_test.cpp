@@ -647,3 +647,15 @@ TEST(ListTest, ConstructsToSpan)
 
     ASSERT_EQ(spn, list);
 }
+
+TEST(ListTest, ConstructsFromSpan)
+{
+    const ulib::List<int> list1;
+    ulib::span<const int> spn = list1;
+
+    ASSERT_EQ(spn, list1);
+
+    ulib::List<int> list2 = spn;
+
+    ASSERT_EQ(list1, list2);
+}
