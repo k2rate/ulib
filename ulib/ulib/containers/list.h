@@ -750,41 +750,44 @@ namespace ulib
         inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
 
-        template <class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
-                  class ResultT = ulib::type_or_default_t<
-                      ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map1(RetVal (VT::*pt2ConstMember)(FuncArgs...), FuncArgs &&...args)
+        template <
+            class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
+            class ResultT =
+                ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
+        ResultT map(RetVal (VT::*pt2ConstMember)(FuncArgs &&...), FuncArgs &&...args)
         {
             if constexpr (std::is_same_v<ResultT, void>)
             {
                 for (auto it = mBegin; it != mLast; it++)
-                    (it->*pt2ConstMember)(args...);
+                    (it->*pt2ConstMember)(std::forward<FuncArgs>(args)...);
             }
             else
             {
-                ResultT result;
+                ResultT result{args::Capacity(size())};
                 for (auto it = mBegin; it != mLast; it++)
-                    result.push_back((it->*pt2ConstMember)(args...));
+                    result.push_back((it->*pt2ConstMember)(std::forward<FuncArgs>(args)...));
 
                 return result;
             }
         }
 
-        template <class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
-                  class ResultT = ulib::type_or_default_t<
-                      ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
-        ResultT map1(RetVal (VT::*pt2ConstMember)(FuncArgs...) const, FuncArgs &&...args)
+        template <
+            class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
+            class ResultT =
+                ulib::type_or_default_t<ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
+        ResultT map(RetVal (VT::*pt2ConstMember)(FuncArgs &&...) const, FuncArgs &&...args)
         {
             if constexpr (std::is_same_v<ResultT, void>)
             {
                 for (auto it = mBegin; it != mLast; it++)
-                    (it->*pt2ConstMember)(std::forward(args)...);
+                    (it->*pt2ConstMember)(std::forward<FuncArgs>(args)...);
             }
             else
             {
-                ResultT result;
+                ResultT result{args::Capacity(size())};
+
                 for (auto it = mBegin; it != mLast; it++)
-                    result.push_back((it->*pt2ConstMember)(std::forward(args)...));
+                    result.push_back((it->*pt2ConstMember)(std::forward<FuncArgs>(args)...));
 
                 return result;
             }
@@ -793,6 +796,8 @@ namespace ulib
         SelfT map(std::function<value_type(reference)> fn)
         {
             SelfT result;
+            result.reserve(size());
+
             for (auto it = mBegin; it != mLast; it++)
                 result.push_back(fn(*it));
 

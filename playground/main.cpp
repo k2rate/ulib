@@ -17,15 +17,17 @@ int main()
 
     ulib::list<ulib::string> strs = {"one", "two", "three"};
 
+    strs.map(&ulib::string::push_back, '?');
 
-
-
-    for (const char* cstr : strs.map1(&ulib::string::c_str))
+    for (const char *cstr : strs.map(&ulib::string::c_str))
     {
         printf("%s\n", cstr);
     }
 
-
+    for (const char *cstr : strs.map(&ulib::string::c_str))
+    {
+        printf("%s\n", cstr);
+    }
 
     // ulib::string str1(str0.begin(), str0.end());
 
