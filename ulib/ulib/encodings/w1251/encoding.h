@@ -43,7 +43,7 @@ namespace ulib
                     return uchar(codepoint - 0x350);
 
                 // other data
-                for (size_t i = 128; i != 192; i++)
+                for (uchar i = 128; i != 192; i++)
                 {
                     if (mData[i] == codepoint)
                     {
@@ -63,10 +63,8 @@ namespace ulib
 
             void MakeTable()
             {
-                for (size_t i = 0; i != 128; i++)
-                {
+                for (uint i = 0; i != 128; i++)
                     mData[i] = i;
-                }
 
                 const uint kEmpty = 0xFFFFFFFF;
 
@@ -78,7 +76,7 @@ namespace ulib
                                     0x491,  0xb5,   0xb6,   0xb7,   0x451,  0x2116, 0x454,  0xbb,   0x458,  0x405,  0x455,  0x457};
 
                 uint partThree[64];
-                for (size_t i = 0; i != 64; i++)
+                for (uint i = 0; i != 64; i++)
                 {
                     partThree[i] = 0x410 + i;
                 }

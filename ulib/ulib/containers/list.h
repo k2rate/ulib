@@ -16,7 +16,10 @@
 
 #include <functional>
 #include <ulib/typetraits/rawmove.h>
+#include <ulib/typetraits/typeordefault.h>
 #include <utility>
+
+#include <stdexcept>
 
 namespace ulib
 {
@@ -77,15 +80,15 @@ namespace ulib
 
         inline List(const_pointer ptr, size_type count, AllocatorParams al = {}) : ResourceT(al) { SetupWithCopyConstruct(ptr, count); }
 
-        template <class K, enable_if_container_from_range_constructible_t<SelfT, K> = true>
+        template <class K, std::enable_if_t<is_container_from_range_constructible_v<SelfT, K> && has_container_data_method_v<K>, bool> = true>
         inline List(K &&cont, AllocatorParams al = {}) : ResourceT(al)
         {
             ViewT rn = cont;
             SetupWithCopyConstructB(rn.Data(), rn.SizeInBytes());
         }
 
-        template <class K, std::enable_if_t<!is_container_from_range_constructible_v<SelfT, K> && has_container_begin_method_v<K> &&
-                                                std::is_constructible_v<value_type, typename K::value_type>,
+        template <class K, std::enable_if_t<!(is_container_from_range_constructible_v<SelfT, K> && has_container_data_method_v<K>) &&
+                                                has_container_begin_method_v<K> && std::is_constructible_v<value_type, typename K::value_type>,
                                             bool> = true>
         inline List(K &&cont, AllocatorParams al = {}) : ResourceT(al)
         {
@@ -747,6 +750,46 @@ namespace ulib
         inline SplitViewT split(ViewT sep) const { return SplitViewT{*this, sep}; }
         inline BufferView raw() const { return Raw(); }
 
+        template <class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
+                  class ResultT = ulib::type_or_default_t<
+                      ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
+        ResultT map1(RetVal (VT::*pt2ConstMember)(FuncArgs...), FuncArgs &&...args)
+        {
+            if constexpr (std::is_same_v<ResultT, void>)
+            {
+                for (auto it = mBegin; it != mLast; it++)
+                    (it->*pt2ConstMember)(args...);
+            }
+            else
+            {
+                ResultT result;
+                for (auto it = mBegin; it != mLast; it++)
+                    result.push_back((it->*pt2ConstMember)(args...));
+
+                return result;
+            }
+        }
+
+        template <class... FuncArgs, class RetVal = void, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>,
+                  class ResultT = ulib::type_or_default_t<
+                      ulib::type_if_t<List<RetContValT, AllocatorTy>, !std::is_same_v<RetContValT, ulib::missing_type>>, void>>
+        ResultT map1(RetVal (VT::*pt2ConstMember)(FuncArgs...) const, FuncArgs &&...args)
+        {
+            if constexpr (std::is_same_v<ResultT, void>)
+            {
+                for (auto it = mBegin; it != mLast; it++)
+                    (it->*pt2ConstMember)(std::forward(args)...);
+            }
+            else
+            {
+                ResultT result;
+                for (auto it = mBegin; it != mLast; it++)
+                    result.push_back((it->*pt2ConstMember)(std::forward(args)...));
+
+                return result;
+            }
+        }
+
         SelfT map(std::function<value_type(reference)> fn)
         {
             SelfT result;
@@ -758,8 +801,8 @@ namespace ulib
 
         value_type reduce(std::function<value_type(reference, reference)> fn)
         {
-            if (size() < 2)
-                return {};
+            if (empty())
+                throw std::logic_error{"attempt to reduce an empty list"};
 
             value_type result = *mBegin;
             for (auto it = mBegin + 1; it != mLast; it++)
@@ -798,12 +841,15 @@ namespace ulib
             assert(!from.empty());
             // assert(!to.empty());
 
+            assert(mLast >= mBegin);
+
             size_t fromLen = from.size();
             SelfT result;
             for (auto it = mBegin; it != mLast;)
             {
                 // equal
-                if (mLast - it >= fromLen && detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
+                if (size_t(mLast - it) >= fromLen &&
+                    detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
                 {
                     result.append(to);
                     it += fromLen;
@@ -822,11 +868,14 @@ namespace ulib
         {
             size_t fromLen = from.size();
 
+            assert(mLast >= mBegin);
+
             SelfT result;
             for (auto it = mBegin; it != mLast;)
             {
                 // equal
-                if (mLast - it >= fromLen && detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
+                if (size_t(mLast - it) >= fromLen &&
+                    detail::equal_nolength(const_iterator{it}, const_iterator{it + fromLen}, from.begin(), from.end()))
                 {
                     it += fromLen;
                 }
@@ -1013,6 +1062,9 @@ namespace ulib
             };
         };
     };
+
+    template <class Container>
+    List(Container) -> List<typename Container::value_type>;
 
     template <class T, class AllocatorTy = DefaultAllocator>
     using list = List<T, AllocatorTy>;

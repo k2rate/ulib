@@ -1,8 +1,9 @@
-#include <stdexcept>
-#include <ulib/string.h>
-#include <ulib/split.h>
-#include <ulib/list.h>
 #include <gtest/gtest.h>
+#include <stdexcept>
+#include <ulib/list.h>
+#include <ulib/split.h>
+#include <ulib/string.h>
+
 
 TEST(FeaturesTest, Split)
 {
@@ -11,7 +12,7 @@ TEST(FeaturesTest, Split)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8" "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
@@ -24,7 +25,7 @@ TEST(FeaturesTest, SplitWithFirstSeparator)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8" "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
@@ -37,7 +38,7 @@ TEST(FeaturesTest, SplitWithEndSeparator)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8" "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
@@ -50,7 +51,7 @@ TEST(FeaturesTest, SplitWithBeginEndSeparators)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8" "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
@@ -63,10 +64,18 @@ TEST(FeaturesTest, SplitWithMultipleSeparators)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8" "))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
+
+    {
+        auto words = ulib::List(ulib::split(str, u8" "));
+
+        ASSERT_EQ(words.Size(), 2);
+        ASSERT_EQ(words[0], u8"full");
+        ASSERT_EQ(words[1], u8"plak");
+    }
 }
 
 TEST(FeaturesTest, SplitWithLongSeparator)
@@ -76,7 +85,7 @@ TEST(FeaturesTest, SplitWithLongSeparator)
     ulib::List<ulib::u8string> words;
     for (auto word : ulib::split(str, u8"123"))
         words.Add(word);
-    
+
     ASSERT_EQ(words.Size(), 2);
     ASSERT_EQ(words[0], u8"full");
     ASSERT_EQ(words[1], u8"plak");
@@ -119,7 +128,7 @@ TEST(FeaturesTest, SplitByIndex)
 
 TEST(FeaturesTest, Chars)
 {
-    using Enc = ulib::argument_encoding_t<const char*>;
+    using Enc = ulib::argument_encoding_t<const char *>;
 
     ulib::List<ulib::string> words;
     for (auto word : ulib::split("full plak", " "))

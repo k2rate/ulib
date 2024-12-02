@@ -1,16 +1,32 @@
 
 #include <iostream>
 #include <ulib/chrono.h>
+#include <ulib/encodings/w1251/string.h>
 #include <ulib/string.h>
 #include <ulib/strutility.h>
-#include <ulib/encodings/w1251/string.h>
+
 
 int main()
 {
-    ulib::string_view text0 = "111text111";
-    printf("%s\n", ulib::str(text0.strip("1")).c_str());
+    // int (TMyClass::*pt2ConstMember)(float, char, char) const
 
-    ulib::string str0 = "text";
+    // ulib::string_view text0 = "111text111";
+    // printf("%s\n", ulib::str(text0.strip("1")).c_str());
+
+    // ulib::string str0 = "text";
+
+    ulib::list<ulib::string> strs = {"one", "two", "three"};
+
+
+
+
+    for (const char* cstr : strs.map1(&ulib::string::c_str))
+    {
+        printf("%s\n", cstr);
+    }
+
+
+
     // ulib::string str1(str0.begin(), str0.end());
 
     // ulib::list<int> vals = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
