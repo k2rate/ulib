@@ -8,11 +8,11 @@
 
 #include "iterators/baseiterator.h"
 
+#include "filterview_fwd.h"
+#include "mapview_fwd.h"
+
 namespace ulib
 {
-    template <class SpanT, class Pred, class... Args>
-    class FilterView;
-
     template <class SpanT, class Pred, class... Args>
     class MapView
     {
@@ -98,47 +98,17 @@ namespace ulib
         value_type operator[](size_t index) const { return *(begin() + index); }
 
         /// Map Operations
-
         template <class NewPred, class... NewArgs>
         auto map(NewPred &&pred, NewArgs &&...args) const
         {
-            return MapView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
-        }
-
-        template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
-        auto map(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args) const
-        {
-            auto pred = [fn, ... args = std::forward<FuncArgs>(args)](VT &instance) { return ((instance).*fn)(args...); };
-            return MapView<SelfT, decltype(pred)>{*this, std::move(pred)};
-        }
-
-        template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
-        auto map(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
-        {
-            auto pred = [fn, ... args = std::forward<FuncArgs>(args)](const VT &instance) { return ((instance).*fn)(args...); };
-            return MapView<SelfT, decltype(pred)>{*this, std::move(pred)};
+            return CreateMapView(*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...);
         }
 
         /// Filter Operations
-
         template <class NewPred, class... NewArgs>
         auto filter(NewPred &&pred, NewArgs &&...args) const
         {
-            return FilterView<SelfT, NewPred, NewArgs...>{*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
-        }
-
-        template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
-        auto filter(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args) const
-        {
-            auto pred = [fn, ... args = std::forward<FuncArgs>(args)](VT &instance) { return ((instance).*fn)(args...); };
-            return FilterView<SelfT, decltype(pred)>{*this, std::move(pred)};
-        }
-
-        template <class... FuncArgs, class RetVal, class VT = value_type, class RetContValT = ulib::type_if_t<RetVal, !std::is_same_v<RetVal, void>>>
-        auto filter(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
-        {
-            auto pred = [fn, ... args = std::forward<FuncArgs>(args)](const VT &instance) { return ((instance).*fn)(args...); };
-            return FilterView<SelfT, decltype(pred)>{*this, std::move(pred)};
+            return CreateFilterView(*this, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...);
         }
 
     private:

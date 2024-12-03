@@ -76,6 +76,8 @@ int main()
 
     auto pred = [](const ulib::string &str) { return str.starts_with("tw"); };
 
+    strs.filter_lazy(pred).transform(&ulib::string::push_back, '!');
+
     for (auto b : strs.filter(pred).map(&ulib::string::c_str))
     {
         printf("starts_with: %s\n", b);

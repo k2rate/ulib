@@ -472,25 +472,46 @@ namespace ulib
         template <class Pred, class... Args>
         auto map(Pred &&pred, Args &&...args) const
         {
-            return MapView<ViewT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return CreateMapView<ViewT>(*this, std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
         auto map(Pred &&pred, Args &&...args)
         {
-            return MapView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return CreateMapView<SelfT>(*this, std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
         auto filter(Pred &&pred, Args &&...args) const
         {
-            return FilterView<ViewT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return CreateFilterView<ViewT>(*this, std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
         auto filter(Pred &&pred, Args &&...args)
         {
-            return FilterView<SelfT, Pred, Args...>{*this, std::forward<Pred>(pred), std::forward<Args>(args)...};
+            return CreateFilterView<SelfT>(*this, std::forward<Pred>(pred), std::forward<Args>(args)...);
+        }
+
+        template <class... FuncArgs, class RetVal = void, class VT = value_type>
+        void transform(RetVal (VT::*fn)(FuncArgs &&...), FuncArgs &&...args)
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                (it->*fn)(std::forward<FuncArgs>(args)...);
+        }
+
+        template <class... FuncArgs, class RetVal = void, class VT = value_type>
+        void transform(RetVal (VT::*fn)(FuncArgs &&...) const, FuncArgs &&...args) const
+        {
+            for (const T *it = mBegin; it != mLast; it++)
+                (it->*fn)(std::forward<FuncArgs>(args)...);
+        }
+
+        template <class F>
+        void transform(F &&fn) const
+        {
+            for (auto it = mBegin; it != mLast; it++)
+                fn(*it);
         }
 
     private:

@@ -852,7 +852,8 @@ namespace ulib
                 (it->*fn)(std::forward<FuncArgs>(args)...);
         }
 
-        void transform(std::function<value_type(reference)> fn) const
+        template <class F>
+        void transform(F &&fn) const
         {
             for (auto it = mBegin; it != mLast; it++)
                 fn(*it);
