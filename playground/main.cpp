@@ -129,13 +129,13 @@ int main()
 
     printf("Lazy filter/map:\n");
 
-    auto lazyFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                             .map(&ulib::string::replace, "a", "@")
-                             .map(&ulib::string::replace, "l", "bb")
-                             .map(&ulib::string::size)
-                             // .filter(ULIB_MEM_CALL(&ulib::string::starts_with), "test")
-                             .filter(std::greater<int>{}, 5)
-                             .map(ULIB_ANY_CALL(std::to_string));
+    ulib::List lazyFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                   .map(&ulib::string::replace, "a", "@")
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .map(&ulib::string::size)
+                                   // .filter(ULIB_MEM_CALL(&ulib::string::starts_with), "test")
+                                   .filter(std::greater<int>{}, 5)
+                                   .map(ULIB_ANY_CALL(std::to_string));
 
     for (auto s : lazyFilterMap)
     {
