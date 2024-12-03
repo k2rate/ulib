@@ -82,13 +82,13 @@ namespace ulib
         SpanT &underlying_span() { return mSpan; }
         const SpanT &underlying_span() const { return mSpan; }
 
-        MapView(underlying_span_type span, predicate_type &&pred, Args... args)
-            : mSpan{span}, mPred{std::move(pred)}, mArgs{std::make_tuple<std::decay_t<Args>...>(args...)}
+        MapView(underlying_span_type span, predicate_type &&pred, Args &&...args)
+            : mSpan{span}, mPred{std::move(pred)}, mArgs{std::make_tuple<std::decay_t<Args>...>(std::forward<Args>(args)...)}
         {
         }
 
-        MapView(underlying_span_type span, const predicate_type &pred, Args... args)
-            : mSpan{span}, mPred{pred}, mArgs{std::make_tuple<std::decay_t<Args>...>(args...)}
+        MapView(underlying_span_type span, const predicate_type &pred, Args &&...args)
+            : mSpan{span}, mPred{pred}, mArgs{std::make_tuple<std::decay_t<Args>...>(std::forward<Args>(args)...)}
         {
         }
 
