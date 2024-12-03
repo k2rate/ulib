@@ -775,65 +775,29 @@ namespace ulib
         // Map Operations
 
         template <class Pred, class... Args>
-        auto map_lazy(Pred &&pred, Args &&...args) const
+        auto map(Pred &&pred, Args &&...args) const
         {
             return to_view().map(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
-        auto map_lazy(Pred &&pred, Args &&...args)
-        {
-            return to_span().map(std::forward<Pred>(pred), std::forward<Args>(args)...);
-        }
-
-        template <class Pred, class... Args>
-        auto map(Pred &&pred, Args &&...args) const
-        {
-            auto map_view = map_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
-
-            using mapped_value_type = typename decltype(map_view)::value_type;
-            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
-        }
-
-        template <class Pred, class... Args>
         auto map(Pred &&pred, Args &&...args)
         {
-            auto map_view = map_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
-
-            using mapped_value_type = typename decltype(map_view)::value_type;
-            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
+            return to_span().map(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         // Filter Operations
 
         template <class Pred, class... Args>
-        auto filter_lazy(Pred &&pred, Args &&...args) const
+        auto filter(Pred &&pred, Args &&...args) const
         {
             return to_view().filter(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         template <class Pred, class... Args>
-        auto filter_lazy(Pred &&pred, Args &&...args)
-        {
-            return to_span().filter(std::forward<Pred>(pred), std::forward<Args>(args)...);
-        }
-
-        template <class Pred, class... Args>
-        auto filter(Pred &&pred, Args &&...args) const
-        {
-            auto map_view = filter_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
-
-            using mapped_value_type = typename decltype(map_view)::value_type;
-            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
-        }
-
-        template <class Pred, class... Args>
         auto filter(Pred &&pred, Args &&...args)
         {
-            auto map_view = filter_lazy(std::forward<Pred>(pred), std::forward<Args>(args)...);
-
-            using mapped_value_type = typename decltype(map_view)::value_type;
-            return List<mapped_value_type, AllocatorTy>(map_view.begin(), map_view.end());
+            return to_span().filter(std::forward<Pred>(pred), std::forward<Args>(args)...);
         }
 
         // Transform Operations

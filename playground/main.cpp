@@ -52,6 +52,9 @@ public:
     }
 };
 
+#define ULIB_ANY_CALL(fn) ([](auto &&...args) { return (fn)(std::forward<decltype(args)>(args)...); })
+#define ULIB_MEM_CALL(fn) ([](auto &instance, auto &&...args) { return ((instance).*(fn))(args...); })
+
 int main()
 {
     // int (TMyClass::*pt2ConstMember)(float, char, char) const
@@ -96,7 +99,9 @@ int main()
 
     auto pred = [](const ulib::string &str) { return str.starts_with("tw"); };
 
-    strs.filter_lazy(pred).transform(&ulib::string::push_back, '!');
+    strs.filter(pred).transform(&ulib::string::push_back, '!');
+    strs.filter(pred).transform(&ulib::string::push_back, '!');
+    strs.filter(pred).transform(&ulib::string::push_back, '!');
 
     for (auto b : strs.filter(pred).map(&ulib::string::c_str))
     {
@@ -124,10 +129,13 @@ int main()
 
     printf("Lazy filter/map:\n");
 
-    LoggedList lazyFilterMap = testList.filter_lazy([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                   .map(&ulib::string::replace, "a", "@")
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); });
+    auto lazyFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                             .map(&ulib::string::replace, "a", "@")
+                             .map(&ulib::string::replace, "l", "bb")
+                             .map(&ulib::string::size)
+                             // .filter(ULIB_MEM_CALL(&ulib::string::starts_with), "test")
+                             .filter(std::greater<int>{}, 5)
+                             .map(ULIB_ANY_CALL(std::to_string));
 
     for (auto s : lazyFilterMap)
     {
