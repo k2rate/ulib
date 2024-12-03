@@ -115,13 +115,7 @@ int main()
     LoggedList normalFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
                                      .map(&ulib::string::replace, "a", "@")
                                      .map(&ulib::string::replace, "l", "bb")
-                                     .map(&ulib::string::replace, "l", "bb")
-                                     .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                     .map(&ulib::string::replace, "l", "bb")
-                                     .map(&ulib::string::replace, "l", "bb")
-                                     .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                     .map(&ulib::string::replace, "l", "bb")
-                                     .map(&ulib::string::replace, "l", "bb");
+                                     .filter([](const ulib::string &s) { return !s.starts_with("Tim"); });
 
     for (auto s : normalFilterMap)
     {
@@ -133,15 +127,7 @@ int main()
     LoggedList lazyFilterMap = testList.filter_lazy([](const ulib::string &s) { return !s.starts_with("Tim"); })
                                    .map(&ulib::string::replace, "a", "@")
                                    .map(&ulib::string::replace, "l", "bb")
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
-                                   .map(&ulib::string::replace, "l", "bb")
-                                   .map(&ulib::string::replace, "l", "bb");
+                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); });
 
     for (auto s : lazyFilterMap)
     {
