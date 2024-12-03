@@ -47,7 +47,7 @@ namespace ulib
                 return is_included_impl();
             }
 
-            inline value_type &operator*() const { return *iter; }
+            inline decltype(*std::declval<underlying_iterator>()) operator*() const { return *iter; }
 
             inline Iterator &operator++()
             {

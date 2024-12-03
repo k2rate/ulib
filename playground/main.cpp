@@ -32,6 +32,26 @@ namespace ulib
     }
 } // namespace ulib
 
+template <class AllocatorT>
+class LoggedAllocator : public AllocatorT
+{
+public:
+    LoggedAllocator(typename AllocatorT::Params params = {}) : AllocatorT(params) {}
+
+    inline void *Alloc(size_t size)
+    {
+        auto result = AllocatorT::Alloc(size);
+        printf(" [ALLOC] Allocating %llu bytes\n", size);
+        return result;
+    }
+
+    inline void Free(void *ptr)
+    {
+        AllocatorT::Free(ptr);
+        // printf("");
+    }
+};
+
 int main()
 {
     // int (TMyClass::*pt2ConstMember)(float, char, char) const
@@ -81,6 +101,51 @@ int main()
     for (auto b : strs.filter(pred).map(&ulib::string::c_str))
     {
         printf("starts_with: %s\n", b);
+    }
+
+    printf("\n\n\nALLOC TEST\n\n\n");
+
+    using LoggedDefaultAlloc = LoggedAllocator<ulib::DefaultAllocator>;
+    using LoggedList = ulib::List<ulib::string, LoggedDefaultAlloc>;
+
+    LoggedList testList{"FullPlak", "TimTimson", "JasonWilson", "Test"};
+
+    printf("Normal filter/map:\n");
+
+    LoggedList normalFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                     .map(&ulib::string::replace, "a", "@")
+                                     .map(&ulib::string::replace, "l", "bb")
+                                     .map(&ulib::string::replace, "l", "bb")
+                                     .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                     .map(&ulib::string::replace, "l", "bb")
+                                     .map(&ulib::string::replace, "l", "bb")
+                                     .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                     .map(&ulib::string::replace, "l", "bb")
+                                     .map(&ulib::string::replace, "l", "bb");
+
+    for (auto s : normalFilterMap)
+    {
+        printf("s: %s\n", s.c_str());
+    }
+
+    printf("Lazy filter/map:\n");
+
+    LoggedList lazyFilterMap = testList.filter_lazy([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                   .map(&ulib::string::replace, "a", "@")
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
+                                   .map(&ulib::string::replace, "l", "bb")
+                                   .map(&ulib::string::replace, "l", "bb");
+
+    for (auto s : lazyFilterMap)
+    {
+        printf("s: %s\n", s.c_str());
     }
 
     // ulib::string str1(str0.begin(), str0.end());
