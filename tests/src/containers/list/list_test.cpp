@@ -659,3 +659,49 @@ TEST(ListTest, ConstructsFromSpan)
 
     ASSERT_EQ(list1, list2);
 }
+
+// this test checks memory corruption in internal functions
+TEST(ListTest, PushBackAfterCopy)
+{
+    for (size_t i = 0; i != 64; i++)
+    {
+        ulib::list<int> ints = {};
+        ulib::list<int> ints2 = ints;
+
+        for (size_t i = 0; i != 512; i++)
+        {
+            ints2.push_back(i);
+            ASSERT_EQ(ints2.back(), i);
+        }
+    }
+}
+
+TEST(ListTest, InsertFrontAfterCopy)
+{
+    for (size_t i = 0; i != 64; i++)
+    {
+        ulib::list<int> ints = {};
+        ulib::list<int> ints2 = ints;
+
+        for (size_t i = 0; i != 512; i++)
+        {
+            ints2.insert_front(i);
+            ASSERT_EQ(ints2.front(), i);
+        }
+    }
+}
+
+TEST(ListTest, InsertBackAfterCopy)
+{
+    for (size_t i = 0; i != 64; i++)
+    {
+        ulib::list<int> ints = {};
+        ulib::list<int> ints2 = ints;
+
+        for (size_t i = 0; i != 512; i++)
+        {
+            ints2.insert_back(i);
+            ASSERT_EQ(ints2.back(), i);
+        }
+    }
+}

@@ -627,3 +627,13 @@ TEST(StringTest, Mul)
     ASSERT_EQ(mul1, "testtesttest");
     ASSERT_EQ(mul2, "testtesttest");
 }
+
+
+TEST(StringTest, LowerBigger)
+{
+    ulib::string abc = "abc";
+    ulib::string def = "def";
+
+    ASSERT_TRUE(abc < def);
+    ASSERT_TRUE(def > abc);
+}

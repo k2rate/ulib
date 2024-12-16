@@ -14,6 +14,11 @@ cxxenv.msvc|clang.cl:
       linker:
         - "/LTCG /OPT:REF /OPT:ICF"
 
+  config.debug:
+    cxx-build-flags:
+      compiler:
+        - '/Zi'
+
 load-context.!standalone:
   enabled: false
 

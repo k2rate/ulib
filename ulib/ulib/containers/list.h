@@ -173,10 +173,16 @@ namespace ulib
         inline void Assign(const SelfT &right) { AssignS(right); }
         inline void Assign(SelfT &&source)
         {
-            for (T *ptr = mBegin; ptr != mLast; ptr++)
-                ptr->~T();
+            // assert(mBegin && "Attempt to move via assign to moved List");
+            assert(source.mBegin && "Attempt to move-assign moved List");
 
-            ResourceT::Free(mBeginB);
+            if (mBegin)
+            {
+                for (T *ptr = mBegin; ptr != mLast; ptr++)
+                    ptr->~T();
+
+                ResourceT::Free(mBeginB);
+            }
 
             Resource<AllocatorT> &rs = *this;
             rs = std::move(source);
@@ -949,8 +955,10 @@ namespace ulib
             if (mLast == mEnd)
             {
                 size_t sizeInBytes = SizeInBytes();
-                ReallocateMemory(sizeInBytes, sizeInBytes);
+                ReallocateMemory(sizeInBytes, std::max(sizeInBytes, C_STEP * sizeof(T)));
             }
+
+            assert(mLast < mEnd && "it seems like ReallocIfEnd was passed with errors in ReallocateMemory call");
         }
 
         inline void ReallocIfNeeded(size_t reqSizeInBytes)
@@ -960,6 +968,8 @@ namespace ulib
             {
                 ReallocateMemory(curr, reqSizeInBytes);
             }
+
+            assert(!(SizeInBytes() < reqSizeInBytes) && "it seems like ReallocIfNeeded was passed with errors in ReallocateMemory call");
         }
 
         inline void RequestFreeSpaceB(size_t reqFreeSpace)
@@ -969,6 +979,8 @@ namespace ulib
             {
                 ReallocateMemory(SizeInBytes(), reqFreeSpace);
             }
+
+            assert(!((mEndB - mLastB) < reqFreeSpace) && "it seems like RequestFreeSpaceB was passed with errors in ReallocateMemory call");
         }
 
         inline void RequestFreeSpace(size_t reqFreeSpace) { RequestFreeSpaceB(reqFreeSpace * sizeof(T)); }

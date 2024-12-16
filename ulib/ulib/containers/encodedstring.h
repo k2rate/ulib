@@ -159,8 +159,8 @@ namespace ulib
         {
         }
 
-        inline EncodedString(size_t size, AllocatorParams al = {}) : m(size, al) {}
-        inline EncodedString(args::Capacity capacity, AllocatorParams al = {}) : m(capacity, al) {}
+        inline explicit EncodedString(size_t size, AllocatorParams al = {}) : m(size, al) {}
+        inline explicit EncodedString(args::Capacity capacity, AllocatorParams al = {}) : m(capacity, al) {}
         inline EncodedString(const SelfT &other) : m(other.m) {}
         inline EncodedString(SelfT &&other) : m(std::move(other.m)) {}
         inline EncodedString(ListT &&other) : m(std::move(other)) {}
@@ -315,6 +315,7 @@ namespace ulib
         }
 
         inline bool operator<(ViewT right) const { return LowerThanImpl(right.begin().raw(), right.end().raw()); }
+        inline bool operator>(ViewT right) const { return !LowerThanImpl(right.begin().raw(), right.end().raw()) && *this != right; }
 
         inline SelfT replace(ViewT from, ViewT to) { return SelfT(std::move(m.replace(from, to))); }
         inline SelfT remove_all(ViewT from) { return SelfT(std::move(m.remove_all(from))); }
