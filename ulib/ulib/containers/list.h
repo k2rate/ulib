@@ -21,6 +21,8 @@
 
 #include <stdexcept>
 
+#include "groupby.h"
+
 namespace ulib
 {
     enum class ExpandMemoryPolicy
@@ -908,37 +910,9 @@ namespace ulib
         }
 
         template <class LambdaT, class GroupT = std::invoke_result_t<LambdaT, value_type>>
-        inline List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> group_by(LambdaT pred)
+        inline List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> group_by(LambdaT &&pred)
         {
-            List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> result;
-
-            auto find_package = [&](const GroupT &gr) -> std::pair<GroupT, List<value_type, AllocatorT>> * {
-                for (auto &package : result)
-                {
-                    if (package.first == gr)
-                        return &package;
-                }
-
-                return nullptr;
-            };
-
-            auto get_package = [&](const GroupT &gr) -> std::pair<GroupT, List<value_type, AllocatorT>> & {
-                if (std::pair<GroupT, List<value_type, AllocatorT>> *pPackage = find_package(gr))
-                    return *pPackage;
-
-                auto &package = result.emplace_back();
-                package.first = gr;
-
-                return package;
-            };
-
-            for (auto &info : *this)
-            {
-                auto &package = get_package(pred(info));
-                package.second.push_back(info);
-            }
-
-            return result;
+            return ulib::group_by(*this, std::forward<LambdaT>(pred));
         }
 
     private:

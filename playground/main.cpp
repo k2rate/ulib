@@ -90,6 +90,8 @@ int main()
 {
     test();
     return 0;
+
+    /*
     // int (TMyClass::*pt2ConstMember)(float, char, char) const
 
     // ulib::string_view text0 = "111text111";
@@ -173,6 +175,7 @@ int main()
     {
         printf("s: %s\n", s.c_str());
     }
+    */
 
     // ulib::string str1(str0.begin(), str0.end());
 

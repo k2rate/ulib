@@ -11,17 +11,25 @@ namespace ulib
               class Check = std::enable_if_t<std::is_member_function_pointer_v<std::decay_t<NewPred>> || true>, class... NewArgs>
     auto CreatePredicateView(const SelfT &self, NewPred &&pred, NewArgs &&...args)
     {
-        if constexpr (std::is_member_function_pointer_v<std::decay_t<NewPred>>)
-        {
-            // printf("FN CreatePredicateView(const SelfT &self, NewPred &&pred, NewArgs &&...args)\n");
-            auto fn_pred = [pred, ... args = std::forward<NewArgs>(args)](mem_func_class_t<NewPred> instance) { return ((instance).*pred)(args...); };
-            return ViewT<SelfT, decltype(fn_pred)>{self, std::move(fn_pred)};
-        }
-        else
+        if constexpr (!std::is_member_function_pointer_v<std::decay_t<NewPred>>)
         {
             // printf("CreatePredicateView(const SelfT &self, NewPred &&pred, NewArgs &&...args)\n");
             return ViewT<SelfT, NewPred, NewArgs...>{self, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
         }
+
+        /*
+                if constexpr (std::is_member_function_pointer_v<std::decay_t<NewPred>>)
+                {
+                    // printf("FN CreatePredicateView(const SelfT &self, NewPred &&pred, NewArgs &&...args)\n");
+                    auto fn_pred = [pred, ... args = std::forward<NewArgs>(args)](mem_func_class_t<NewPred> instance) { return
+           ((instance).*pred)(args...); }; return ViewT<SelfT, decltype(fn_pred)>{self, std::move(fn_pred)};
+                }
+                else
+                {
+                    // printf("CreatePredicateView(const SelfT &self, NewPred &&pred, NewArgs &&...args)\n");
+                    return ViewT<SelfT, NewPred, NewArgs...>{self, std::forward<NewPred>(pred), std::forward<NewArgs>(args)...};
+                }
+        */
     }
 
     /*
