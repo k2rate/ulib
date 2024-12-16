@@ -31,6 +31,12 @@ namespace ulib
     };
 
     template <class T, class AllocatorTy = DefaultAllocator>
+    class List;
+
+    // template <class ContT, class LambdaT, class ValueT = typename ContT::value_type, class GroupT = std::invoke_result_t<LambdaT, ValueT>, class
+    // AllocatorT = constainer_choose_ulib_allocator_t<ContT>> List<std::pair<GroupT, List<ValueT>>> group_by(const ContT &cont, LambdaT pred);
+
+    template <class T, class AllocatorTy>
     class List : public Resource<AllocatorTy>
     {
     public:
@@ -896,6 +902,40 @@ namespace ulib
                     result.push_back(*it);
                     ++it;
                 }
+            }
+
+            return result;
+        }
+
+        template <class LambdaT, class GroupT = std::invoke_result_t<LambdaT, value_type>>
+        inline List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> group_by(LambdaT pred)
+        {
+            List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> result;
+
+            auto find_package = [&](const GroupT &gr) -> std::pair<GroupT, List<value_type, AllocatorT>> * {
+                for (auto &package : result)
+                {
+                    if (package.first == gr)
+                        return &package;
+                }
+
+                return nullptr;
+            };
+
+            auto get_package = [&](const GroupT &gr) -> std::pair<GroupT, List<value_type, AllocatorT>> & {
+                if (std::pair<GroupT, List<value_type, AllocatorT>> *pPackage = find_package(gr))
+                    return *pPackage;
+
+                auto &package = result.emplace_back();
+                package.first = gr;
+
+                return package;
+            };
+
+            for (auto &info : *this)
+            {
+                auto &package = get_package(pred(info));
+                package.second.push_back(info);
             }
 
             return result;

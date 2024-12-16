@@ -318,6 +318,12 @@ namespace ulib
 
         inline SelfT replace(ViewT from, ViewT to) { return SelfT(std::move(m.replace(from, to))); }
         inline SelfT remove_all(ViewT from) { return SelfT(std::move(m.remove_all(from))); }
+
+        template <class LambdaT, class GroupT = std::invoke_result_t<LambdaT, value_type>>
+        inline List<std::pair<GroupT, List<value_type, AllocatorT>>, AllocatorT> group_by(LambdaT pred)
+        {
+            return m.group_by(pred);
+        }
         // inline bool operator<(const CharT *right) const { return LowerThanImpl(right); }
 
         // inline bool operator==(const CharT *right) const { return Compare(right); }

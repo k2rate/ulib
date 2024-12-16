@@ -55,8 +55,41 @@ public:
 #define ULIB_ANY_CALL(fn) ([](auto &&...args) { return (fn)(std::forward<decltype(args)>(args)...); })
 #define ULIB_MEM_CALL(fn) ([](auto &instance, auto &&...args) { return ((instance).*(fn))(args...); })
 
+void test()
+{
+    ulib::string str = "abcdefghijklmnop123456789ABCDEFGH~!";
+    auto groupped = str.group_by([](char ch) -> ulib::string {
+        if (std::isdigit(ch))
+            return "digits";
+        else if (std::isupper(ch))
+            return "upper-case chars";
+        else if (std::islower(ch))
+            return "lower-case chars";
+        else
+            return "something else";
+    });
+
+    for (auto &group : groupped)
+    {
+        printf("tag: %s\n", group.first.c_str());
+        for (auto &item : group.second)
+            printf(" - %c\n", item);
+    }
+
+    ulib::list<ulib::string> strs = {"abc", "abd", "cde"};
+
+    for (auto &group : strs.group_by([](const ulib::string &str) -> ulib::string { return str.substr(0, 1); }))
+    {
+        printf("tag: %s\n", group.first.c_str());
+        for (auto &item : group.second)
+            printf(" - %s\n", item.c_str());
+    }
+}
+
 int main()
 {
+    test();
+    return 0;
     // int (TMyClass::*pt2ConstMember)(float, char, char) const
 
     // ulib::string_view text0 = "111text111";
@@ -128,7 +161,6 @@ int main()
     }
 
     printf("Lazy filter/map:\n");
-
     ulib::List lazyFilterMap = testList.filter([](const ulib::string &s) { return !s.starts_with("Tim"); })
                                    .map(&ulib::string::replace, "a", "@")
                                    .map(&ulib::string::replace, "l", "bb")
