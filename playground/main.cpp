@@ -84,6 +84,25 @@ void test()
         for (auto &item : group.second)
             printf(" - %s\n", item.c_str());
     }
+
+    {
+        ulib::List<std::pair<const char *, ulib::List<char>>> groupped = ulib::group_by("abcdefghijklmnop123456789ABCDEFGH~!", [](char ch) {
+            if (std::isdigit(ch))
+                return "digits";
+            else if (std::isupper(ch))
+                return "upper-case chars";
+            else if (std::islower(ch))
+                return "lower-case chars";
+            else
+                return "something else";
+        });
+
+        for (auto &group : groupped)
+        {
+            printf("tag: %s\n", group.first);
+            printf(" - %s\n", ulib::string{group.second}.c_str());
+        }
+    }
 }
 
 int main()

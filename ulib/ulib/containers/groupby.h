@@ -13,8 +13,9 @@ namespace ulib
     template <class T, class A>
     class List;
 
-    template <class GroupResultT = void, class ResultT = void, class ContT = void, class LambdaT = void, class ValueT = typename ContT::value_type,
-              class GroupT = std::invoke_result_t<LambdaT, ValueT>, class AllocatorT = constainer_choose_ulib_allocator_t<ContT>>
+    template <class GroupResultT = void, class ResultT = void, class ContT = void, class LambdaT = void,
+              class ValueT = ulib::determined_value_type_or_die_t<ContT>, class GroupT = std::invoke_result_t<LambdaT, ValueT>,
+              class AllocatorT = constainer_choose_ulib_allocator_t<ContT>>
     auto group_by(const ContT &cont, LambdaT &&pred)
     {
         using default_group_result_type = List<ValueT, AllocatorT>;

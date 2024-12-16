@@ -96,6 +96,7 @@ namespace ulib
     };
 
     ULIB_DEFINE_TYPE_CHECKS(determined_value_type);
+    ULIB_DEFINE_OR_DIE_TYPE_CHECK(determined_value_type);
 
     // -----------
 
