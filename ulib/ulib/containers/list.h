@@ -980,7 +980,7 @@ namespace ulib
                 ReallocateMemory(SizeInBytes(), reqFreeSpace);
             }
 
-            assert(!((mEndB - mLastB) < reqFreeSpace) && "it seems like RequestFreeSpaceB was passed with errors in ReallocateMemory call");
+            assert(!(size_t(mEndB - mLastB) < reqFreeSpace) && "it seems like RequestFreeSpaceB was passed with errors in ReallocateMemory call");
         }
 
         inline void RequestFreeSpace(size_t reqFreeSpace) { RequestFreeSpaceB(reqFreeSpace * sizeof(T)); }
