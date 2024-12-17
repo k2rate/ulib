@@ -670,7 +670,7 @@ namespace ulib
             return Insert(first, last);
         }
 
-        inline iterator insert_front(const_reference v) { return FrontInsert(v); }
+        inline iterator insert_front(const_reference v) { return InsertFront(v); }
         inline iterator insert_front(T &&v) { return InsertFront(std::move(v)); }
         inline iterator insert_front(size_type count, const_reference value) { return InsertFront(count, value); }
         inline iterator insert_front(SpanT right) { return InsertFront(right); }
